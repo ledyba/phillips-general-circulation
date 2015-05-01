@@ -7,6 +7,7 @@ function World(dt,dx,L,sigma,u){
   self.dt = dt;
   self.dx = dx;
   self.step = 0;
+  self.timeUnit = 0.5;
   self.max = Math.round(self.L/self.dx);
   self.opt = {
     animationSteps: 1,
@@ -18,9 +19,9 @@ function World(dt,dx,L,sigma,u){
     // Number - The number of steps in a hard coded scale
     scaleSteps: 10,
     // Number - The value jump in the hard coded scale
-    scaleStepWidth: 0.03,
+    scaleStepWidth: 0.1,
     // Number - The scale starting value
-    scaleStartValue: 0.8,
+    scaleStartValue: 0,
   };
   self.labels = [];
   self.values = [];
@@ -42,32 +43,94 @@ function World(dt,dx,L,sigma,u){
   self.init();
 }
 World.prototype.value = function(i){
+  while(i>=this.max){
+    i-=this.max;
+  }
   while(i<0){
     i+=this.max;
   }
-  while(i>=self.max){
+  return this.values[i];
+};
+World.prototype.last = function(i){
+  while(i>=this.max){
     i-=this.max;
   }
-  return this.values[i].value;
+  while(i<0){
+    i+=this.max;
+  }
+  return this.lastv[i];
 };
 World.prototype.next = function(){
   var self = this;
   if(!self.anim){
     return;
   }
-  self.values = self.chart.datasets[0].points;
   window.setTimeout(function(){
-    for(var i = 0;i<self.max;i++){
-      var x = i * self.dx;
-      self.values[i].value = self.value(i) + self.dt*(-self.u * (self.value(i)-self.value(i-1)/self.dx));
+    if(self.step * self.dt >= 100){
+      //return;
     }
-    self.values[self.max].value = self.values[0].value;
+    var nextTime = (Math.floor(self.step * self.dt/self.timeUnit)+1) * self.timeUnit;
+    while((self.step * self.dt) <= nextTime){
+      //self.stepFowardUpper();
+      //self.stepFowardMiddle();
+      //self.stepLeapFrogUpper();
+      self.stepLeapFrogMiddle();
+      self.step++;
+    }
+    var pts = self.chart.datasets[0].points;
+    for(var i = 0;i<=self.max;i++){
+        pts[i].value = self.value(i);
+    }
     self.chart.update();
     var time = (self.step * self.dt).toFixed( 3 );
-    //console.log("Updated: "+time);
-    self.step++;
     document.getElementById("time").textContent = time;
-  },100);
+  },10);
+};
+World.prototype.stepFowardMiddle = function(){
+  var self = this;
+  var next = [];
+  for(var i = 0;i<self.max;i++){
+    var x = i * self.dx;
+    next.push(self.value(i) + self.dt * (-self.u) * ((self.value(i+1)-self.value(i-1))/(2*self.dx)));
+  }
+  self.values = next;
+};
+World.prototype.stepLeapFrogMiddle = function(){
+  var self = this;
+  if(self.step == 0){
+    self.lastv = self.values;
+    self.stepFowardMiddle();
+    return;
+  }
+  var next = [];
+  for(var i = 0;i<self.max;i++){
+    var x = i * self.dx;
+    next.push(self.last(i) + 2*self.dt * (-self.u) * ((self.value(i+1)-self.value(i-1))/(2*self.dx)));
+  }
+  self.lastv = self.values;
+  self.values = next;
+};
+World.prototype.stepLeapFrogUpper = function(){
+  var self = this;
+  if(self.step == 0){
+    self.lastv = self.values;
+    self.stepFowardMiddle();
+    return;
+  }
+  var next = [];
+  for(var i = 0;i<self.max;i++){
+    var x = i * self.dx;
+    next.push(self.last(i) + 2*self.dt * (-self.u) * ((self.value(i)-self.value(i-1))/(self.dx)));
+  }
+  self.lastv = self.values;
+  self.values = next;
+};
+World.prototype.stepFowardUpper = function(){
+  var self = this;
+  for(var i = 0;i<self.max;i++){
+    var x = i * self.dx;
+    self.values[i] = self.value(i) + self.dt* (-self.u) * ((self.value(i)-self.value(i-1))/self.dx);
+  }
 };
 World.prototype.setChart = function(canvas, chart){
   this.canvas = canvas;
@@ -100,7 +163,7 @@ World.prototype.init = function(){
 };
 
 function main(){
-  var word = new World(/*dt*/0.1, /*dx*/1, /**/ 10,10,1);
+  var word = new World(/*dt*/1, /*dx*/1, /*L*/ 100, /* sigma */10, /*u*/1);
   var canvas = document.getElementById("chart");
   var ctx = canvas.getContext("2d");
   var chart = new Chart(ctx).Line(word.data, word.opt);
