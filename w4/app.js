@@ -1,14 +1,19 @@
-function World(dt,dx,L,sigma,u){
+var g = 9.8/(1000);
+
+function World(dt,dx,H,rho,gamma,L){
   var self = this;
   self.anim = false;
+  //
+  self.H = H;
+  self.rho = rho;
   self.L = L;
-  self.sigma = sigma;
-  self.u = u;
+  self.gamma = gamma;
   self.dt = dt;
   self.dx = dx;
+  //
   self.step = 0;
-  self.timeUnit = 0.5;
-  self.max = Math.round(self.L/self.dx);
+  self.timeUnit = 100;
+  self.mX = Math.round(self.L/self.dx);
   self.opt = {
     animationSteps: 1,
     showTooltips: false,
@@ -17,14 +22,17 @@ function World(dt,dx,L,sigma,u){
 
     // ** Required if scaleOverride is true **
     // Number - The number of steps in a hard coded scale
-    scaleSteps: 10,
+    scaleSteps: 0.01,
     // Number - The value jump in the hard coded scale
-    scaleStepWidth: 0.1,
+    scaleStepWidth: 10,
     // Number - The scale starting value
     scaleStartValue: 0,
   };
   self.labels = [];
-  self.values = [];
+  self.speeds = [];
+  self.etas = [];
+  self.speedsL = [];
+  self.etasL = [];
   self.data = {
       labels: self.labels,
       datasets: [
@@ -36,29 +44,47 @@ function World(dt,dx,L,sigma,u){
             pointStrokeColor: "#fff",
             pointHighlightFill: "#fff",
             pointHighlightStroke: "rgba(151,187,205,1)",
-            data: self.values,
+            data: self.etas,
           },
       ]
   };
   self.init();
 }
-World.prototype.value = function(i){
-  while(i>=this.max){
-    i-=this.max;
+World.prototype.eta = function(i){
+  if(i>=this.mX){
+    return this.etas[this.mX-1];
+  }else if(i<0){
+    return this.etas[0];
+  }else{
+    return this.etas[i];
   }
-  while(i<0){
-    i+=this.max;
-  }
-  return this.values[i];
 };
-World.prototype.last = function(i){
-  while(i>=this.max){
-    i-=this.max;
+World.prototype.etaL = function(i){
+  if(i>=this.mX){
+    return this.etasL[this.mX-1];
+  }else if(i<0){
+    return this.etasL[0];
+  }else{
+    return this.etasL[i];
   }
-  while(i<0){
-    i+=this.max;
+};
+World.prototype.speed = function(i){
+  if(i>=this.mX){
+    return 0;
+  }else if(i<=0){
+    return 0;
+  }else{
+    return this.speeds[i];
   }
-  return this.lastv[i];
+};
+World.prototype.speedL = function(i){
+  if(i>=this.mX){
+    return 0;
+  }else if(i<=0){
+    return 0;
+  }else{
+    return this.speedsL[i];
+  }
 };
 World.prototype.next = function(){
   var self = this;
@@ -71,66 +97,53 @@ World.prototype.next = function(){
     }
     var nextTime = (Math.floor(self.step * self.dt/self.timeUnit)+1) * self.timeUnit;
     while((self.step * self.dt) <= nextTime){
-      //self.stepFowardUpper();
-      //self.stepFowardMiddle();
-      //self.stepLeapFrogUpper();
-      self.stepLeapFrogMiddle();
+      self.stepFunc();
       self.step++;
     }
     var pts = self.chart.datasets[0].points;
-    for(var i = 0;i<=self.max;i++){
-        pts[i].value = self.value(i);
+    for(var i = 0;i<=self.mX;i++){
+        pts[i].value = self.etas[i]+0.05;
     }
     self.chart.update();
     var time = (self.step * self.dt).toFixed( 3 );
     document.getElementById("time").textContent = time;
   },10);
 };
-World.prototype.stepFowardMiddle = function(){
+World.prototype.stepFoward = function(){
   var self = this;
-  var next = [];
-  for(var i = 0;i<self.max;i++){
+  var speed = [];
+  var eta = [];
+  for(var i = 0;i<self.mX;i++){
     var x = i * self.dx;
-    next.push(self.value(i) + self.dt * (-self.u) * ((self.value(i+1)-self.value(i-1))/(2*self.dx)));
+    var s = self.speed(i) + self.dt * (-g * ((self.eta(i) - self.eta(i-1))/self.dx) + (self.gamma/(this.rho*self.H)));
+    var e = self.eta(i) - self.dt * self.H*(self.speed(i+1) - self.speed(i))/self.dx;
+    speed.push(s);
+    eta.push(e);
   }
-  self.values = next;
+  self.speeds = speed;
+  self.etas = eta;
 };
-World.prototype.stepLeapFrogMiddle = function(){
+World.prototype.stepFunc = function(){
   var self = this;
   if(self.step == 0){
-    self.lastv = self.values;
-    self.stepFowardMiddle();
+    self.etasL = self.etas;
+    self.speedsL = self.speeds;
+    self.stepFoward();
     return;
   }
-  var next = [];
-  for(var i = 0;i<self.max;i++){
+  var speed = [];
+  var eta = [];
+  for(var i = 0;i<self.mX;i++){
     var x = i * self.dx;
-    next.push(self.last(i) + 2*self.dt * (-self.u) * ((self.value(i+1)-self.value(i-1))/(2*self.dx)));
+    var s = self.speedL(i) + 2*self.dt * (-g * ((self.eta(i) - self.eta(i-1))/self.dx) + (self.gamma/(this.rho*self.H)));
+    var e = self.etaL(i) - 2*self.dt * self.H*(self.speed(i+1) - self.speed(i))/self.dx;
+    speed.push(s);
+    eta.push(e);
   }
-  self.lastv = self.values;
-  self.values = next;
-};
-World.prototype.stepLeapFrogUpper = function(){
-  var self = this;
-  if(self.step == 0){
-    self.lastv = self.values;
-    self.stepFowardMiddle();
-    return;
-  }
-  var next = [];
-  for(var i = 0;i<self.max;i++){
-    var x = i * self.dx;
-    next.push(self.last(i) + 2*self.dt * (-self.u) * ((self.value(i)-self.value(i-1))/(self.dx)));
-  }
-  self.lastv = self.values;
-  self.values = next;
-};
-World.prototype.stepFowardUpper = function(){
-  var self = this;
-  for(var i = 0;i<self.max;i++){
-    var x = i * self.dx;
-    self.values[i] = self.value(i) + self.dt* (-self.u) * ((self.value(i)-self.value(i-1))/self.dx);
-  }
+  self.etasL = self.etas;
+  self.speedsL = self.speeds;
+  self.speeds = speed;
+  self.etas = eta;
 };
 World.prototype.setChart = function(canvas, chart){
   this.canvas = canvas;
@@ -149,7 +162,7 @@ World.prototype.init = function(){
   var self = this;
   var skipUntil = 0;
   var skipUnit = (self.L)/10;
-  for(var i = 0;i<=self.max;i++){
+  for(var i = 0;i<=self.mX;i++){
     var x = i * self.dx;
     if(skipUntil<=x){
       skipUntil += skipUnit;
@@ -158,12 +171,15 @@ World.prototype.init = function(){
       self.labels.push("");
     }
     var d = (x-self.L/2);
-    self.values.push(Math.exp(-(d*d)/(2*self.sigma*self.sigma)));
+    // 適当な初期値
+    var v = 0.1*Math.exp(-(d*d)/(2*self.L));
+    self.etas.push(0);
+    self.speeds.push(0);
   }
 };
 
 function main(){
-  var word = new World(/*dt*/1, /*dx*/1, /*L*/ 100, /* sigma */10, /*u*/1);
+  var word = new World(/*dt*/10, /*dx*/10, /*H*/ 1, /* rho */1000/(1000*1000), /* gamma */0.1/(1000*1000*1000), /* L */1000);
   var canvas = document.getElementById("chart");
   var ctx = canvas.getContext("2d");
   var chart = new Chart(ctx).Line(word.data, word.opt);
@@ -174,3 +190,4 @@ function main(){
 (function (){
   window.addEventListener("load", main);
 })();
+

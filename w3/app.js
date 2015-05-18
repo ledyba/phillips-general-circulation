@@ -71,10 +71,10 @@ World.prototype.next = function(){
     }
     var nextTime = (Math.floor(self.step * self.dt/self.timeUnit)+1) * self.timeUnit;
     while((self.step * self.dt) <= nextTime){
-      //self.stepFowardUpper();
+      self.stepFowardUpper();
       //self.stepFowardMiddle();
       //self.stepLeapFrogUpper();
-      self.stepLeapFrogMiddle();
+      //self.stepLeapFrogMiddle();
       self.step++;
     }
     var pts = self.chart.datasets[0].points;
@@ -163,7 +163,7 @@ World.prototype.init = function(){
 };
 
 function main(){
-  var word = new World(/*dt*/1, /*dx*/1, /*L*/ 100, /* sigma */10, /*u*/1);
+  var word = new World(/*dt*/0.1, /*dx*/1, /*L*/ 100, /* sigma */10, /*u*/1);
   var canvas = document.getElementById("chart");
   var ctx = canvas.getContext("2d");
   var chart = new Chart(ctx).Line(word.data, word.opt);
