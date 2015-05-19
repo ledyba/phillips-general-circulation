@@ -8,7 +8,7 @@ function Vis(world){
 	self.height = 500;
 	self.x = d3.scale.linear().range([0,  self.width]).domain([0,  world.width+2]);
 	self.y = d3.scale.linear().range([self.height, 0]).domain([0, world.height+2]);
-	self.color = d3.scale.linear().domain([-10,0.0,0.1,0.2,0.3,0.4,0.5,0.6]).range(["#88f","#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#f66", "#f88"]);
+	self.color = d3.scale.linear().domain([-10,-0.5,0.1,0.2,0.3,0.5,0.6,0.7]).range(["#88f","#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#f66", "#f88"]);
 	self.xAxis = d3.svg.axis().scale(self.x).orient("bottom").ticks(20);
 	self.yAxis = d3.svg.axis().scale(self.y).orient("left").ticks(20);
 	self.svg = d3.select("#graph").attr("width", self.width).attr("height", self.height).append("g");
@@ -195,8 +195,8 @@ World.prototype.first = function(){
 		for(var y=0;y<self.height;y++){
 			var v = self.getV(x,y);
 			var u = self.getU(x,y);
-			us[x+1][y+1]=self.getU(x,y)+dt*(f*u - g*((self.getZ(x+1,y)-self.getZ(x-1,y))/(2*dx)) + tx/(rho*H));
-			vs[x+1][y+1]=self.getV(x,y)+dt*(-f*v - g*((self.getZ(x,y+1)-self.getZ(x,y-1))/(2*dy)) + ty/(rho*H));
+			us[x+1][y+1]=self.getU(x,y)+dt*( f*v - g*((self.getZ(x+1,y)-self.getZ(x-1,y))/(2*dx)) + tx/(rho*H));
+			vs[x+1][y+1]=self.getV(x,y)+dt*(-f*u - g*((self.getZ(x,y+1)-self.getZ(x,y-1))/(2*dy)) + ty/(rho*H));
 			zs[x+1][y+1]=self.getZ(x,y)+dt*(-H)*(((self.getU(x+1,y)-self.getU(x-1,y))/(2*dx))+((self.getV(x,y+1)-self.getV(x,y-1))/(2*dy)));
 		}
 	}
@@ -216,8 +216,8 @@ World.prototype.leap = function(){
 		for(var y=0;y<self.height;y++){
 			var v = self.getV(x,y);
 			var u = self.getU(x,y);
-			us[x+1][y+1]=self.getLU(x,y)+dt*2*(f*u - g*((self.getZ(x+1,y)-self.getZ(x-1,y))/(2*dx)) + tx/(rho*H));
-			vs[x+1][y+1]=self.getLV(x,y)+dt*2*(-f*v - g*((self.getZ(x,y+1)-self.getZ(x,y-1))/(2*dy)) + ty/(rho*H));
+			us[x+1][y+1]=self.getLU(x,y)+dt*2*( f*v - g*((self.getZ(x+1,y)-self.getZ(x-1,y))/(2*dx)) + tx/(rho*H));
+			vs[x+1][y+1]=self.getLV(x,y)+dt*2*(-f*u - g*((self.getZ(x,y+1)-self.getZ(x,y-1))/(2*dy)) + ty/(rho*H));
 			zs[x+1][y+1]=self.getLZ(x,y)+dt*2*(-H)*(((self.getU(x+1,y)-self.getU(x-1,y))/(2*dx))+((self.getV(x,y+1)-self.getV(x,y-1))/(2*dy)));
 		}
 	}
@@ -287,7 +287,7 @@ World.prototype.makeWrap = function(w,h,f) {
 
 function main(){
 	var dx=20,dy=20,dt=1;
-	var world = new World(0,dx,dy,dt);
+	var world = new World(1/100,dx,dy,dt);
 	var vis = new Vis(world);
 	vis.anime();
 	var t = 0;
@@ -301,7 +301,7 @@ function main(){
 			if(!enabled){
 				return;
 			}
-			for(var i=0;i<30;i++){
+			for(var i=0;i<300;i++){
 				t += dt;
 				world.next();
 			}
