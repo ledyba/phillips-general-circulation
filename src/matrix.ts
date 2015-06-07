@@ -9,6 +9,9 @@ class Mat {
       this.values = value.slice(0);
     }else{
       this.values = new Array(width*height);
+      for(var k=0;k<width*height;k++){
+        this.values[k] = 0;
+      }
     }
   }
   get(x:number, y:number):number{
@@ -92,8 +95,10 @@ class Mat {
     }
     var cv = new Vector(v.length);
     var diff = 100;
-    while(diff > 0.001){
+    var cnt = 0;
+    while(diff > 0.01 && cnt < 10){
       diff = 0;
+      cnt++;
       for(var k=0;k<v.length;k++){
         var tot = v.values[k];
         for(var l=0;l<v.length;l++){

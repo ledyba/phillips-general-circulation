@@ -43,6 +43,15 @@ class Vector {
     }
     return n;
   }
+  copy(other: Vector): Vector{
+    if(other.length != this.length){
+      throw "Invalid op: "+other.length + "!=" + this.length;
+    }
+    for(var i=0;i<this.length;i++){
+      this.values[i]=other.values[i];
+    }
+    return this;
+  }
   dot(other: Vector): number{
     if(other.length != this.length){
       throw "Invalid op: "+other.length + "!=" + this.length;
