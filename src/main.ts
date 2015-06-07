@@ -9,7 +9,7 @@ window.onload=function(ev:Event){
       ]
     );
     var v = new Vector(4,[3,2,1,0]);
-    var ans = mat.solveByGauss(v);
+    var ans = mat.solveByGaussSeidel(v);
     return ans.toString();
   }
 

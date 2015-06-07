@@ -7,6 +7,9 @@ class Vector {
       this.values = value.slice(0);
     }else{
       this.values = new Array(len);
+      for(var k=0;k<len;k++){
+        this.values[k] = 0;
+      }
     }
   }
   add(other: Vector): Vector{

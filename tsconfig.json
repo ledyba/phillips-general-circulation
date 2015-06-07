@@ -18,6 +18,7 @@
     "files": [
         "./src/main.ts",
         "./src/matrix.ts",
+        "./src/model.ts",
         "./src/vector.ts"
     ]
 }

@@ -52,7 +52,7 @@ class Mat {
     var nm = new Mat(this.width,this.height,this.values);
     return nm;
   }
-  solveByGauss(v:Vector):Vector{
+  solveByGaussErasion(v:Vector):Vector{
     if(this.height < this.width){
       throw "Invalid size, too short: "+this.width+"x"+this.height;
     }
@@ -85,5 +85,27 @@ class Mat {
       ans.values[y] = (nv.values[y]-tot)/nm.get(y,y);
     }
     return ans;
+  }
+  solveByGaussSeidel(v:Vector):Vector{
+    if(v.length != this.height || v.length != this.width){
+      throw "Invalid size: "+this.width+"x"+this.height+" vs "+v.length;
+    }
+    var cv = new Vector(v.length);
+    var diff = 100;
+    while(diff > 0.001){
+      diff = 0;
+      for(var k=0;k<v.length;k++){
+        var tot = v.values[k];
+        for(var l=0;l<v.length;l++){
+          if(k!=l){
+            tot -= this.get(l,k) * cv.values[l];
+          }
+        }
+        var nv = tot/this.get(k,k);
+        diff += (cv.values[k]-nv)*(cv.values[k]-nv);
+        cv.values[k] = nv;
+      }
+    }
+    return cv;
   }
 }
