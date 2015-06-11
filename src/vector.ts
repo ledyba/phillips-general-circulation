@@ -65,4 +65,11 @@ class Vector {
   toString():string{
     return "["+this.values.join(",")+"]";
   }
+  norm(): number{
+    var l = 0;
+    for(var i=0;i<this.length;i++){
+      l += (this.values[i]*this.values[i]);
+    }
+    return Math.sqrt(l);
+  }
 }

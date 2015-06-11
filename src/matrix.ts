@@ -14,11 +14,46 @@ class Mat {
       }
     }
   }
+  static ident(alpha: number, len: number){
+    var m = new Mat(len,len);
+    for (var i=0;i<len;i++){
+      m.set(i,i,alpha);
+    }
+    return m;
+  }
+  static laplace1d(len: number){
+    var m = new Mat(len,len);
+    m.set(0,0,-1);
+    m.set(1,0,-1);
+    for (var i=1;i<len-1;i++){
+      m.set(i-1,i,1);
+      m.set(i+1,i,1);
+      m.set(i  ,i,-2);
+    }
+    m.set(len-1,len-1,1);
+    m.set(len-2,len-1,1);
+    return m;
+  }
+  static laplace2d(len: number){
+    var l2 = len*len;
+    var m = new Mat(l2,l2);
+    m.set(0,0,-1);
+    m.set(1,0,-1);
+    for(var x = 0;x < len;x++){
+      for(var y = 0;y < len;y++){
+
+      }
+    }
+    return m;
+  }
   get(x:number, y:number):number{
     return this.values[y*this.height + x];
   }
   set(x:number, y:number, v:number ):number{
     this.values[y*this.height + x]=v;
+    if(isNaN(v) || !isFinite(v)){
+      throw "oops. result is nan or inf: "+v.toString();
+    }
     return v;
   }
   mulV(v: Vector): Vector{
@@ -51,6 +86,18 @@ class Mat {
     }
     return nm;
   }
+  addM(m: Mat): Mat{
+    if(this.height != m.height || this.width != m.width){
+      throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
+    }
+    for(var y=0;y<this.height;y++){
+      for(var x=0;x<this.width;x++){
+        var i = y*this.height + x;
+        this.values[i] += m.values[i];
+      }
+    }
+    return this;
+  }
   clone():Mat{
     var nm = new Mat(this.width,this.height,this.values);
     return nm;
@@ -64,28 +111,47 @@ class Mat {
     }
     var nm = this.clone();
     var nv = v.clone();
+    var alias = new Array<number>(v.length);
+    for(var i=0;i<v.length;i++){
+      alias[i] = i;
+    }
+    function swap(i: number, j:number){
+      var t = alias[i];
+      alias[i] = alias[j];
+      alias[j] = t;
+    }
     function sub(from: number, to: number, f: number){
-      nv.values[from] -= nv.values[to]*f;
+      nv.values[alias[from]] -= nv.values[alias[to]]*f;
     }
     for(var y=0;y<nm.height-1;y++) {
-      var base = nm.get(y,y);
-      for(var yy=y+1;yy<nm.height;yy++){
-        var f = nm.get(y,yy)/base;
-        nm.set(y,yy,0);
-        for(var k=y+1;k<nm.width;k++){
-          var val = nm.get(k,yy);
-          nm.set(k,yy,val-f*nm.get(k,y));
+      var maxL = y;
+      var max = Math.abs(nm.get(y,alias[y]));
+      for(var k=y+1;k<nm.height;k++){
+        var t = Math.abs(nm.get(y,alias[k]));
+        if(t > max){
+          max = t;
+          maxL = k;
         }
-        sub(yy,y,f);
+      }
+      swap(y,maxL);
+      var base = nm.get(y,alias[y]);
+      for(var yy=y+1;yy<nm.height;yy++){
+        var f = nm.get(y,alias[yy])/base;
+        nm.set(y,alias[yy],0);
+        for(var k=y+1;k<nm.width;k++){
+          var val = nm.get(k,alias[yy]);
+          nm.set(k,alias[yy],val-f*nm.get(k,alias[y]));
+        }
+        sub(alias[yy],alias[y],f);
       }
     }
     var ans = new Vector(nv.length);
     for(var y = nm.height-1;y>=0;y--){
       var tot = 0;
       for(var k = nm.height-1;k>y;k--){
-        tot += nm.get(k,y)*ans.values[k];
+        tot += nm.get(k,y)*ans.values[alias[k]];
       }
-      ans.values[y] = (nv.values[y]-tot)/nm.get(y,y);
+      ans.values[alias[y]] = (nv.values[y]-tot)/nm.get(y,alias[y]);
     }
     return ans;
   }
@@ -107,6 +173,9 @@ class Mat {
           }
         }
         var nv = tot/this.get(k,k);
+        if(isNaN(nv) || !isFinite(nv)){
+          throw "oops. result is nan or inf: "+nv.toString();
+        }
         diff += (cv.values[k]-nv)*(cv.values[k]-nv);
         cv.values[k] = nv;
       }
