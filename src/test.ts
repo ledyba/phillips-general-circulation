@@ -1,4 +1,4 @@
-var f = (function(){
+function testMain(){
   window.onload=function(ev:Event){
     function main0() {
       var a = new Mat(4,4,[-1,1,0,0,1,-2,1,0,0,1,-2,1,0,0,0,1]);
@@ -12,7 +12,7 @@ var f = (function(){
     function main2() {
       var i = 0;
       var len = 5;
-      var a = Mat.laplace2d(len,len);
+      var a = Mat.laplace2d(len,len, true);
       var b = new Vector(len*len);
       for(var i = 0;i<len*len;i++) {
         b.values[i] = 1;
@@ -50,6 +50,5 @@ var f = (function(){
 
   document.body.innerText = main2();
 }
-});
 
-f();
+}
