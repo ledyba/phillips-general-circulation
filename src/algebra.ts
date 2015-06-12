@@ -62,8 +62,22 @@ class Vector {
     }
     return tot;
   }
-  toString():string{
-    return "{{"+this.values.map(function(x){return x.toFixed(3);}).join("},{")+"}}";
+  toString(sepat?: number):string{
+    if (!sepat){
+      sepat = 0;
+    }
+    var line = "{{";
+    for(var i=0;i<this.length;i++){
+      if(i > 0){
+        if(sepat > 0 && i%sepat == 0){
+          line+="},\n{";
+        }else{
+          line+="},{";
+        }
+      }
+      line += this.values[i].toFixed(3);
+    }
+    return line+"}}";
   }
   norm(): number{
     var l = 0;
@@ -118,36 +132,39 @@ class Mat {
     var len = w*h;
     var m = new Mat(len,len);
     function idx(x,y) {
-      return y*w+x;
+      return (y*w)+x;
     }
-    m.set(0,0,-1);
-    m.set(1,0,-1);
     for(var x = 0;x < w;x++){
       for(var y = 0;y < h;y++){
         if (x <= 0){
-          m.set(idx(0,y),idx(x,y),m.get(x,y)-1);
-          m.set(idx(1,y),idx(x,y),m.get(x,y)+1);
+          m.add(idx(0,y),idx(x,y),-1);
+          m.add(idx(1,y),idx(x,y),+1);
         }else if(x >= w-1){
-          m.set(idx(w-2,y),idx(x,y),m.get(x,y)-1);
-          m.set(idx(w-1,y),idx(x,y),m.get(x,y)+1);
+          m.add(idx(w-2,y),idx(x,y),-1);
+          m.add(idx(w-1,y),idx(x,y),+1);
         }else{
-          m.set(idx(x  ,y),idx(x,y),m.get(x,y)+2);
-          m.set(idx(x+1,y),idx(x,y),m.get(x,y)-1);
-          m.set(idx(x-1,y),idx(x,y),m.get(x,y)-1);
+          m.add(idx(x-1,y),idx(x,y),-1);
+          m.add(idx(x  ,y),idx(x,y),+2);
+          m.add(idx(x+1,y),idx(x,y),-1);
         }
         if (y <= 0){
-          m.set(idx(x,0),idx(x,y),m.get(x,y)-1);
-          m.set(idx(x,1),idx(x,y),m.get(x,y)+1);
+          m.add(idx(x,0),idx(x,y),-1);
+          m.add(idx(x,1),idx(x,y),+1);
         }else if(y >= h-1){
-          m.set(idx(x,h-2),idx(x,y),m.get(x,y)-1);
-          m.set(idx(x,h-1),idx(x,y),m.get(x,y)+1);
+          m.add(idx(x,h-2),idx(x,y),-1);
+          m.add(idx(x,h-1),idx(x,y),+1);
         }else{
-          m.set(idx(x,y  ),idx(x,y),m.get(x,y)+2);
-          m.set(idx(x,y+1),idx(x,y),m.get(x,y)-1);
-          m.set(idx(x,y-1),idx(x,y),m.get(x,y)-1);
+          m.add(idx(x,y-1),idx(x,y),-1);
+          m.add(idx(x,y  ),idx(x,y),+2);
+          m.add(idx(x,y+1),idx(x,y),-1);
         }
       }
     }
+    x = w-1;
+    y = h-1;
+    m.set(idx(x,y  ),idx(x,y),1);
+    m.set(idx(x,y-1),idx(x,y),0);
+    m.set(idx(x-1,y),idx(x,y),0);
     return m;
   }
   get(x:number, y:number):number{
@@ -155,6 +172,13 @@ class Mat {
   }
   set(x:number, y:number, v:number ):number{
     this.values[y*this.height + x]=v;
+    if(isNaN(v) || !isFinite(v)){
+      throw "oops. result is nan or inf: "+v.toString();
+    }
+    return v;
+  }
+  add(x:number, y:number, v:number):number{
+    this.values[y*this.height + x] += v;
     if(isNaN(v) || !isFinite(v)){
       throw "oops. result is nan or inf: "+v.toString();
     }
@@ -216,7 +240,7 @@ class Mat {
     var r = "{";
     for(var y=0;y<this.height;y++){
       if(y > 0){
-        r += ",";
+        r += ",\n";
       }
       var line = "{"
       for(var x=0;x<this.width;x++){
@@ -225,7 +249,7 @@ class Mat {
         }
         line += this.get(x,y).toFixed(3);
       }
-      r += line + "}\n";
+      r += line + "}";
     }
     return r+"}";
   }
