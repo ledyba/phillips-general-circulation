@@ -1,4 +1,6 @@
-function testMain(){
+module Test{
+
+export function main(){
   window.onload=function(ev:Event){
     function main0() {
       var a = new Mat(4,4,[-1,1,0,0,1,-2,1,0,0,1,-2,1,0,0,0,1]);
@@ -49,6 +51,8 @@ function testMain(){
   }
 
   document.body.innerText = main2();
+}
+
 }
 
 }
