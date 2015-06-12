@@ -291,6 +291,9 @@ class Mat {
         }
       }
       swap(x,maxL);
+      if(max < 1e-4){
+        throw "Oops. Matrix might not be full ranked: "+(x+1)+"/"+this.height;
+      }
       assertEq(Math.abs(nm.get(x,alias[x])), max);
       var base = nm.get(x,alias[x]);
       for(var target=x+1;target<nm.height;target++){
