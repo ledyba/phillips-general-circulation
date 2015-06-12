@@ -253,7 +253,7 @@ class Mat {
     }
     return r+"}";
   }
-  solveByGaussErasion(v:Vector):Vector{
+  solveByGaussElimination(v:Vector):Vector{
     function assertEq(a:number, b:number){
       if(a != b){
         throw "Assertion failed";
@@ -275,9 +275,6 @@ class Mat {
       var t = alias[i];
       alias[i] = alias[j];
       alias[j] = t;
-    }
-    function pivot(x: number){
-
     }
     for(var x=0;x<nm.height-1;x++) {
       var maxL = x;
