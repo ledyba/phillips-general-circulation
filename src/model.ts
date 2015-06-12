@@ -1,80 +1,63 @@
-// module Model {
-//
-// var W = 100;
-// var H = 100;
-// var lambdaSq = 0;
-// var dt = 1;
-// var A = 0;
-// var k = 0;
-//
-// function idx(x,y):number{
-//   return y*W+x;
-// }
-//
-// function setUpLaplaceMat1d(len: number, alpha: number):Mat{
-//   var m: Mat = new Mat(len,len);
-//   for(var k=1;k<len-1;k++){
-//     m.set(k,k,-2+alpha);
-//   }
-//   for(var k=0;k<len-1;k++){
-//     m.set(k+1,k,1);
-//     m.set(k,k+1,1);
-//   }
-//   m.set(0,0,-1+alpha);
-//   m.set(k-1,k-1,1+alpha);
-//   return m;
-// }
-//
-// function setUpLaplaceMat2d(width: number, height: number, alpha: number):Mat{
-//   var m: Mat = new Mat(width*height,width*height);
-//   for(var x=1;x<W-1;x++){
-//     for(var y=1;y<H-1;y++){
-//       var midx = idx(x,y);
-//       m.set(idx(x,y),midx,-2+alpha);
-//       m.set(idx(x-1,y),midx,1);
-//       m.set(idx(x+1,y),midx,1);
-//       m.set(idx(x,y-1),midx,1);
-//       m.set(idx(x,y+1),midx,1);
-//     }
-//   }
-//   //FIXME:
-//   return m;
-// }
-//
-// var matForPsiPlusAvg  = setUpLaplaceMat1d(H,0);
-// var matForPsiMinusAvg = setUpLaplaceMat1d(H,-2*lambdaSq);
-//
-// var matForPsiPlusDelta  = setUpLaplaceMat2d(W,H,0);
-// var matForPsiMinusDelta = setUpLaplaceMat2d(W,H,-2*lambdaSq);
-//
-// var betaSurface = setUpBetaSurface();
-// var sunEffect = setUpSunEffect();
-//
-// var matForChi1Avg = setUpLaplaceMat1d(H,-1/(A*dt));
-// var matForChi3Avg = setUpLaplaceMat1d(H,-(1+3*k*dt/2)/(A*dt));
-//
-// var matForChi1Delta = setUpLaplaceMat2d(W,H,-1/(A*dt));
-// var matForChi3Delta = setUpLaplaceMat2d(W,H,-(1+3*k*dt/2)/(A*dt));
-//
-// function setUpBetaSurface():Vector{
-//   var v = new Vector(W*H);
-//   return v;
-// }
-// function setUpSunEffect():Vector{
-//   var v = new Vector(W*H);
-//   return v;
-// }
-//
-// function vectAdd(v1: Vector, v2: Vector):Vector{
-//   if(v1.length != v2.length){
-//     throw "Please use same length vectors";
-//   }
-//   var v = new Vector(v1.length);
-//   for(var k=0;k<v.length;k++){
-//     v.values[k] = v1.values[k]+v2.length[k];
-//   }
-//   return v;
-// }
+module Model {
+
+var W = 100;
+var H = 100;
+var lambdaSq = 0;
+var dt = 1;
+var A = 0;
+var k = 0;
+
+function idx(x,y):number{
+  return y*W+x;
+}
+
+function setUpLaplaceMat1d(len: number, alpha: number, beta: number):Mat{
+  var m: Mat = Mat.laplace1d(len);
+  m.set(len-1,len-1,1);
+  m.set(len-2,len-1,0);
+  m.mul(alpha).addM(Mat.ident(len,beta));
+  return m;
+}
+function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Mat{
+  return null;
+  return Mat.laplace2d(w,h).mul(alpha).addM(Mat.ident(w*h, beta))
+}
+
+
+var matForPsiPlusAvg  = setUpLaplaceMat1d(H,1,0);
+var matForPsiMinusAvg = setUpLaplaceMat1d(H,1,-2*lambdaSq);
+
+var matForPsiPlusDelta  = setUpLaplaceMat2d(W,H,1,0);
+var matForPsiMinusDelta = setUpLaplaceMat2d(W,H,1,-2*lambdaSq);
+
+var betaSurface = setUpBetaSurface();
+var sunEffect   = setUpSunEffect();
+
+var matForChi1Avg = setUpLaplaceMat1d(H,(A*dt),-1);
+var matForChi3Avg = setUpLaplaceMat1d(H,(A*dt),-(1+3*k*dt/2));
+
+var matForChi1Delta = setUpLaplaceMat2d(W,H,(A*dt),-1);
+var matForChi3Delta = setUpLaplaceMat2d(W,H,(A*dt),-(1+3*k*dt/2));
+
+function setUpBetaSurface():Vector{
+  var v = new Vector(W*H);
+  return v;
+}
+function setUpSunEffect():Vector{
+  var v = new Vector(W*H);
+  return v;
+}
+
+function vectAdd(v1: Vector, v2: Vector):Vector{
+  if(v1.length != v2.length){
+    throw "Please use same length vectors";
+  }
+  var v = new Vector(v1.length);
+  for(var k=0;k<v.length;k++){
+    v.values[k] = v1.values[k]+v2.length[k];
+  }
+  return v;
+}
 // function vectSub(v1: Vector, v2: Vector):Vector{
 //   if(v1.length != v2.length){
 //     throw "Please use same length vectors";
@@ -205,5 +188,5 @@
 //   }
 //
 // }
-//
-// }
+
+}
