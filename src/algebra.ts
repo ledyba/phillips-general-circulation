@@ -115,7 +115,7 @@ class Mat {
     }
     return m;
   }
-  static laplace1d(len: number){
+  static laplace1d(len: number, neumann?: boolean){
     var m = new Mat(len,len);
     m.set(0,0,-1);
     m.set(1,0,-1);
@@ -124,11 +124,13 @@ class Mat {
       m.set(i+1,i,1);
       m.set(i  ,i,-2);
     }
-    m.set(len-1,len-1,1);
-    m.set(len-2,len-1,1);
+    if(neumann){
+      m.set(len-1,len-1,1);
+      m.set(len-2,len-1,1);
+    }
     return m;
   }
-  static laplace2d(w: number, h:number){
+  static laplace2d(w: number, h:number, neumann?: boolean){
     var len = w*h;
     var m = new Mat(len,len);
     function idx(x,y) {
@@ -160,11 +162,13 @@ class Mat {
         }
       }
     }
-    x = w-1;
-    y = h-1;
-    m.set(idx(x,y  ),idx(x,y),1);
-    m.set(idx(x,y-1),idx(x,y),0);
-    m.set(idx(x-1,y),idx(x,y),0);
+    if(neumann){
+      x = w-1;
+      y = h-1;
+      m.set(idx(x,y  ),idx(x,y),1);
+      m.set(idx(x,y-1),idx(x,y),0);
+      m.set(idx(x-1,y),idx(x,y),0);
+    }
     return m;
   }
   get(x:number, y:number):number{

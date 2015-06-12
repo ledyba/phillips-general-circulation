@@ -19,7 +19,6 @@ function setUpLaplaceMat1d(len: number, alpha: number, beta: number):Mat{
   return m;
 }
 function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Mat{
-  return null;
   return Mat.laplace2d(w,h).mul(alpha).addM(Mat.ident(w*h, beta))
 }
 
