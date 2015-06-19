@@ -1,25 +1,55 @@
 module Model {
 
-var W = 10;
-var H = 10;
-var lambdaSq = 0;
-var dt = 1;
+var W = 15;
+var H = 15;
+var lambdaSq = 1.5*(10e-12)*1000*1000;
+var dt = 24*3600;
 var A = 0;
 var k = 0;
+var dx = 375;
+var dy = 625;
 
 function idx(x,y):number{
   return y*W+x;
 }
 
-function setUpLaplaceMat1d(len: number, alpha: number, beta: number):Mat{
-  return Mat.laplace1d(len, true).mul(alpha).addM(Mat.ident(len,beta));
+function setUpLaplaceMat1d(len: number, alpha: number, beta?: number):Mat{
+  if(beta == null){
+    return Mat.laplace1d(len, true).mul(alpha);
+  }else{
+    return Mat.laplace1d(len, false).mul(alpha).addM(Mat.ident(len,beta));
+  }
 }
 function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Mat{
-  return Mat.laplace2d(w,h,false).mul(alpha).addM(Mat.ident(w*h, beta))
+  var len = w*h;
+  var m = new Mat(len,len);
+  function idx(x,y) {
+    return (y*w)+x;
+  }
+  //FIXME: DX/DY
+  for(var x = 0;x < w;x++){
+    for(var y = 0;y < h;y++){
+      m.add(idx((x-1+W)%W,y),idx(x,y),+1);
+      m.add(idx(x  ,y),idx(x,y),-2);
+      m.add(idx((x+1+W)%W,y),idx(x,y),+1);
+      if (y <= 0){
+        m.add(idx(x,0),idx(x,y),-1);
+        m.add(idx(x,1),idx(x,y),+1);
+      }else if(y >= h-1){
+        m.add(idx(x,h-2),idx(x,y),-1);
+        m.add(idx(x,h-1),idx(x,y),+1);
+      }else{
+        m.add(idx(x,y-1),idx(x,y),+1);
+        m.add(idx(x,y  ),idx(x,y),-2);
+        m.add(idx(x,y+1),idx(x,y),+1);
+      }
+    }
+  }
+  return m.mul(alpha).addM(Mat.ident(w*h, beta))
 }
 
-var matForPsiPlusAvg  = setUpLaplaceMat1d(H,1,0);
-var matForPsiMinusAvg = setUpLaplaceMat1d(H,1,-2*lambdaSq);
+var matForPsiPlusAvg  = setUpLaplaceMat1d(H,1/(dy*dy));
+var matForPsiMinusAvg = setUpLaplaceMat1d(H,1/(dy*dy),-2*lambdaSq);
 
 var matForPsiPlusDelta  = setUpLaplaceMat2d(W,H,1,0);
 var matForPsiMinusDelta = setUpLaplaceMat2d(W,H,1,-2*lambdaSq);
@@ -27,18 +57,32 @@ var matForPsiMinusDelta = setUpLaplaceMat2d(W,H,1,-2*lambdaSq);
 var betaSurface = setUpBetaSurface();
 var sunEffect   = setUpSunEffect();
 
-var matForChi1Avg = setUpLaplaceMat1d(H,(A*dt),-1);
-var matForChi3Avg = setUpLaplaceMat1d(H,(A*dt),-(1+3*k*dt/2));
+var matForChi1Avg = setUpLaplaceMat1d(H,+(A*dt)/(dy*dy),1);
+var matForChi3Avg = setUpLaplaceMat1d(H,+(A*dt)/(dy*dy),(1+3*k*dt/2));
 
-var matForChi1Delta = setUpLaplaceMat2d(W,H,(A*dt),-1);
-var matForChi3Delta = setUpLaplaceMat2d(W,H,(A*dt),-(1+3*k*dt/2));
+var matForChi1Delta = setUpLaplaceMat2d(W,H,-(A*dt),+1);
+var matForChi3Delta = setUpLaplaceMat2d(W,H,-(A*dt),+(1+3*k*dt/2));
 
 function setUpBetaSurface():Vector{
   var m = new Vector(W*H);
   return m;
 }
 function setUpSunEffect():Vector{
+  var H0 = 2*10e-3/1000;
+  var R = 287/1000;
+  var Cp = 1004/1000;
+  var f0 = 10e-6;
+
   var m = new Vector(W*H);
+  var alpha = 4 * R * H0 * lambdaSq * dt / (f0 * Cp * (W*dx));
+  for(var y = 0;y < H;y++){
+    var v = (y-7)*dy*alpha;
+    for(var x = 0;x < W;x++){
+      var i = idx(x,y);
+      m.values[i] = v;
+    }
+  }
+
   return m;
 }
 
@@ -67,27 +111,19 @@ function jacob(v:Vector, w: Vector):Vector{
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
       var dvx, dxy, dwx, dwy;
-      if (x <= 0){
-        dvx = (v.values[idx(x+1,y)] - v.values[idx(x,y)]) * 2;
-        dwy = (w.values[idx(x+1,y)] - w.values[idx(x,y)]) * 2;
-      }else if(x >= W-1){
-        dvx = (v.values[idx(x,y)] - v.values[idx(x-1,y)]) * 2;
-        dwy = (w.values[idx(x,y)] - w.values[idx(x-1,y)]) * 2;
-      }else{
-        dvx = (v.values[idx(x+1,y)] - v.values[idx(x-1,y)]);
-        dwy = (w.values[idx(x+1,y)] - w.values[idx(x-1,y)]);
-      }
+      dvx = (v.values[idx((x+1)%W,y)] - v.values[idx((x-1+W)%W,y)]);
+      dwy = (w.values[idx((x+1)%W,y)] - w.values[idx((x-1+W)%W,y)]);
       if (y <= 0){
-        dvx = (v.values[idx(x,y+1)] - v.values[idx(x,y)]) * 2;
-        dwy = (w.values[idx(x,y+1)] - w.values[idx(x,y)]) * 2;
+        dvx = v.values[idx(x,y+1)];
+        dwy = w.values[idx(x,y+1)];
       }else if(y >= H-1){
-        dvx = (v.values[idx(x,y)] - v.values[idx(x,y-1)]) * 2;
-        dwy = (w.values[idx(x,y)] - w.values[idx(x,y-1)]) * 2;
+        dvx = - v.values[idx(x,y-1)];
+        dwy = - w.values[idx(x,y-1)];
       }else{
         dvx = (v.values[idx(x,y+1)] - v.values[idx(x,y-1)]);
         dwy = (w.values[idx(x,y+1)] - w.values[idx(x,y-1)]);
       }
-      r.values[idx(x,y)] - dxy*dwy - dxy*dwx;
+      r.values[idx(x,y)] = 0;//dxy*dwy - dxy*dwx;
     }
   }
   return r;
@@ -235,22 +271,22 @@ export class Earth{
   }
   calcPsiAvg(){
     var qTot = vectAdd(this.q1avg,this.q3avg);
-    var qSub = vectAdd(this.q1avg,this.q3avg);
+    var qSub = vectSub(this.q1avg,this.q3avg);
     var psiPlus = matForPsiPlusAvg.solveByGaussElimination(qTot);
     var psiMinus = matForPsiMinusAvg.solveByGaussElimination(qSub);
     for(var k=0;k<H;k++){
-      this.psi1avg.values[k] = psiPlus.values[k]+psiMinus.values[k];
-      this.psi3avg.values[k] = psiPlus.values[k]-psiMinus.values[k];
+      this.psi1avg.values[k] = (psiPlus.values[k]+psiMinus.values[k])/2;
+      this.psi3avg.values[k] = (psiPlus.values[k]-psiMinus.values[k])/2;
     }
   }
   calcPsiDelta(){
     var qTot = vectAdd(this.q1delta,this.q3delta);
-    var qSub = vectAdd(this.q1delta,this.q3delta);
+    var qSub = vectSub(this.q1delta,this.q3delta);
     var psiPlus = matForPsiPlusDelta.solveByGaussElimination(qTot);
     var psiMinus = matForPsiMinusDelta.solveByGaussElimination(qSub);
     for(var k=0;k<H*W;k++){
-      this.psi1delta.values[k] = psiPlus.values[k]+psiMinus.values[k];
-      this.psi3delta.values[k] = psiPlus.values[k]-psiMinus.values[k];
+      this.psi1delta.values[k] = (psiPlus.values[k]+psiMinus.values[k])/2;
+      this.psi3delta.values[k] = (psiPlus.values[k]-psiMinus.values[k])/2;
     }
   }
 

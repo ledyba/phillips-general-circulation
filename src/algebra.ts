@@ -117,8 +117,8 @@ class Mat {
   }
   static laplace1d(len: number, neumann?: boolean){
     var m = new Mat(len,len);
+    m.set(1,0,1);
     m.set(0,0,-1);
-    m.set(1,0,-1);
     for (var i=1;i<len-1;i++){
       m.set(i-1,i,1);
       m.set(i+1,i,1);
@@ -126,7 +126,9 @@ class Mat {
     }
     if(neumann){
       m.set(len-1,len-1,1);
-      m.set(len-2,len-1,1);
+    }else{
+      m.set(len-1,len-1,-1);
+      m.set(len-2,len-1,+1);
     }
     return m;
   }
@@ -291,7 +293,7 @@ class Mat {
         }
       }
       swap(x,maxL);
-      if(max < 1e-4){
+      if(max < 1e-20){
         throw "Oops. Matrix might not be full ranked: "+(x+1)+"/"+this.height;
       }
       assertEq(Math.abs(nm.get(x,alias[x])), max);
