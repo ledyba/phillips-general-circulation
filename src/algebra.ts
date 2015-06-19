@@ -3,7 +3,7 @@ class Vector {
   length: number;
   constructor(len: number,value?:Array<number>) {
     this.length = len;
-    if(value){
+    if(value != null){
       this.values = value.slice(0);
     }else{
       this.values = new Array(len);
@@ -107,7 +107,7 @@ class Mat {
   }
   static ident(len: number, alpha?: number){
     var m = new Mat(len,len);
-    if(!alpha){
+    if(alpha == null){
       alpha = 1.0;
     }
     for (var i=0;i<len;i++){
@@ -145,9 +145,9 @@ class Mat {
           m.add(idx(w-2,y),idx(x,y),-1);
           m.add(idx(w-1,y),idx(x,y),+1);
         }else{
-          m.add(idx(x-1,y),idx(x,y),-1);
-          m.add(idx(x  ,y),idx(x,y),+2);
-          m.add(idx(x+1,y),idx(x,y),-1);
+          m.add(idx(x-1,y),idx(x,y),+1);
+          m.add(idx(x  ,y),idx(x,y),-2);
+          m.add(idx(x+1,y),idx(x,y),+1);
         }
         if (y <= 0){
           m.add(idx(x,0),idx(x,y),-1);
@@ -156,9 +156,9 @@ class Mat {
           m.add(idx(x,h-2),idx(x,y),-1);
           m.add(idx(x,h-1),idx(x,y),+1);
         }else{
-          m.add(idx(x,y-1),idx(x,y),-1);
-          m.add(idx(x,y  ),idx(x,y),+2);
-          m.add(idx(x,y+1),idx(x,y),-1);
+          m.add(idx(x,y-1),idx(x,y),+1);
+          m.add(idx(x,y  ),idx(x,y),-2);
+          m.add(idx(x,y+1),idx(x,y),+1);
         }
       }
     }
