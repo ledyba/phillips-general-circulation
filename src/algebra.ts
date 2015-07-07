@@ -1,3 +1,4 @@
+declare var numeric: any;
 class Vector {
   values: Array<number>;
   length: number;
@@ -16,18 +17,14 @@ class Vector {
     if(other.length != this.length){
       throw "Invalid op: "+other.length + "!=" + this.length;
     }
-    for(var i=0;i<this.length;i++){
-      this.values[i]+=other.values[i];
-    }
+    numeric.addeq(this.values, other.values);
     return this;
   }
   sub(other: Vector): Vector{
     if(other.length != this.length){
       throw "Invalid op: "+other.length + "!=" + this.length;
     }
-    for(var i=0;i<this.length;i++){
-      this.values[i]-=other.values[i];
-    }
+    numeric.subeq(this.values, other.values);
     return this;
   }
   mul(f: number): Vector{
@@ -56,11 +53,7 @@ class Vector {
     if(other.length != this.length){
       throw "Invalid op: "+other.length + "!=" + this.length;
     }
-    var tot = 0;
-    for(var i=0;i<this.length;i++){
-      tot += this.values[i]*other.values[i];
-    }
-    return tot;
+    return numeric.dot(this.values, other.values);
   }
   toString(sepat?: number):string{
     if (!sepat){
@@ -80,11 +73,7 @@ class Vector {
     return line+"}}";
   }
   norm(): number{
-    var l = 0;
-    for(var i=0;i<this.length;i++){
-      l += (this.values[i]*this.values[i]);
-    }
-    return Math.sqrt(l);
+    return numeric.norm2(this.values);
   }
 }
 
@@ -92,44 +81,57 @@ class Vector {
 class Mat {
   width: number;
   height: number;
-  private values: Array<number>;
-  constructor(width: number,height: number,value?:Array<number>){
+  private values: Array<Array<number>>;
+  constructor(width: number,height: number,value?:Array<number>, empty?: boolean){
     this.width=width;
     this.height=height;
+    if (empty){
+      return
+    }
     if(value){
-      this.values = value.slice(0);
+      this.values = new Array(height);
+      for(var y=0;y<height;y++){
+        this.values[y] = new Array<number>(width);
+        for(var x=0;x<width;x++){
+          this.values[y][x] = value[y*this.height + x];
+        }
+      }
     }else{
-      this.values = new Array(width*height);
-      for(var k=0;k<width*height;k++){
-        this.values[k] = 0;
+      this.values = new Array(height);
+      for(var y=0;y<height;y++){
+        this.values[y] = new Array<number>(width);
+        for(var x=0;x<width;x++){
+          this.values[y][x] = 0;
+        }
       }
     }
   }
   static ident(len: number, alpha?: number){
-    var m = new Mat(len,len);
-    if(alpha == null){
-      alpha = 1.0;
+    var m = new Mat(len,len, null, true);
+    var vs = numeric.identity(len);
+    if(alpha != null){
+      vs = numeric.mul(alpha, vs);
     }
-    for (var i=0;i<len;i++){
-      m.set(i,i,alpha);
-    }
+    m.values = vs;
     return m;
   }
   static laplace1d(len: number, neumann?: boolean){
-    var m = new Mat(len,len);
-    m.set(1,0,1);
-    m.set(0,0,-1);
+    var m = new Mat(len,len, null, true);
+    var vs = numeric.identity(len);
+    vs[0][1] = 1;
+    vs[0][0] = -1;
     for (var i=1;i<len-1;i++){
-      m.set(i-1,i,1);
-      m.set(i+1,i,1);
-      m.set(i  ,i,-2);
+      vs[i][i-1] = 1;
+      vs[i][i+1] = 1;
+      vs[i][i] = -2;
     }
     if(neumann){
-      m.set(len-1,len-1,1);
+      vs[len-1][len-1] = 1;
     }else{
-      m.set(len-1,len-1,-1);
-      m.set(len-2,len-1,+1);
+      vs[len-1][len-1] = -1;
+      vs[len-1][len-2] = +1;
     }
+    m.values = vs;
     return m;
   }
   static laplace2d(w: number, h:number, neumann?: boolean){
@@ -174,17 +176,17 @@ class Mat {
     return m;
   }
   get(x:number, y:number):number{
-    return this.values[y*this.height + x];
+    return this.values[y][x];
   }
   set(x:number, y:number, v:number ):number{
-    this.values[y*this.height + x]=v;
+    this.values[y][x] = v;
     if(isNaN(v) || !isFinite(v)){
       throw "oops. result is nan or inf: "+v.toString();
     }
     return v;
   }
   add(x:number, y:number, v:number):number{
-    this.values[y*this.height + x] += v;
+    this.values[y][x] += v;
     if(isNaN(v) || !isFinite(v)){
       throw "oops. result is nan or inf: "+v.toString();
     }
@@ -205,8 +207,10 @@ class Mat {
     return nv;
   }
   mul(f: number): Mat{
-    for(var i=0;i<this.values.length;i++){
-      this.values[i] *= f;
+    for(var x=0;x<this.width;x++){
+      for(var y=0;y<this.height;y++){
+        this.values[y][x] *= f;
+      }
     }
     return this;
   }
@@ -214,32 +218,20 @@ class Mat {
     if(this.width != m.height){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
     }
-    var nm = new Mat(m.width, this.height);
-    for(var y=0;y<this.height;y++){
-      for(var x=0;x<m.width;x++){
-        var t = 0;
-        for(var k=0;k<this.width;k++){
-          t += this.get(k,y) * m.get(x,k);
-        }
-        nm.set(x,y,t);
-      }
-    }
+    var nm = new Mat(m.width, this.height, null, true);
+    nm.values = numeric.dot(this.values, m.values);
     return nm;
   }
   addM(m: Mat): Mat{
     if(this.height != m.height || this.width != m.width){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
     }
-    for(var y=0;y<this.height;y++){
-      for(var x=0;x<this.width;x++){
-        var i = y*this.height + x;
-        this.values[i] += m.values[i];
-      }
-    }
+    this.values = numeric.add(this.values, m.values);
     return this;
   }
   clone():Mat{
-    var nm = new Mat(this.width,this.height,this.values);
+    var nm = new Mat(this.width,this.height,null,true);
+    nm.values = numeric.clone(this.values);
     return nm;
   }
   toString():string{
@@ -260,89 +252,14 @@ class Mat {
     return r+"}";
   }
   solveByGaussElimination(v:Vector):Vector{
-    function assertEq(a:number, b:number){
-      if(a != b){
-        throw "Assertion failed";
-      }
-    }
     if(this.height < this.width){
       throw "Invalid size, too short: "+this.width+"x"+this.height;
     }
     if(v.length != this.height){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+v.length;
     }
-    var nm = this.clone();
-    var nv = v.clone();
-    var alias = new Array<number>(v.length);
-    for(var i=0;i<v.length;i++){
-      alias[i] = i;
-    }
-    function swap(i: number, j:number){
-      var t = alias[i];
-      alias[i] = alias[j];
-      alias[j] = t;
-    }
-    for(var x=0;x<nm.height-1;x++) {
-      var maxL = x;
-      var max = Math.abs(nm.get(x,alias[x]));
-      for(var y=x+1;k<nm.height;y++){
-        var t = Math.abs(nm.get(x,alias[y]));
-        if(t > max){
-          max = t;
-          maxL = y;
-        }
-      }
-      swap(x,maxL);
-      if(max < 1e-20){
-        throw "Oops. Matrix might not be full ranked: "+(x+1)+"/"+this.height;
-      }
-      assertEq(Math.abs(nm.get(x,alias[x])), max);
-      var base = nm.get(x,alias[x]);
-      for(var target=x+1;target<nm.height;target++){
-        var f = nm.get(x,alias[target])/base;
-        nm.set(x,alias[target],0);
-        for(var k=x+1;k<nm.width;k++){
-          var val = nm.get(k,alias[target]);
-          nm.set(k,alias[target],val-f*nm.get(k,alias[x]));
-        }
-        nv.values[alias[target]] -= nv.values[alias[x]]*f;
-      }
-    }
-    var ans = new Vector(nv.length);
-    for(var y = nm.height-1;y>=0;y--){
-      var tot = 0;
-      for(var k = nm.height-1;k>y;k--){
-        tot += nm.get(k,alias[y])*ans.values[k];
-      }
-      ans.values[y] = (nv.values[alias[y]]-tot)/nm.get(y,alias[y]);
-    }
-    return ans;
-  }
-  solveByGaussSeidel(v:Vector):Vector{
-    if(v.length != this.height || v.length != this.width){
-      throw "Invalid size: "+this.width+"x"+this.height+" vs "+v.length;
-    }
-    var cv = new Vector(v.length);
-    var diff = 100;
-    var cnt = 0;
-    while(diff > 0.01 && cnt < 10){
-      diff = 0;
-      cnt++;
-      for(var k=0;k<v.length;k++){
-        var tot = v.values[k];
-        for(var l=0;l<v.length;l++){
-          if(k!=l){
-            tot -= this.get(l,k) * cv.values[l];
-          }
-        }
-        var nv = tot/this.get(k,k);
-        if(isNaN(nv) || !isFinite(nv)){
-          throw "oops. result is nan or inf: "+nv.toString();
-        }
-        diff += (cv.values[k]-nv)*(cv.values[k]-nv);
-        cv.values[k] = nv;
-      }
-    }
-    return cv;
+    var ans = numeric.solve(this.values, v.values);
+    var vec = new Vector(v.length, ans);
+    return vec;
   }
 }
