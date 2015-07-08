@@ -101,21 +101,10 @@ class Mat {
   width: number;
   height: number;
   private values: Array<Array<number>>;
-  constructor(width: number,height: number,value?:Array<number>, empty?: boolean){
+  constructor(width: number,height: number, empty?: boolean){
     this.width=width;
     this.height=height;
-    if (empty){
-      return
-    }
-    if(value){
-      this.values = new Array(height);
-      for(var y=0;y<height;y++){
-        this.values[y] = new Array<number>(width);
-        for(var x=0;x<width;x++){
-          this.values[y][x] = value[y*this.height + x];
-        }
-      }
-    }else{
+    if(!empty){
       this.values = new Array(height);
       for(var y=0;y<height;y++){
         this.values[y] = new Array<number>(width);
@@ -126,7 +115,7 @@ class Mat {
     }
   }
   static ident(len: number, alpha?: number){
-    var m = new Mat(len,len, null, true);
+    var m = new Mat(len,len);
     var vs = numeric.identity(len);
     if(alpha != null){
       vs = numeric.mul(alpha, vs);
@@ -135,7 +124,7 @@ class Mat {
     return m;
   }
   static laplace1d(len: number, neumann?: boolean){
-    var m = new Mat(len,len, null, true);
+    var m = new Mat(len,len,true);
     var vs = numeric.identity(len);
     vs[0][1] = 1;
     vs[0][0] = -1;
@@ -151,47 +140,6 @@ class Mat {
       vs[len-1][len-2] = +1;
     }
     m.values = vs;
-    return m;
-  }
-  static laplace2d(w: number, h:number, neumann?: boolean){
-    var len = w*h;
-    var m = new Mat(len,len);
-    function idx(x,y) {
-      return (y*w)+x;
-    }
-    for(var x = 0;x < w;x++){
-      for(var y = 0;y < h;y++){
-        if (x <= 0){
-          m.add(idx(0,y),idx(x,y),-1);
-          m.add(idx(1,y),idx(x,y),+1);
-        }else if(x >= w-1){
-          m.add(idx(w-2,y),idx(x,y),-1);
-          m.add(idx(w-1,y),idx(x,y),+1);
-        }else{
-          m.add(idx(x-1,y),idx(x,y),+1);
-          m.add(idx(x  ,y),idx(x,y),-2);
-          m.add(idx(x+1,y),idx(x,y),+1);
-        }
-        if (y <= 0){
-          m.add(idx(x,0),idx(x,y),-1);
-          m.add(idx(x,1),idx(x,y),+1);
-        }else if(y >= h-1){
-          m.add(idx(x,h-2),idx(x,y),-1);
-          m.add(idx(x,h-1),idx(x,y),+1);
-        }else{
-          m.add(idx(x,y-1),idx(x,y),+1);
-          m.add(idx(x,y  ),idx(x,y),-2);
-          m.add(idx(x,y+1),idx(x,y),+1);
-        }
-      }
-    }
-    if(neumann){
-      x = w-1;
-      y = h-1;
-      m.set(idx(x,y  ),idx(x,y),1);
-      m.set(idx(x,y-1),idx(x,y),0);
-      m.set(idx(x-1,y),idx(x,y),0);
-    }
     return m;
   }
   get(x:number, y:number):number{
@@ -218,18 +166,14 @@ class Mat {
     return new Vector(this.height, numeric.dot(this.values, v.values));
   }
   mul(f: number): Mat{
-    for(var x=0;x<this.width;x++){
-      for(var y=0;y<this.height;y++){
-        this.values[y][x] *= f;
-      }
-    }
+    this.values = numeric.mul(f,this.values);
     return this;
   }
   mulM(m: Mat): Mat{
     if(this.width != m.height){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
     }
-    var nm = new Mat(m.width, this.height, null, true);
+    var nm = new Mat(m.width, this.height, true);
     nm.values = numeric.dot(this.values, m.values);
     return nm;
   }
@@ -241,7 +185,7 @@ class Mat {
     return this;
   }
   clone():Mat{
-    var nm = new Mat(this.width,this.height,null,true);
+    var nm = new Mat(this.width,this.height);
     nm.values = numeric.clone(this.values);
     return nm;
   }
