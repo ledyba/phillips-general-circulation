@@ -13,40 +13,48 @@ class Vector {
       }
     }
   }
-  add(other: Vector): Vector{
+  addeq(other: Vector): Vector{
     if(other.length != this.length){
       throw "Invalid op: "+other.length + "!=" + this.length;
     }
     numeric.addeq(this.values, other.values);
     return this;
   }
-  sub(other: Vector): Vector{
+  subeq(other: Vector): Vector{
     if(other.length != this.length){
       throw "Invalid op: "+other.length + "!=" + this.length;
     }
     numeric.subeq(this.values, other.values);
     return this;
   }
-  mul(f: number): Vector{
+  add(other: Vector): Vector{
+    if(other.length != this.length){
+      throw "Invalid op: "+other.length + "!=" + this.length;
+    }
+    return new Vector(this.length, numeric.add(this.values, other.values));
+  }
+  sub(other: Vector): Vector{
+    if(other.length != this.length){
+      throw "Invalid op: "+other.length + "!=" + this.length;
+    }
+    return new Vector(this.length, numeric.sub(this.values, other.values));
+  }
+  muleq(f: number): Vector{
     for(var i=0;i<this.length;i++){
       this.values[i]*=f;
     }
     return this;
   }
-  clone(): Vector{
-    var n = new Vector(this.length);
-    for(var i=0;i<this.length;i++){
-      n.values[i]=this.values[i];
-    }
-    return n;
+  mul(f: number): Vector{
+    return new Vector(this.length, numeric.mul(f, this.values));
   }
-  copy(other: Vector): Vector{
+  swap(other: Vector): Vector{
     if(other.length != this.length){
       throw "Invalid op: "+other.length + "!=" + this.length;
     }
-    for(var i=0;i<this.length;i++){
-      this.values[i]=other.values[i];
-    }
+    var t = this.values;
+    this.values = other.values;
+    other.values = t;
     return this;
   }
   dot(other: Vector): number{
@@ -159,35 +167,21 @@ class Mat {
     }
     return v;
   }
-  mulV(v: Vector): Vector{
-    if(v.length != this.width){
-      throw "Invalid size: "+this.width+"x"+this.height+" vs "+v.length;
-    }
-    return new Vector(this.height, numeric.dot(this.values, v.values));
-  }
-  mul(f: number): Mat{
+  muleq(f: number): Mat{
     this.values = numeric.mul(f,this.values);
     return this;
   }
-  mulM(m: Mat): Mat{
-    if(this.width != m.height){
-      throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
-    }
-    var nm = new Mat(m.width, this.height, true);
-    nm.values = numeric.dot(this.values, m.values);
-    return nm;
+  mul(f: number): Mat{
+    var m = new Mat(this.width,this.height, true);
+    m.values = numeric.mul(f,this.values);
+    return m;
   }
-  addM(m: Mat): Mat{
+  addeq(m: Mat): Mat{
     if(this.height != m.height || this.width != m.width){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
     }
     numeric.addeq(this.values, m.values);
     return this;
-  }
-  clone():Mat{
-    var nm = new Mat(this.width,this.height);
-    nm.values = numeric.clone(this.values);
-    return nm;
   }
   toString():string{
     var r = "{";

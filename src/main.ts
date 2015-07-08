@@ -76,21 +76,30 @@ class EarchRunner {
 }
 function main(){
   var id;
+  var stepPerAnim = 10;
+  var r:EarchRunner;
+  var step = function(){
+    for(var k=0;k<stepPerAnim;k++){
+      r.step();
+    }
+    r.anime();
+    //stop();
+  };
+  var stop = function(){
+    clearInterval(id);
+    id = null;
+  };
+  var start = function(){
+    id = window.setInterval(step, 100);
+  };
   window.onload=function(ev:Event){
-    var r = new EarchRunner();
-    var step = function(){
-      for(var k=0;k<10;k++){
-        r.step();
-      }
-      r.anime();
-    };
+    r = new EarchRunner();
     var gr = document.getElementById("graph");
     gr.onclick = function(){
       if(id){
-        clearInterval(id);
-        id = null;
+        stop();
       }else{
-        id = window.setInterval(step, 100);
+        start();
       }
     };
 

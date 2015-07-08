@@ -4,9 +4,7 @@ export var dx = 375*1000;
 export var dy = 625*1000;
 
 export var W = 16;
-export var H = 16;
-export var WL = W*dx;
-export var HL = (H)*dy;
+export var H = 15;
 
 var lambdaSq = 1.5*(1e-12);
 export var dt = 24*3600/10;
@@ -27,9 +25,9 @@ export function idx(x,y):number{
 
 function setUpLaplaceMat1d(len: number, alpha: number, beta?: number):Mat{
   if(beta == null){
-    return Mat.laplace1d(len, true).mul(alpha);
+    return Mat.laplace1d(len, true).muleq(alpha);
   }else{
-    return Mat.laplace1d(len, false).mul(alpha).addM(Mat.ident(len,beta));
+    return Mat.laplace1d(len, false).muleq(alpha).addeq(Mat.ident(len,beta));
   }
 }
 function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Mat{
@@ -44,11 +42,11 @@ function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Ma
       m.add(idx(x  ,y),idx(x,y),-2 / (dx*dx));
       m.add(idx((x+1+W)%W,y),idx(x,y),+1 / (dx*dx));
       if (y <= 0){
-        m.add(idx(x,0),idx(x,y),-1 / (dy*dy));
-        m.add(idx(x,1),idx(x,y),+1 / (dy*dy));
-      }else if(y >= h-1){
-        m.add(idx(x,h-2),idx(x,y),-1 / (dy*dy));
-        m.add(idx(x,h-1),idx(x,y),+1 / (dy*dy));
+        m.add(idx(x,y  ),idx(x,y),-1 / (dy*dy));
+        m.add(idx(x,y+1),idx(x,y),+1 / (dy*dy));
+      }else if(y >= (h-1)){
+        m.add(idx(x,y-1),idx(x,y),+1 / (dy*dy));
+        m.add(idx(x,y  ),idx(x,y),-1 / (dy*dy));
       }else{
         m.add(idx(x,y-1),idx(x,y),+1 / (dy*dy));
         m.add(idx(x,y  ),idx(x,y),-2 / (dy*dy));
@@ -56,7 +54,7 @@ function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Ma
       }
     }
   }
-  return m.mul(alpha).addM(Mat.ident(w*h, beta))
+  return m.muleq(alpha).addeq(Mat.ident(w*h, beta))
 }
 
 var matForPsiPlusAvg  = setUpLaplaceMat1d(H,1/(dy*dy));
@@ -76,8 +74,9 @@ var matForChi3DeltaLU = setUpLaplaceMat2d(W,H,-(A*dt),+1+(3*k*dt/2)).LU();
 
 function setUpBetaSurface():Vector{
   var m = new Vector(W*H);
+  var cy = (H-1)/2;
   for(var y = 0;y < H;y++){
-    var v = (y-7)*dy*beta;
+    var v = (y-cy)*dy*beta;
     for(var x = 0;x < W;x++){
       var i = idx(x,y);
       m.values[i] = v;
@@ -88,9 +87,10 @@ function setUpBetaSurface():Vector{
 function setUpSunEffect():Vector{
 
   var m = new Vector(W*H);
-  var alpha = 4 * R * H0 * lambdaSq * dt / (f0 * Cp * Model.HL/2);
+  var alpha = 4 * R * H0 * lambdaSq * dt / (f0 * Cp * ((H+1)/2));
+  var cy = (H-1)/2;
   for(var y = 0;y < H;y++){
-    var v = (y-7)*dy*alpha;
+    var v = (y-cy)*alpha;
     for(var x = 0;x < W;x++){
       var i = idx(x,y);
       m.values[i] = v;
@@ -100,42 +100,22 @@ function setUpSunEffect():Vector{
   return m;
 }
 
-function vectAdd(v1: Vector, v2: Vector):Vector{
-  if(v1.length != v2.length){
-    throw "Please use same length vectors";
-  }
-  var v = new Vector(v1.length);
-  for(var k=0;k<v.length;k++){
-    v.values[k] = v1.values[k]+v2.values[k];
-  }
-  return v;
-}
-function vectSub(v1: Vector, v2: Vector):Vector{
-  if(v1.length != v2.length){
-    throw "Please use same length vectors";
-  }
-  var v = new Vector(v1.length);
-  for(var k=0;k<v.length;k++){
-    v.values[k] = v1.values[k]-v2.values[k];
-  }
-  return v;
-}
 function jacob(v:Vector, w: Vector):Vector{
   var r = new Vector(v.length);
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
       var dvx, dvy, dwx, dwy;
-      dvx = (v.values[idx((x+1)%W,y)] - v.values[idx((x-1+W)%W,y)]) / dx;
-      dwx = (w.values[idx((x+1)%W,y)] - w.values[idx((x-1+W)%W,y)]) / dx;
+      dvx = (v.values[idx((x+1)%W,y)] - v.values[idx((x-1+W)%W,y)]) / (2*dx);
+      dwx = (w.values[idx((x+1)%W,y)] - w.values[idx((x-1+W)%W,y)]) / (2*dx);
       if (y <= 0){
-        dvy = v.values[idx(x,y+1)] / dy;
-        dwy = w.values[idx(x,y+1)] / dy;
+        dvy = v.values[idx(x,y+1)] / (2*dy);
+        dwy = w.values[idx(x,y+1)] / (2*dy);
       }else if(y >= H-1){
-        dvy = - v.values[idx(x,y-1)] / dy;
-        dwy = - w.values[idx(x,y-1)] / dy;
+        dvy = - v.values[idx(x,y-1)] / (2*dy);
+        dwy = - w.values[idx(x,y-1)] / (2*dy);
       }else{
-        dvy = (v.values[idx(x,y+1)] - v.values[idx(x,y-1)]) / dy;
-        dwy = (w.values[idx(x,y+1)] - w.values[idx(x,y-1)]) / dy;
+        dvy = (v.values[idx(x,y+1)] - v.values[idx(x,y-1)]) / (2*dy);
+        dwy = (w.values[idx(x,y+1)] - w.values[idx(x,y-1)]) / (2*dy);
       }
       r.values[idx(x,y)] = dvx*dwy - dvy*dwx;
     }
@@ -185,7 +165,7 @@ function average(v:Vector):Vector{
     for(var x = 0;x < W; x++){
       tot += v.values[idx(x,y)];
     }
-    avg.values[y] = tot/H;
+    avg.values[y] = tot/W;
   }
   return avg;
 }
@@ -223,10 +203,10 @@ export class Earth{
   temp = new Array<Array<number>>(H);
 
   constructor(){
-    this.q1.add(sunEffect).mul(1/2);
-    this.q3.sub(sunEffect).mul(1/2);
-    this.q1avg.copy(average(this.q1));
-    this.q3avg.copy(average(this.q3));
+    this.q1.addeq(sunEffect).muleq(1/2);
+    this.q3.subeq(sunEffect).muleq(1/2);
+    this.q1avg.swap(average(this.q1));
+    this.q3avg.swap(average(this.q3));
 
     for(var y=0;y<H;y++){
       this.height[y] = new Array<number>(W);
@@ -256,7 +236,6 @@ export class Earth{
       //u1.values[k] = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
       //z1.values[k] = this.q1avg.values[k] + lambdaSq * (this.psi1avg.values[k] - this.psi3avg.values[k]);
     }
-    console.log("Hmm...");
   }
 
   private addNoise(){
@@ -268,19 +247,19 @@ export class Earth{
 
   calcChi1():Vector{
     var chi1 = new Vector(W*H);
-    chi1.add(this.q1last);
-    chi1.add(jacob(this.q1.clone().add(betaSurface),this.psi1).mul(2*dt));
-    chi1.add(laplace(this.q1last).mul(A*dt));
-    chi1.add(sunEffect);
+    chi1.addeq(this.q1last);
+    chi1.addeq(jacob(this.q1.add(betaSurface),this.psi1).muleq(2*dt));
+    chi1.addeq(laplace(this.q1last).muleq(A*dt));
+    chi1.addeq(sunEffect);
     return chi1;
   }
   calcChi3():Vector{
     var chi3 = new Vector(W*H);
-    chi3.add(this.q3last);
-    chi3.add(jacob(this.q3.clone().add(betaSurface),this.psi3).mul(2*dt));
-    chi3.add(laplace(this.q3last).mul(A*dt));
-    chi3.sub(sunEffect);
-    chi3.sub((this.q3last.clone().mul(3/2).sub(this.q1last).sub(this.psi1last.clone().sub(this.psi3last).mul(4*lambdaSq))).mul(k*dt));
+    chi3.addeq(this.q3last);
+    chi3.addeq(jacob(this.q3.add(betaSurface),this.psi3).mul(2*dt));
+    chi3.addeq(laplace(this.q3last).muleq(A*dt));
+    chi3.subeq(sunEffect);
+    chi3.subeq((this.q3last.mul(3/2).subeq(this.q1last).subeq(this.psi1last.sub(this.psi3last).muleq(4*lambdaSq))).muleq(k*dt));
     return chi3;
   }
   calcQ(){
@@ -291,13 +270,13 @@ export class Earth{
     var chi3avg = average(chi3);
     var chi1delta = delta(chi1,chi1avg);
     var chi3delta = delta(chi3,chi3avg);
-    this.q1avg.copy(matForChi1Avg.solve(chi1avg));
-    this.q3avg.copy(matForChi3Avg.solve(chi3avg));
-    //this.q1delta.copy(matForChi1DeltaLU.solve(chi1delta));
-    //this.q3delta.copy(matForChi3DeltaLU.solve(chi3delta));
+    this.q1avg.swap(matForChi1Avg.solve(chi1avg));
+    this.q3avg.swap(matForChi3Avg.solve(chi3avg));
+    this.q1delta.swap(matForChi1DeltaLU.solve(chi1delta));
+    this.q3delta.swap(matForChi3DeltaLU.solve(chi3delta));
 
-    this.q1last.copy(this.q1);
-    this.q3last.copy(this.q3);
+    this.q1last.swap(this.q1);
+    this.q3last.swap(this.q3);
     for(var y=0;y<H;y++){
       var q1avg = this.q1avg.values[y];
       var q3avg = this.q3avg.values[y];
@@ -310,9 +289,9 @@ export class Earth{
   }
   calcPsi(){
     this.calcPsiAvg();
-    //this.calcPsiDelta();
-    this.psi1last.copy(this.psi1);
-    this.psi3last.copy(this.psi3);
+    this.calcPsiDelta();
+    this.psi1last.swap(this.psi1);
+    this.psi3last.swap(this.psi3);
     for(var y=0;y<H;y++){
       var p1avg = this.psi1avg.values[y];
       var p3avg = this.psi3avg.values[y];
@@ -324,8 +303,8 @@ export class Earth{
     }
   }
   calcPsiAvg(){
-    var qTot = vectAdd(this.q1avg,this.q3avg);
-    var qSub = vectSub(this.q1avg,this.q3avg);
+    var qTot = this.q1avg.add(this.q3avg);
+    var qSub = this.q1avg.sub(this.q3avg);
     var psiPlus = matForPsiPlusAvg.solve(qTot);
     var psiMinus = matForPsiMinusAvg.solve(qSub);
     for(var k=0;k<H;k++){
@@ -334,8 +313,8 @@ export class Earth{
     }
   }
   calcPsiDelta(){
-    var qTot = vectAdd(this.q1delta,this.q3delta);
-    var qSub = vectSub(this.q1delta,this.q3delta);
+    var qTot = this.q1delta.add(this.q3delta);
+    var qSub = this.q1delta.sub(this.q3delta);
     var psiPlus = matForPsiPlusDeltaLU.solve(qTot);
     var psiMinus = matForPsiMinusDeltaLU.solve(qSub);
     for(var k=0;k<H*W;k++){
