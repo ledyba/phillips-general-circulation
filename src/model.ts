@@ -3,12 +3,11 @@ module Model {
 export var dx = 375*1000;
 export var dy = 625*1000;
 
-export var W = 17;
-export var H = 15;
+export var W = 16;
+export var H = 16;
 export var WL = W*dx;
-export var HL = H*dy;
+export var HL = (H)*dy;
 
-var HEIGHT = 16 * dy;
 var lambdaSq = 1.5*(1e-12);
 export var dt = 24*3600/10;
 var A = 1e5;
@@ -60,8 +59,8 @@ function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Ma
   return m.mul(alpha).addM(Mat.ident(w*h, beta))
 }
 
-var matForPsiPlusAvgLU  = setUpLaplaceMat1d(H,1/(dy*dy)).LU();
-var matForPsiMinusAvgLU = setUpLaplaceMat1d(H,1/(dy*dy),-2*lambdaSq).LU();
+var matForPsiPlusAvg  = setUpLaplaceMat1d(H,1/(dy*dy));
+var matForPsiMinusAvg = setUpLaplaceMat1d(H,1/(dy*dy),-2*lambdaSq);
 
 var matForPsiPlusDeltaLU  = setUpLaplaceMat2d(W,H,1,0).LU();
 var matForPsiMinusDeltaLU = setUpLaplaceMat2d(W,H,1,-2*lambdaSq).LU();
@@ -69,8 +68,8 @@ var matForPsiMinusDeltaLU = setUpLaplaceMat2d(W,H,1,-2*lambdaSq).LU();
 var betaSurface = setUpBetaSurface();
 var sunEffect   = setUpSunEffect();
 
-var matForChi1AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),+1).LU();
-var matForChi3AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),+1+(3*k*dt/2)).LU();
+var matForChi1Avg = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),+1);
+var matForChi3Avg = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),+1+(3*k*dt/2));
 
 var matForChi1DeltaLU = setUpLaplaceMat2d(W,H,-(A*dt),+1).LU();
 var matForChi3DeltaLU = setUpLaplaceMat2d(W,H,-(A*dt),+1+(3*k*dt/2)).LU();
@@ -89,7 +88,7 @@ function setUpBetaSurface():Vector{
 function setUpSunEffect():Vector{
 
   var m = new Vector(W*H);
-  var alpha = 4 * R * H0 * lambdaSq * dt / (f0 * Cp * HEIGHT/2);
+  var alpha = 4 * R * H0 * lambdaSq * dt / (f0 * Cp * Model.HL/2);
   for(var y = 0;y < H;y++){
     var v = (y-7)*dy*alpha;
     for(var x = 0;x < W;x++){
@@ -292,8 +291,8 @@ export class Earth{
     var chi3avg = average(chi3);
     var chi1delta = delta(chi1,chi1avg);
     var chi3delta = delta(chi3,chi3avg);
-    this.q1avg.copy(matForChi1AvgLU.solve(chi1avg));
-    this.q3avg.copy(matForChi3AvgLU.solve(chi3avg));
+    this.q1avg.copy(matForChi1Avg.solve(chi1avg));
+    this.q3avg.copy(matForChi3Avg.solve(chi3avg));
     //this.q1delta.copy(matForChi1DeltaLU.solve(chi1delta));
     //this.q3delta.copy(matForChi3DeltaLU.solve(chi3delta));
 
@@ -327,8 +326,8 @@ export class Earth{
   calcPsiAvg(){
     var qTot = vectAdd(this.q1avg,this.q3avg);
     var qSub = vectSub(this.q1avg,this.q3avg);
-    var psiPlus = matForPsiPlusAvgLU.solve(qTot);
-    var psiMinus = matForPsiMinusAvgLU.solve(qSub);
+    var psiPlus = matForPsiPlusAvg.solve(qTot);
+    var psiMinus = matForPsiMinusAvg.solve(qSub);
     for(var k=0;k<H;k++){
       this.psi1avg.values[k] = (psiPlus.values[k]+psiMinus.values[k])/2;
       this.psi3avg.values[k] = (psiPlus.values[k]-psiMinus.values[k])/2;
