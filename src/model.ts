@@ -39,7 +39,7 @@ function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Ma
   for(var x = 0;x < w;x++){
     for(var y = 0;y < h;y++){
       m.add(idx((x-1+W)%W,y),idx(x,y),+1 / (dx*dx));
-      m.add(idx(x  ,y),idx(x,y),-2 / (dx*dx));
+      m.add(idx( x       ,y),idx(x,y),-2 / (dx*dx));
       m.add(idx((x+1+W)%W,y),idx(x,y),+1 / (dx*dx));
       if (y <= 0){
         m.add(idx(x,y  ),idx(x,y),-1 / (dy*dy));
@@ -54,7 +54,7 @@ function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Ma
       }
     }
   }
-  return m.muleq(alpha).addeq(Mat.ident(w*h, beta))
+  return m.muleq(alpha).addeq(Mat.ident(w*h, beta));
 }
 
 var matForPsiPlusAvg  = setUpLaplaceMat1d(H,1/(dy*dy));
