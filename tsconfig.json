@@ -17,7 +17,6 @@
     ],
     "files": [
         "./src/algebra.ts",
-        "./src/d3.d.ts",
         "./src/main.ts",
         "./src/model.ts",
         "./src/test.ts"

@@ -1,8 +1,14 @@
+declare var Conrec: any;
+declare var d3: any;
 class EarchRunner {
   earth = new Model.Earth();
+  conrec = new Conrec;
   time = 0;
   stepCnt = 0;
   ranges: Array<Object>;
+  xranges = Array<number>(Model.W);
+  yranges = Array<number>(Model.H);
+  zranges = Array<number>();
   width =  Model.W*20;
   height =  Model.H*30;
   x = d3.scale.linear().range([0, this.width]).domain([0, Model.W]);
@@ -14,6 +20,16 @@ class EarchRunner {
       for (var y = 0; y < Model.H; y++) {
         this.ranges.push({x: x, y: y});
       }
+    }
+    for (var x = 0; x < Model.W; x++) {
+      this.xranges[x] = x;
+    }
+    for (var y = 0; y < Model.H; y++) {
+    this.xranges[y] = y;
+    }
+    var ZL = 1000*10;
+    for (var z = -ZL; z <+ZL; z+=1000) {
+      this.zranges.push(z);
     }
     d3.select("#graph")
      .attr("width", this.width)
@@ -39,12 +55,23 @@ class EarchRunner {
     var x = this.x;
     var y = this.y;
     var colours = this.colours;
-    ;
     t.style("fill",function(d){ return colours(earth.temp[d.y][d.x]); })
       .attr("x",function(d) { return x(d.x); })
       .attr("y",function(d) { return y(d.y+1); })
       .attr("width", x(1))
       .attr("height", Math.abs(y(0)-y(1)));
+    this.conrec.contour(this.earth.height, 0, Model.H-1, 0, Model.W-1, this.xranges, this.yranges, this.zranges.length, this.zranges);
+    try {
+      svg.selectAll("path")
+        .data(this.conrec.contourList())
+      .enter().append("path")
+        .style("stroke","black")
+        .attr("d", d3.svg.line()
+          .x(function(d) { return x(d.x); })
+          .y(function(d) { return y(d.y); }));
+    } catch(e){
+
+    }
   }
 }
 function main(){
