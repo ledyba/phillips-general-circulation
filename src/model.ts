@@ -1,14 +1,16 @@
 module Model {
 
-var dx = 375*1000;
-var dy = 625*1000;
+export var dx = 375*1000;
+export var dy = 625*1000;
 
-var W = 15;
-var H = 15;
+export var W = 17;
+export var H = 15;
+export var WL = W*dx;
+export var HL = H*dy;
+
 var HEIGHT = 16 * dy;
 var lambdaSq = 1.5*(1e-12);
-export var TRY = 1300;
-var dt = 24*3600/10;
+export var dt = 24*3600/10;
 var A = 1e5;
 var k = 4e-6;
 
@@ -19,7 +21,8 @@ var Cp = 1004;
 var beta = 1.6*(1e-11);
 
 var NOISE=2.8e6;
-function idx(x,y):number{
+
+export function idx(x,y):number{
   return y*W+x;
 }
 
@@ -60,16 +63,14 @@ function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Ma
 var matForPsiPlusAvgLU  = setUpLaplaceMat1d(H,1/(dy*dy)).LU();
 var matForPsiMinusAvgLU = setUpLaplaceMat1d(H,1/(dy*dy),-2*lambdaSq).LU();
 
-//console.log(setUpLaplaceMat2d(W,H,1,0).mul(dx*dy).eig());
-//console.log(setUpLaplaceMat2d(W,H,1,-2*lambdaSq).mul(dx*dy).eig());
 var matForPsiPlusDeltaLU  = setUpLaplaceMat2d(W,H,1,0).LU();
 var matForPsiMinusDeltaLU = setUpLaplaceMat2d(W,H,1,-2*lambdaSq).LU();
 
 var betaSurface = setUpBetaSurface();
 var sunEffect   = setUpSunEffect();
 
-var matForChi1AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),1).LU();
-var matForChi3AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),1+(3*k*dt/2)).LU();
+var matForChi1AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),+1).LU();
+var matForChi3AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),+1+(3*k*dt/2)).LU();
 
 var matForChi1DeltaLU = setUpLaplaceMat2d(W,H,-(A*dt),+1).LU();
 var matForChi3DeltaLU = setUpLaplaceMat2d(W,H,-(A*dt),+1+(3*k*dt/2)).LU();
@@ -201,29 +202,38 @@ function delta(v:Vector, avg:Vector):Vector{
 }
 
 export class Earth{
-  q1last  = new Vector(H*W);
-  q3last  = new Vector(H*W);
-  q1      = new Vector(H*W);
-  q3      = new Vector(H*W);
-  q1avg   = new Vector(H);
-  q3avg   = new Vector(H);
-  q1delta = new Vector(H*W);
-  q3delta = new Vector(H*W);
+  private q1last  = new Vector(H*W);
+  private q3last  = new Vector(H*W);
+  private q1      = new Vector(H*W);
+  private q3      = new Vector(H*W);
+  private q1avg   = new Vector(H);
+  private q3avg   = new Vector(H);
+  private q1delta = new Vector(H*W);
+  private q3delta = new Vector(H*W);
 
-  psi1      = new Vector(H*W);
-  psi3      = new Vector(H*W);
-  psi1last  = new Vector(H*W);
-  psi3last  = new Vector(H*W);
-  psi1avg   = new Vector(H);
-  psi3avg   = new Vector(H);
-  psi1delta = new Vector(H*W);
-  psi3delta = new Vector(H*W);
+  private psi1      = new Vector(H*W);
+  private psi3      = new Vector(H*W);
+  private psi1last  = new Vector(H*W);
+  private psi3last  = new Vector(H*W);
+  private psi1avg   = new Vector(H);
+  private psi3avg   = new Vector(H);
+  private psi1delta = new Vector(H*W);
+  private psi3delta = new Vector(H*W);
+
+  height = new Array<Array<number>>(H);
+  temp = new Array<Array<number>>(H);
 
   constructor(){
     this.q1.add(sunEffect).mul(1/2);
     this.q3.sub(sunEffect).mul(1/2);
     this.q1avg.copy(average(this.q1));
     this.q3avg.copy(average(this.q3));
+
+    for(var y=0;y<H;y++){
+      this.height[y] = new Array<number>(W);
+      this.temp[y] = new Array<number>(W);
+    }
+
   }
 
   step(noize?: boolean){
@@ -232,6 +242,22 @@ export class Earth{
       this.addNoise();
     }
     this.calcQ();
+    this.calcDisplay();
+  }
+
+  private calcDisplay(){
+    //var u1 = new Vector(H);
+    //var z1 = new Vector(H);
+    for(var y=0;y<H;y++){
+      for(var x=0;x < W;x++){
+        var i = idx(x,y);
+        this.temp[y][x] = (this.psi1.values[i] - this.psi3.values[i]) * f0 / R;
+        this.height[y][x] = this.psi1.values[i] * 3 - this.psi3.values[i]*2;
+      }
+      //u1.values[k] = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
+      //z1.values[k] = this.q1avg.values[k] + lambdaSq * (this.psi1avg.values[k] - this.psi3avg.values[k]);
+    }
+    console.log("Hmm...");
   }
 
   private addNoise(){
@@ -264,10 +290,12 @@ export class Earth{
 
     var chi1avg = average(chi1);
     var chi3avg = average(chi3);
+    var chi1delta = delta(chi1,chi1avg);
+    var chi3delta = delta(chi3,chi3avg);
     this.q1avg.copy(matForChi1AvgLU.solve(chi1avg));
     this.q3avg.copy(matForChi3AvgLU.solve(chi3avg));
-    this.q1delta.copy(matForChi1DeltaLU.solve(delta(chi1,chi1avg)));
-    this.q3delta.copy(matForChi3DeltaLU.solve(delta(chi3,chi3avg)));
+    //this.q1delta.copy(matForChi1DeltaLU.solve(chi1delta));
+    //this.q3delta.copy(matForChi3DeltaLU.solve(chi3delta));
 
     this.q1last.copy(this.q1);
     this.q3last.copy(this.q3);
@@ -283,7 +311,7 @@ export class Earth{
   }
   calcPsi(){
     this.calcPsiAvg();
-    this.calcPsiDelta();
+    //this.calcPsiDelta();
     this.psi1last.copy(this.psi1);
     this.psi3last.copy(this.psi3);
     for(var y=0;y<H;y++){
@@ -295,21 +323,12 @@ export class Earth{
         this.psi3.values[i]=this.psi3delta.values[i]+p3avg;
       }
     }
-    var t1 = new Vector(H);
-    var u1 = new Vector(H);
-    var z1 = new Vector(H);
-    for(var k=0;k<H;k++){
-      t1.values[k] = (this.psi1avg.values[k] - this.psi3avg.values[k]) * f0 / R;
-      u1.values[k] = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
-      z1.values[k] = this.q1avg.values[k] + lambdaSq * (this.psi1avg.values[k] - this.psi3avg.values[k]);
-    }
-    console.log("Hmm...");
   }
   calcPsiAvg(){
     var qTot = vectAdd(this.q1avg,this.q3avg);
     var qSub = vectSub(this.q1avg,this.q3avg);
     var psiPlus = matForPsiPlusAvgLU.solve(qTot);
-    var psiMinus = matForPsiMinusAvgLU.solveLU(qSub);
+    var psiMinus = matForPsiMinusAvgLU.solve(qSub);
     for(var k=0;k<H;k++){
       this.psi1avg.values[k] = (psiPlus.values[k]+psiMinus.values[k])/2;
       this.psi3avg.values[k] = (psiPlus.values[k]-psiMinus.values[k])/2;
