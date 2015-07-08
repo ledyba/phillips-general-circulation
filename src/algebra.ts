@@ -77,6 +77,25 @@ class Vector {
   }
 }
 
+class MatLU {
+  width: number;
+  height: number;
+  private values: any;
+  constructor(width: number,height: number,value: any){
+    this.width = width;
+    this.height = height;
+    this.values = value;
+  }
+  solve(v:Vector):Vector{
+    if(this.height < this.width){
+      throw "Invalid size, too short: "+this.width+"x"+this.height;
+    }else if(v.length != this.height){
+      throw "Invalid size: "+this.width+"x"+this.height+" vs "+v.length;
+    }
+    return new Vector(v.length, numeric.LUsolve(this.values, v.values));
+  }
+}
+
 
 class Mat {
   width: number;
@@ -196,15 +215,7 @@ class Mat {
     if(v.length != this.width){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+v.length;
     }
-    var nv = new Vector(this.height);
-    for(var y=0;y<this.width;y++){
-      var t = 0;
-      for(var x=0;x<this.width;x++){
-        t += this.get(x,y)*v.values[x];
-      }
-      nv.values[y]=t;
-    }
-    return nv;
+    return new Vector(this.height, numeric.dot(this.values, v.values));
   }
   mul(f: number): Mat{
     for(var x=0;x<this.width;x++){
@@ -226,7 +237,7 @@ class Mat {
     if(this.height != m.height || this.width != m.width){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
     }
-    this.values = numeric.add(this.values, m.values);
+    numeric.addeq(this.values, m.values);
     return this;
   }
   clone():Mat{
@@ -251,7 +262,7 @@ class Mat {
     }
     return r+"}";
   }
-  solveByGaussElimination(v:Vector):Vector{
+  solve(v:Vector):Vector{
     if(this.height < this.width){
       throw "Invalid size, too short: "+this.width+"x"+this.height;
     }
@@ -261,5 +272,11 @@ class Mat {
     var ans = numeric.solve(this.values, v.values);
     var vec = new Vector(v.length, ans);
     return vec;
+  }
+  LU():MatLU{
+    return new MatLU(this.width, this.height, numeric.LU(this.values));
+  }
+  eig():any{
+    return numeric.eig(this.values);
   }
 }

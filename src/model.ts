@@ -7,6 +7,7 @@ var W = 15;
 var H = 15;
 var HEIGHT = 16 * dy;
 var lambdaSq = 1.5*(1e-12);
+export var TRY = 1300;
 var dt = 24*3600/10;
 var A = 1e5;
 var k = 4e-6;
@@ -17,6 +18,7 @@ var R = 287;
 var Cp = 1004;
 var beta = 1.6*(1e-11);
 
+var NOISE=2.8e6;
 function idx(x,y):number{
   return y*W+x;
 }
@@ -34,42 +36,43 @@ function setUpLaplaceMat2d(w: number, h: number, alpha: number, beta: number):Ma
   function idx(x,y) {
     return (y*w)+x;
   }
-  //FIXME: DX/DY
   for(var x = 0;x < w;x++){
     for(var y = 0;y < h;y++){
-      m.add(idx((x-1+W)%W,y),idx(x,y),+1);
-      m.add(idx(x  ,y),idx(x,y),-2);
-      m.add(idx((x+1+W)%W,y),idx(x,y),+1);
+      m.add(idx((x-1+W)%W,y),idx(x,y),+1 / (dx*dx));
+      m.add(idx(x  ,y),idx(x,y),-2 / (dx*dx));
+      m.add(idx((x+1+W)%W,y),idx(x,y),+1 / (dx*dx));
       if (y <= 0){
-        m.add(idx(x,0),idx(x,y),-1);
-        m.add(idx(x,1),idx(x,y),+1);
+        m.add(idx(x,0),idx(x,y),-1 / (dy*dy));
+        m.add(idx(x,1),idx(x,y),+1 / (dy*dy));
       }else if(y >= h-1){
-        m.add(idx(x,h-2),idx(x,y),-1);
-        m.add(idx(x,h-1),idx(x,y),+1);
+        m.add(idx(x,h-2),idx(x,y),-1 / (dy*dy));
+        m.add(idx(x,h-1),idx(x,y),+1 / (dy*dy));
       }else{
-        m.add(idx(x,y-1),idx(x,y),+1);
-        m.add(idx(x,y  ),idx(x,y),-2);
-        m.add(idx(x,y+1),idx(x,y),+1);
+        m.add(idx(x,y-1),idx(x,y),+1 / (dy*dy));
+        m.add(idx(x,y  ),idx(x,y),-2 / (dy*dy));
+        m.add(idx(x,y+1),idx(x,y),+1 / (dy*dy));
       }
     }
   }
   return m.mul(alpha).addM(Mat.ident(w*h, beta))
 }
 
-var matForPsiPlusAvg  = setUpLaplaceMat1d(H,1/(dy*dy));
-var matForPsiMinusAvg = setUpLaplaceMat1d(H,1/(dy*dy),-2*lambdaSq);
+var matForPsiPlusAvgLU  = setUpLaplaceMat1d(H,1/(dy*dy)).LU();
+var matForPsiMinusAvgLU = setUpLaplaceMat1d(H,1/(dy*dy),-2*lambdaSq).LU();
 
-var matForPsiPlusDelta  = setUpLaplaceMat2d(W,H,1,0);
-var matForPsiMinusDelta = setUpLaplaceMat2d(W,H,1,-2*lambdaSq);
+//console.log(setUpLaplaceMat2d(W,H,1,0).mul(dx*dy).eig());
+//console.log(setUpLaplaceMat2d(W,H,1,-2*lambdaSq).mul(dx*dy).eig());
+var matForPsiPlusDeltaLU  = setUpLaplaceMat2d(W,H,1,0).LU();
+var matForPsiMinusDeltaLU = setUpLaplaceMat2d(W,H,1,-2*lambdaSq).LU();
 
 var betaSurface = setUpBetaSurface();
 var sunEffect   = setUpSunEffect();
 
-var matForChi1Avg = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),1);
-var matForChi3Avg = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),1+(3*k*dt/2));
+var matForChi1AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),1).LU();
+var matForChi3AvgLU = setUpLaplaceMat1d(H,-(A*dt)/(dy*dy),1+(3*k*dt/2)).LU();
 
-var matForChi1Delta = setUpLaplaceMat2d(W,H,-(A*dt),+1);
-var matForChi3Delta = setUpLaplaceMat2d(W,H,-(A*dt),+1+(3*k*dt/2));
+var matForChi1DeltaLU = setUpLaplaceMat2d(W,H,-(A*dt),+1).LU();
+var matForChi3DeltaLU = setUpLaplaceMat2d(W,H,-(A*dt),+1+(3*k*dt/2)).LU();
 
 function setUpBetaSurface():Vector{
   var m = new Vector(W*H);
@@ -223,9 +226,19 @@ export class Earth{
     this.q3avg.copy(average(this.q3));
   }
 
-  step(){
+  step(noize?: boolean){
     this.calcPsi();
+    if(noize){
+      this.addNoise();
+    }
     this.calcQ();
+  }
+
+  private addNoise(){
+    for(var i = 0; i < W*H; i++){
+      this.psi1.values[i] += NOISE * (Math.random()-0.5);
+      this.psi3.values[i] += NOISE * (Math.random()-0.5);
+    }
   }
 
   calcChi1():Vector{
@@ -251,10 +264,10 @@ export class Earth{
 
     var chi1avg = average(chi1);
     var chi3avg = average(chi3);
-    this.q1avg.copy(matForChi1Avg.solveByGaussElimination(chi1avg));
-    this.q3avg.copy(matForChi3Avg.solveByGaussElimination(chi3avg));
-    //this.q1delta.copy(matForChi1Delta.solveByGaussElimination(delta(chi1,chi1avg)));
-    //this.q3delta.copy(matForChi3Delta.solveByGaussElimination(delta(chi3,chi3avg)));
+    this.q1avg.copy(matForChi1AvgLU.solve(chi1avg));
+    this.q3avg.copy(matForChi3AvgLU.solve(chi3avg));
+    this.q1delta.copy(matForChi1DeltaLU.solve(delta(chi1,chi1avg)));
+    this.q3delta.copy(matForChi3DeltaLU.solve(delta(chi3,chi3avg)));
 
     this.q1last.copy(this.q1);
     this.q3last.copy(this.q3);
@@ -295,8 +308,8 @@ export class Earth{
   calcPsiAvg(){
     var qTot = vectAdd(this.q1avg,this.q3avg);
     var qSub = vectSub(this.q1avg,this.q3avg);
-    var psiPlus = matForPsiPlusAvg.solveByGaussElimination(qTot);
-    var psiMinus = matForPsiMinusAvg.solveByGaussElimination(qSub);
+    var psiPlus = matForPsiPlusAvgLU.solve(qTot);
+    var psiMinus = matForPsiMinusAvgLU.solveLU(qSub);
     for(var k=0;k<H;k++){
       this.psi1avg.values[k] = (psiPlus.values[k]+psiMinus.values[k])/2;
       this.psi3avg.values[k] = (psiPlus.values[k]-psiMinus.values[k])/2;
@@ -305,8 +318,8 @@ export class Earth{
   calcPsiDelta(){
     var qTot = vectAdd(this.q1delta,this.q3delta);
     var qSub = vectSub(this.q1delta,this.q3delta);
-    var psiPlus = new Vector(qTot.length);//matForPsiPlusDelta.solveByGaussElimination(qTot);
-    var psiMinus = new Vector(qTot.length);//matForPsiMinusDelta.solveByGaussElimination(qSub);
+    var psiPlus = matForPsiPlusDeltaLU.solve(qTot);
+    var psiMinus = matForPsiMinusDeltaLU.solve(qSub);
     for(var k=0;k<H*W;k++){
       this.psi1delta.values[k] = (psiPlus.values[k]+psiMinus.values[k])/2;
       this.psi3delta.values[k] = (psiPlus.values[k]-psiMinus.values[k])/2;

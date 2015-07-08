@@ -5,7 +5,7 @@ export function main(){
     function main0() {
       var a = new Mat(4,4,[-1,1,0,0,1,-2,1,0,0,1,-2,1,0,0,0,1]);
       var b = new Vector(4,[3,2,1,0]);
-      var ans = a.solveByGaussElimination(b);
+      var ans = a.solve(b);
       var r = a.mulV(ans);
       var d = r.sub(b);
       var norm = d.norm();
@@ -19,7 +19,7 @@ export function main(){
       for(var i = 0;i<len*len;i++) {
         b.values[i] = 1;
       }
-      var ans = a.solveByGaussElimination(b);
+      var ans = a.solve(b);
       var r = a.mulV(ans);
       var d = r.sub(b);
       var norm = d.norm();
@@ -39,7 +39,7 @@ export function main(){
       for (var x=0;x<len;x++){
         b.values[x] = 1;
       }
-      var ans = a.solveByGaussElimination(b);
+      var ans = a.solve(b);
       var r = a.mulV(ans);
       var d = r.sub(b);
       var norm = d.norm();

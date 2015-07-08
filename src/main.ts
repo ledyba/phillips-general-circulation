@@ -1,8 +1,12 @@
 function main(){
   window.onload=function(ev:Event){
     var earth = new Model.Earth();
-    var time = 130*10;
-    for(var k = 0;k<time;k++){
+    var time = Model.TRY;
+    for(var k = 0;k<10;k++){
+      earth.step();
+    }
+    earth.step(true);
+    for(var k = 0;k<200;k++){
       earth.step();
     }
     earth.step();
