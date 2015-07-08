@@ -102,6 +102,7 @@ function setUpSunEffect():Vector{
 
 function jacob(v:Vector, w: Vector):Vector{
   var r = new Vector(v.length);
+  return r;
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
       var dvx, dvy, dwx, dwy;
@@ -256,7 +257,7 @@ export class Earth{
   calcChi3():Vector{
     var chi3 = new Vector(W*H);
     chi3.addeq(this.q3last);
-    chi3.addeq(jacob(this.q3.add(betaSurface),this.psi3).mul(2*dt));
+    chi3.addeq(jacob(this.q3.add(betaSurface),this.psi3).muleq(2*dt));
     chi3.addeq(laplace(this.q3last).muleq(A*dt));
     chi3.subeq(sunEffect);
     chi3.subeq((this.q3last.mul(3/2).subeq(this.q1last).subeq(this.psi1last.sub(this.psi3last).muleq(4*lambdaSq))).muleq(k*dt));
