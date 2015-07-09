@@ -2,7 +2,6 @@ declare var Conrec: any;
 declare var d3: any;
 class EarchRunner {
   earth = new Model.Earth();
-  conrec = new Conrec;
   time = 0;
   stepCnt = 0;
   ranges: Array<Object>;
@@ -25,11 +24,7 @@ class EarchRunner {
       this.xranges[x] = x;
     }
     for (var y = 0; y < Model.H; y++) {
-    this.xranges[y] = y;
-    }
-    var ZL = 1000*10;
-    for (var z = -ZL; z <+ZL; z+=1000) {
-      this.zranges.push(z);
+      this.yranges[y] = y;
     }
     d3.select("#graph")
      .attr("width", this.width)
@@ -60,23 +55,53 @@ class EarchRunner {
       .attr("y",function(d) { return y(d.y+1); })
       .attr("width", x(1))
       .attr("height", Math.abs(y(0)-y(1)));
-    this.conrec.contour(this.earth.height, 0, Model.H-1, 0, Model.W-1, this.xranges, this.yranges, this.zranges.length, this.zranges);
+    function makeRange(from: number, to: number, cnt: number){
+      var ranges = new Array<number>(cnt-1);
+      for(var k=1;k<cnt;k++){
+        ranges[k-1] = (to-from) * k/cnt + from;
+      }
+      return ranges;
+    }
+    function minmax(rs: Array<Array<number>>):any{
+      var min = rs[0][0];
+      var max = rs[0][0];
+      for(var i = 0;i<rs.length;i++){
+        for(var j = 0;j<rs[i].length;j++){
+          var v = rs[i][j];
+          if(v < min){
+            min = v;
+          }
+          if(v > max){
+            max = v;
+          }
+        }
+      }
+      return {min: min, max:max};
+    }
     try {
-      svg.selectAll("path")
-        .data(this.conrec.contourList())
-      .enter().append("path")
-        .style("stroke","black")
+      var r = minmax(this.earth.height);
+      var zranges = makeRange(r.min,r.max,10);
+      var conrec = new Conrec();
+      conrec.contour(this.earth.height, 0, this.yranges.length-1, 0, this.xranges.length-1, this.yranges, this.xranges, zranges.length, zranges);
+      var lst:Array<Array<Object>> = conrec.contourList();
+      var paths = svg.selectAll("path").data(lst);
+      paths.enter().append("path");
+      paths.exit().remove();
+      var ccolors = d3.scale.linear().domain([r.min, (r.min + r.max)/2, r.max]).range(["lime", "black", "orange"]);
+      paths
+        .style("stroke", function(d){return ccolors(d.level);} )
+        .style("fill","none")
         .attr("d", d3.svg.line()
-          .x(function(d) { return x(d.x); })
-          .y(function(d) { return y(d.y); }));
+          .x(function(d) { return x(d.y+0.5); })
+          .y(function(d) { return y(d.x+0.5); }));
     } catch(e){
-
+      console.log(e);
     }
   }
 }
 function main(){
   var id;
-  var stepPerAnim = 10;
+  var stepPerAnim = 6;
   var r:EarchRunner;
   var step = function(){
     for(var k=0;k<stepPerAnim;k++){

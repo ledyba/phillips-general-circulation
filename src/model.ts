@@ -7,7 +7,7 @@ export var W = 16;
 export var H = 15;
 
 var lambdaSq = 1.5*(1e-12);
-export var dt = 24*3600/10;
+export var dt = 24*3600/24;
 var A = 1e5;
 var k = 4e-6;
 
@@ -16,6 +16,7 @@ var f0 = 1e-4;
 var R = 287;
 var Cp = 1004;
 var beta = 1.6*(1e-11);
+var g = 9.8/1000;
 
 var NOISE=2.8e6;
 
@@ -102,23 +103,26 @@ function setUpSunEffect():Vector{
 
 function jacob(v:Vector, w: Vector):Vector{
   var r = new Vector(v.length);
-  return r;
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
       var dvx, dvy, dwx, dwy;
-      dvx = (v.values[idx((x+1)%W,y)] - v.values[idx((x-1+W)%W,y)]) / (2*dx);
-      dwx = (w.values[idx((x+1)%W,y)] - w.values[idx((x-1+W)%W,y)]) / (2*dx);
-      if (y <= 0){
-        dvy = v.values[idx(x,y+1)] / (2*dy);
-        dwy = w.values[idx(x,y+1)] / (2*dy);
-      }else if(y >= H-1){
-        dvy = - v.values[idx(x,y-1)] / (2*dy);
-        dwy = - w.values[idx(x,y-1)] / (2*dy);
+      dvx = v.values[idx((x+1)%W,y)] - v.values[idx((x-1+W)%W,y)];
+      dwx = w.values[idx((x+1)%W,y)] - w.values[idx((x-1+W)%W,y)];
+      if ((y-1) < 0){
+        dvy = v.values[idx(x,y+1)] - v.values[idx(x,y)];
+        dwy = w.values[idx(x,y+1)] - w.values[idx(x,y)];
+      }else if((y+1) >= H){
+        dvy = v.values[idx(x,y)] - v.values[idx(x,y-1)];
+        dwy = w.values[idx(x,y)] - w.values[idx(x,y-1)];
       }else{
-        dvy = (v.values[idx(x,y+1)] - v.values[idx(x,y-1)]) / (2*dy);
-        dwy = (w.values[idx(x,y+1)] - w.values[idx(x,y-1)]) / (2*dy);
+        dvy = v.values[idx(x,y+1)] - v.values[idx(x,y-1)];
+        dwy = w.values[idx(x,y+1)] - w.values[idx(x,y-1)];
       }
-      r.values[idx(x,y)] = dvx*dwy - dvy*dwx;
+      var j = (dvx*dwy - dvy*dwx)/(4*dx*dy);
+      if (isNaN(j)){
+        throw "";
+      }
+      r.values[idx(x,y)] = j;
     }
   }
   return r;
@@ -127,34 +131,36 @@ function laplace(v:Vector):Vector{
   var r = new Vector(v.length);
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
+      var lap = 0;
       if (x <= 0){
-        r.values[idx(x,y)] +=(
-              + v.values[idx(x,y)] * -1
+        lap += (
+              - v.values[idx(x,y)]
               + v.values[idx(x+1,y)]) / (dx*dx);
       }else if(x >= W-1){
-        r.values[idx(x,y)] += (
-              + v.values[idx(x,y)] * -1
+        lap += (
+              - v.values[idx(x,y)]
               + v.values[idx(x-1,y)]) / (dx*dx);
       }else{
-        r.values[idx(x,y)] += (
-              + v.values[idx(x,y)] * -2
+        lap += (
+           -2 * v.values[idx(x,y)]
               + v.values[idx(x-1,y)]
               + v.values[idx(x+1,y)]) / (dx*dx);
       }
       if (y <= 0){
-        r.values[idx(x,y)] += (
-              + v.values[idx(x,y)] * -1
+        lap += (
+              - v.values[idx(x,y)]
               + v.values[idx(x,y+1)] ) / (dy*dy);
-      }else if(y >= H-1){
-        r.values[idx(x,y)] += (
-              + v.values[idx(x,y)] * -1
+      }else if(y >= (H-1)){
+        lap += (
+              - v.values[idx(x,y)]
               + v.values[idx(x,y-1)]) / (dy*dy);
       }else{
-        r.values[idx(x,y)] += (
-              + v.values[idx(x,y)] * -2
+        lap += (
+           -2 * v.values[idx(x,y)]
               + v.values[idx(x,y-1)]
               + v.values[idx(x,y+1)]) / (dy*dy);
       }
+      r.values[idx(x,y)] = lap;
     }
   }
   return r;
@@ -202,6 +208,8 @@ export class Earth{
 
   height = new Array<Array<number>>(H);
   temp = new Array<Array<number>>(H);
+  heightAvg = new Array<number>(H);
+  tempAvg = new Array<number>(H);
 
   constructor(){
     this.q1.addeq(sunEffect).muleq(1/2);
@@ -228,12 +236,22 @@ export class Earth{
   private calcDisplay(){
     //var u1 = new Vector(H);
     //var z1 = new Vector(H);
+    var cy = (H-1)/2;
     for(var y=0;y<H;y++){
+      var f = f0+(y-cy)*dy*beta;
+      var tTot = 0;
+      var hTot = 0;
       for(var x=0;x < W;x++){
         var i = idx(x,y);
-        this.temp[y][x] = (this.psi1.values[i] - this.psi3.values[i]) * f0 / R;
-        this.height[y][x] = this.psi1.values[i] * 3 - this.psi3.values[i]*2;
+        var t = (this.psi1.values[i] - this.psi3.values[i]) * f0 / R
+        var h = (this.psi3.values[i] - ((this.psi1.values[i] - this.psi3.values[i]) / 2)) * f / g;
+        this.temp[y][x] = t;
+        this.height[y][x] = h;
+        hTot += h;
+        tTot += t;
       }
+      this.tempAvg[y] = tTot / W;
+      this.heightAvg[y] = hTot / W;
       //u1.values[k] = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
       //z1.values[k] = this.q1avg.values[k] + lambdaSq * (this.psi1avg.values[k] - this.psi3avg.values[k]);
     }
@@ -241,8 +259,12 @@ export class Earth{
 
   private addNoise(){
     for(var i = 0; i < W*H; i++){
-      this.psi1.values[i] += NOISE * (Math.random()-0.5);
-      this.psi3.values[i] += NOISE * (Math.random()-0.5);
+      var n1 = NOISE * (Math.random()-0.5);
+      var n3 = NOISE * (Math.random()-0.5);
+      this.psi1.values[i] += n1;
+      this.psi1last.values[i] += n1;
+      this.psi3.values[i] += n3;
+      this.psi3last.values[i] += n3;
     }
   }
 
@@ -308,9 +330,9 @@ export class Earth{
     var qSub = this.q1avg.sub(this.q3avg);
     var psiPlus = matForPsiPlusAvg.solve(qTot);
     var psiMinus = matForPsiMinusAvg.solve(qSub);
-    for(var k=0;k<H;k++){
-      this.psi1avg.values[k] = (psiPlus.values[k]+psiMinus.values[k])/2;
-      this.psi3avg.values[k] = (psiPlus.values[k]-psiMinus.values[k])/2;
+    for(var y=0;y<H;y++){
+      this.psi1avg.values[y] = (psiPlus.values[y]+psiMinus.values[y])/2;
+      this.psi3avg.values[y] = (psiPlus.values[y]-psiMinus.values[y])/2;
     }
   }
   calcPsiDelta(){
