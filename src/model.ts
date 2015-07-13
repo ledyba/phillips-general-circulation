@@ -102,7 +102,16 @@ function setUpSunEffect():Vector{
 }
 
 function jacob(v:Vector, w: Vector):Vector{
-  var r = new Vector(v.length);
+  return new Vector(v.length);
+  //return j2(v,w);
+  var _j1 = j1(v,w);
+  var _j2 = j2(v,w);
+  var _j3 = j3(v,w);
+  var tot = _j1.addeq(_j2).addeq(_j3);
+  return tot.muleq(1/3);
+}
+function j1(v:Vector, w: Vector):Vector{
+  var ans = new Vector(v.length);
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
       var dvx, dvy, dwx, dwy;
@@ -122,10 +131,88 @@ function jacob(v:Vector, w: Vector):Vector{
       if (isNaN(j)){
         throw "";
       }
-      r.values[idx(x,y)] = j;
+      ans.values[idx(x,y)] = j;
     }
   }
-  return r;
+  return ans;
+}
+function j2(r:Vector, s: Vector):Vector{
+  var ans = new Vector(r.length);
+  for(var x = 0;x < W; x++){
+    for(var y = 0;y < H; y++){
+      var dsx1, dsx2, dsy1, dsy2;
+      var drx1, drx2, dry1, dry2;
+      dsx1 = s.values[idx((x+1+W)%W,y)];
+      dsx2 = s.values[idx((x-1+W)%W,y)];
+      if ((y-1) < 0){
+        dsy1 = s.values[idx( x,       y+1)];
+        dsy2 = s.values[idx( x,       y  )];
+        drx1 = r.values[idx((x+1+W)%W,y+1)] - r.values[idx((x-1+W)%W,y+1)];
+        drx2 = r.values[idx((x+1+W)%W,y  )] - r.values[idx((x-1+W)%W,y  )];
+        dry1 = r.values[idx((x+1+W)%W,y+1)] - r.values[idx((x+1+W)%W,y  )];
+        dry2 = r.values[idx((x-1+W)%W,y+1)] - r.values[idx((x-1+W)%W,y  )];
+      }else if((y+1) >= H){
+        dsy1 = s.values[idx( x,       y  )];
+        dsy2 = s.values[idx( x,       y-1)];
+        drx1 = r.values[idx((x+1+W)%W,y  )] - r.values[idx((x-1+W)%W,y  )];
+        drx2 = r.values[idx((x+1+W)%W,y-1)] - r.values[idx((x-1+W)%W,y-1)];
+        dry1 = r.values[idx((x+1+W)%W,y  )] - r.values[idx((x+1+W)%W,y-1)];
+        dry2 = r.values[idx((x-1+W)%W,y  )] - r.values[idx((x-1+W)%W,y-1)];
+      }else{
+        dsy1 = s.values[idx( x,       y+1)];
+        dsy2 = s.values[idx( x,       y-1)];
+        drx1 = r.values[idx((x+1+W)%W,y+1)] - r.values[idx((x-1+W)%W,y+1)];
+        drx2 = r.values[idx((x+1+W)%W,y-1)] - r.values[idx((x-1+W)%W,y-1)];
+        dry1 = r.values[idx((x+1+W)%W,y+1)] - r.values[idx((x+1+W)%W,y-1)];
+        dry2 = r.values[idx((x-1+W)%W,y+1)] - r.values[idx((x-1+W)%W,y-1)];
+      }
+      var j = ((dsy1*drx1 - dsy2*drx2)-(dsx1*dry1 - dsx2*dry2))/(4*dx*dy);
+      if (isNaN(j)){
+        throw "";
+      }
+      ans.values[idx(x,y)] = j;
+    }
+  }
+  return ans;
+}
+function j3(r:Vector, s: Vector):Vector{
+  var ans = new Vector(r.length);
+  for(var x = 0;x < W; x++){
+    for(var y = 0;y < H; y++){
+      var dsx1, dsx2, dsy1, dsy2;
+      var drx1, drx2, dry1, dry2;
+      drx1 = r.values[idx((x+1+W)%W,y)];
+      drx2 = r.values[idx((x-1+W)%W,y)];
+      if ((y-1) < 0){
+        dry1 = r.values[idx( x,       y+1)];
+        dry2 = r.values[idx( x,       y  )];
+        dsy1 = s.values[idx((x+1+W)%W,y+1)] - s.values[idx((x+1+W)%W,y  )];
+        dsy2 = s.values[idx((x-1+W)%W,y+1)] - s.values[idx((x-1+W)%W,y  )];
+        dsx1 = s.values[idx((x+1+W)%W,y+1)] - s.values[idx((x-1+W)%W,y+1)];
+        dsx2 = s.values[idx((x+1+W)%W,y  )] - s.values[idx((x-1+W)%W,y  )];
+      }else if((y+1) >= H){
+        dry1 = r.values[idx( x,       y  )];
+        dry2 = r.values[idx( x,       y-1)];
+        dsy1 = s.values[idx((x+1+W)%W,y  )] - s.values[idx((x+1+W)%W,y-1)];
+        dsy2 = s.values[idx((x-1+W)%W,y  )] - s.values[idx((x-1+W)%W,y-1)];
+        dsx1 = s.values[idx((x+1+W)%W,y  )] - s.values[idx((x-1+W)%W,y  )];
+        dsx2 = s.values[idx((x+1+W)%W,y-1)] - s.values[idx((x-1+W)%W,y-1)];
+      }else{
+        dry1 = r.values[idx( x,       y+1)];
+        dry2 = r.values[idx( x,       y-1)];
+        dsy1 = s.values[idx((x+1+W)%W,y+1)] - s.values[idx((x+1+W)%W,y-1)];
+        dsy2 = s.values[idx((x-1+W)%W,y+1)] - s.values[idx((x-1+W)%W,y-1)];
+        dsx1 = s.values[idx((x+1+W)%W,y+1)] - s.values[idx((x-1+W)%W,y+1)];
+        dsx2 = s.values[idx((x+1+W)%W,y-1)] - s.values[idx((x-1+W)%W,y-1)];
+      }
+      var j = ((drx1*dsy1 - drx2*dsy2)-(dry1*dsx1 - dry2*dsx2))/(4*dx*dy);
+      if (isNaN(j)){
+        throw "";
+      }
+      ans.values[idx(x,y)] = j;
+    }
+  }
+  return ans;
 }
 function laplace(v:Vector):Vector{
   var r = new Vector(v.length);
@@ -259,13 +346,13 @@ export class Earth{
 
   private addNoise(){
     for(var i = 0; i < W*H; i++){
-      var n1 = NOISE * (Math.random()-0.5);
-      var n3 = NOISE * (Math.random()-0.5);
+      var n1 = NOISE * (Math.random()-0.5) * 2;
+      var n3 = NOISE * (Math.random()-0.5) * 2;
       this.psi1.values[i] += n1;
-      this.psi1last.values[i] += n1;
       this.psi3.values[i] += n3;
-      this.psi3last.values[i] += n3;
     }
+    this.q1.swap(setUpLaplaceMat2d(W,H,1,-lambdaSq).dotV(this.psi1).addeq(this.psi3.mul(lambdaSq)));
+    this.q3.swap(setUpLaplaceMat2d(W,H,1,-lambdaSq).dotV(this.psi3).addeq(this.psi1.mul(lambdaSq)));
   }
 
   calcChi1():Vector{
@@ -298,8 +385,13 @@ export class Earth{
     this.q1delta.swap(matForChi1DeltaLU.solve(chi1delta));
     this.q3delta.swap(matForChi3DeltaLU.solve(chi3delta));
 
+    var q1muchOlder = new Vector(W*H);
+    var q3muchOlder = new Vector(W*H);
+    q1muchOlder.swap(this.q1last);
+    q3muchOlder.swap(this.q3last);
     this.q1last.swap(this.q1);
     this.q3last.swap(this.q3);
+
     for(var y=0;y<H;y++){
       var q1avg = this.q1avg.values[y];
       var q3avg = this.q3avg.values[y];
@@ -307,6 +399,15 @@ export class Earth{
         var i = idx(x,y);
         this.q1.values[i]=this.q1delta.values[i]+q1avg;
         this.q3.values[i]=this.q3delta.values[i]+q3avg;
+      }
+    }
+    // merge
+    var eps = 0.05;
+    for(var y=0;y<H;y++){
+      for(var x=0;x<W;x++){
+        var i = idx(x,y);
+        this.q1last.values[i]= this.q1last.values[i]*(1-2*eps) + (q1muchOlder.values[i] + this.q1.values[i]) * eps;
+        this.q3last.values[i]= this.q3last.values[i]*(1-2*eps) + (q3muchOlder.values[i] + this.q3.values[i]) * eps;
       }
     }
   }

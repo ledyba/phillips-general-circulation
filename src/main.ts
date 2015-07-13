@@ -101,14 +101,18 @@ class EarchRunner {
 }
 function main(){
   var id;
-  var stepPerAnim = 6;
   var r:EarchRunner;
   var step = function(){
+    var day = r.time / (24*3600);
+    var stepPerAnim = 12;
+    if(day < 130){
+      stepPerAnim = 48*2;
+    }else if(day > 200){
+    }
     for(var k=0;k<stepPerAnim;k++){
       r.step();
     }
     r.anime();
-    //stop();
   };
   var stop = function(){
     clearInterval(id);

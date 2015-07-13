@@ -176,6 +176,12 @@ class Mat {
     m.values = numeric.mul(f,this.values);
     return m;
   }
+  dotV(v: Vector): Vector{
+    if(this.width != v.length){
+      throw "Invalid size: "+this.width+"x"+this.height+" vs "+v.length;
+    }
+    return new Vector(this.height, numeric.dot(this.values, v.values));
+  }
   addeq(m: Mat): Mat{
     if(this.height != m.height || this.width != m.width){
       throw "Invalid size: "+this.width+"x"+this.height+" vs "+m.width+"x"+m.height;
