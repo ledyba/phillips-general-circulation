@@ -101,16 +101,14 @@ function setUpSunEffect():Vector{
   return m;
 }
 
-function jacob(v:Vector, w: Vector):Vector{
-  return new Vector(v.length);
-  //return j2(v,w);
-  var _j1 = j1(v,w);
-  var _j2 = j2(v,w);
-  var _j3 = j3(v,w);
+function jacob(v:Vector, w: Vector, vavg: Vector, wavg: Vector):Vector{
+  var _j1 = j1(v,w,vavg,wavg);
+  var _j2 = j2(v,w,vavg,wavg);
+  var _j3 = j3(v,w,vavg,wavg);
   var tot = _j1.addeq(_j2).addeq(_j3);
   return tot.muleq(1/3);
 }
-function j1(v:Vector, w: Vector):Vector{
+function j1(v:Vector, w: Vector, vavg: Vector, wavg:Vector):Vector{
   var ans = new Vector(v.length);
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
@@ -118,11 +116,11 @@ function j1(v:Vector, w: Vector):Vector{
       dvx = v.values[idx((x+1)%W,y)] - v.values[idx((x-1+W)%W,y)];
       dwx = w.values[idx((x+1)%W,y)] - w.values[idx((x-1+W)%W,y)];
       if ((y-1) < 0){
-        dvy = v.values[idx(x,y+1)] - v.values[idx(x,y)];
-        dwy = w.values[idx(x,y+1)] - w.values[idx(x,y)];
+        dvy = v.values[idx(x,y+1)] - vavg.values[0];
+        dwy = w.values[idx(x,y+1)] - wavg.values[0];
       }else if((y+1) >= H){
-        dvy = v.values[idx(x,y)] - v.values[idx(x,y-1)];
-        dwy = w.values[idx(x,y)] - w.values[idx(x,y-1)];
+        dvy = vavg.values[H-1] - v.values[idx(x,y-1)];
+        dwy = wavg.values[H-1] - w.values[idx(x,y-1)];
       }else{
         dvy = v.values[idx(x,y+1)] - v.values[idx(x,y-1)];
         dwy = w.values[idx(x,y+1)] - w.values[idx(x,y-1)];
@@ -136,7 +134,7 @@ function j1(v:Vector, w: Vector):Vector{
   }
   return ans;
 }
-function j2(r:Vector, s: Vector):Vector{
+function j2(r:Vector, s: Vector, ravg: Vector, savg:Vector):Vector{
   var ans = new Vector(r.length);
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
@@ -146,18 +144,18 @@ function j2(r:Vector, s: Vector):Vector{
       dsx2 = s.values[idx((x-1+W)%W,y)];
       if ((y-1) < 0){
         dsy1 = s.values[idx( x,       y+1)];
-        dsy2 = s.values[idx( x,       y  )];
+        dsy2 = savg.values[0];
         drx1 = r.values[idx((x+1+W)%W,y+1)] - r.values[idx((x-1+W)%W,y+1)];
-        drx2 = r.values[idx((x+1+W)%W,y  )] - r.values[idx((x-1+W)%W,y  )];
-        dry1 = r.values[idx((x+1+W)%W,y+1)] - r.values[idx((x+1+W)%W,y  )];
-        dry2 = r.values[idx((x-1+W)%W,y+1)] - r.values[idx((x-1+W)%W,y  )];
+        drx2 = ravg.values[0]               - ravg.values[0];
+        dry1 = r.values[idx((x+1+W)%W,y+1)] - ravg.values[0];
+        dry2 = r.values[idx((x-1+W)%W,y+1)] - ravg.values[0];
       }else if((y+1) >= H){
-        dsy1 = s.values[idx( x,       y  )];
+        dsy1 = savg.values[H-1];
         dsy2 = s.values[idx( x,       y-1)];
-        drx1 = r.values[idx((x+1+W)%W,y  )] - r.values[idx((x-1+W)%W,y  )];
+        drx1 = ravg.values[H-1]             - ravg.values[H-1]            ;
         drx2 = r.values[idx((x+1+W)%W,y-1)] - r.values[idx((x-1+W)%W,y-1)];
-        dry1 = r.values[idx((x+1+W)%W,y  )] - r.values[idx((x+1+W)%W,y-1)];
-        dry2 = r.values[idx((x-1+W)%W,y  )] - r.values[idx((x-1+W)%W,y-1)];
+        dry1 = ravg.values[H-1]             - r.values[idx((x+1+W)%W,y-1)];
+        dry2 = ravg.values[H-1]             - r.values[idx((x-1+W)%W,y-1)];
       }else{
         dsy1 = s.values[idx( x,       y+1)];
         dsy2 = s.values[idx( x,       y-1)];
@@ -175,7 +173,7 @@ function j2(r:Vector, s: Vector):Vector{
   }
   return ans;
 }
-function j3(r:Vector, s: Vector):Vector{
+function j3(r:Vector, s: Vector, ravg: Vector, savg:Vector):Vector{
   var ans = new Vector(r.length);
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
@@ -185,17 +183,17 @@ function j3(r:Vector, s: Vector):Vector{
       drx2 = r.values[idx((x-1+W)%W,y)];
       if ((y-1) < 0){
         dry1 = r.values[idx( x,       y+1)];
-        dry2 = r.values[idx( x,       y  )];
-        dsy1 = s.values[idx((x+1+W)%W,y+1)] - s.values[idx((x+1+W)%W,y  )];
-        dsy2 = s.values[idx((x-1+W)%W,y+1)] - s.values[idx((x-1+W)%W,y  )];
+        dry2 = ravg.values[0]              ;
+        dsy1 = s.values[idx((x+1+W)%W,y+1)] - savg.values[0]              ;
+        dsy2 = s.values[idx((x-1+W)%W,y+1)] - savg.values[0]              ;
         dsx1 = s.values[idx((x+1+W)%W,y+1)] - s.values[idx((x-1+W)%W,y+1)];
-        dsx2 = s.values[idx((x+1+W)%W,y  )] - s.values[idx((x-1+W)%W,y  )];
+        dsx2 = savg.values[0]               - savg.values[0]              ;
       }else if((y+1) >= H){
-        dry1 = r.values[idx( x,       y  )];
+        dry1 = ravg.values[H-1]            ;
         dry2 = r.values[idx( x,       y-1)];
-        dsy1 = s.values[idx((x+1+W)%W,y  )] - s.values[idx((x+1+W)%W,y-1)];
-        dsy2 = s.values[idx((x-1+W)%W,y  )] - s.values[idx((x-1+W)%W,y-1)];
-        dsx1 = s.values[idx((x+1+W)%W,y  )] - s.values[idx((x-1+W)%W,y  )];
+        dsy1 = savg.values[H-1]             - s.values[idx((x+1+W)%W,y-1)];
+        dsy2 = savg.values[H-1]             - s.values[idx((x-1+W)%W,y-1)];
+        dsx1 = savg.values[H-1]             - savg.values[H-1]            ;
         dsx2 = s.values[idx((x+1+W)%W,y-1)] - s.values[idx((x-1+W)%W,y-1)];
       }else{
         dry1 = r.values[idx( x,       y+1)];
@@ -214,32 +212,24 @@ function j3(r:Vector, s: Vector):Vector{
   }
   return ans;
 }
-function laplace(v:Vector):Vector{
+function laplace(v:Vector, avg: Vector):Vector{
   var r = new Vector(v.length);
   for(var x = 0;x < W; x++){
     for(var y = 0;y < H; y++){
       var lap = 0;
-      if (x <= 0){
-        lap += (
-              - v.values[idx(x,y)]
-              + v.values[idx(x+1,y)]) / (dx*dx);
-      }else if(x >= W-1){
-        lap += (
-              - v.values[idx(x,y)]
-              + v.values[idx(x-1,y)]) / (dx*dx);
-      }else{
-        lap += (
-           -2 * v.values[idx(x,y)]
-              + v.values[idx(x-1,y)]
-              + v.values[idx(x+1,y)]) / (dx*dx);
-      }
+      lap += (
+         -2 * v.values[idx(x,y)]
+            + v.values[idx((x-1+W)%W,y)]
+            + v.values[idx((x+1+W)%W,y)]) / (dx*dx);
       if (y <= 0){
         lap += (
-              - v.values[idx(x,y)]
+           -2 * v.values[idx(x,y)]
+              + avg.values[0]
               + v.values[idx(x,y+1)] ) / (dy*dy);
       }else if(y >= (H-1)){
         lap += (
-              - v.values[idx(x,y)]
+           -2 * v.values[idx(x,y)]
+              + avg.values[H-1]
               + v.values[idx(x,y-1)]) / (dy*dy);
       }else{
         lap += (
@@ -295,8 +285,12 @@ export class Earth{
 
   height = new Array<Array<number>>(H);
   temp = new Array<Array<number>>(H);
+  xspeed = new Array<Array<number>>(H);
+  yspeed = new Array<Array<number>>(H);
   heightAvg = new Array<number>(H);
   tempAvg = new Array<number>(H);
+  xspeedAvg = new Array<number>(H);
+  yspeedAvg = new Array<number>(H);
 
   constructor(){
     this.q1.addeq(sunEffect).muleq(1/2);
@@ -307,6 +301,8 @@ export class Earth{
     for(var y=0;y<H;y++){
       this.height[y] = new Array<number>(W);
       this.temp[y] = new Array<number>(W);
+      this.xspeed[y] = new Array<number>(W);
+      this.yspeed[y] = new Array<number>(W);
     }
 
   }
@@ -328,17 +324,27 @@ export class Earth{
       var f = f0+(y-cy)*dy*beta;
       var tTot = 0;
       var hTot = 0;
+      var xspTot = 0;
+      var yspTot = 0;
       for(var x=0;x < W;x++){
         var i = idx(x,y);
         var t = (this.psi1.values[i] - this.psi3.values[i]) * f0 / R
         var h = (this.psi3.values[i] - ((this.psi1.values[i] - this.psi3.values[i]) / 2)) * f / g;
-        this.temp[y][x] = t;
-        this.height[y][x] = h;
         hTot += h;
         tTot += t;
+        this.temp[y][x] = t;
+        this.height[y][x] = h;
+        var u = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
+        var v =  (this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
+        this.xspeed[y][x] = u;
+        this.yspeed[y][x] = v;
+        xspTot += u;
+        yspTot += v;
       }
       this.tempAvg[y] = tTot / W;
       this.heightAvg[y] = hTot / W;
+      this.xspeedAvg[y] = xspTot / W;
+      this.yspeedAvg[y] = yspTot / W;
       //u1.values[k] = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
       //z1.values[k] = this.q1avg.values[k] + lambdaSq * (this.psi1avg.values[k] - this.psi3avg.values[k]);
     }
@@ -358,16 +364,16 @@ export class Earth{
   calcChi1():Vector{
     var chi1 = new Vector(W*H);
     chi1.addeq(this.q1last);
-    chi1.addeq(jacob(this.q1.add(betaSurface),this.psi1).muleq(2*dt));
-    chi1.addeq(laplace(this.q1last).muleq(A*dt));
+    chi1.addeq(jacob(this.q1.add(betaSurface),this.psi1, this.q1avg, this.psi1avg).muleq(2*dt));
+    chi1.addeq(laplace(this.q1last, average(this.q1last)).muleq(A*dt));
     chi1.addeq(sunEffect);
     return chi1;
   }
   calcChi3():Vector{
     var chi3 = new Vector(W*H);
     chi3.addeq(this.q3last);
-    chi3.addeq(jacob(this.q3.add(betaSurface),this.psi3).muleq(2*dt));
-    chi3.addeq(laplace(this.q3last).muleq(A*dt));
+    chi3.addeq(jacob(this.q3.add(betaSurface),this.psi3,this.q3avg, this.psi3avg).muleq(2*dt));
+    chi3.addeq(laplace(this.q3last, average(this.q3last)).muleq(A*dt));
     chi3.subeq(sunEffect);
     chi3.subeq((this.q3last.mul(3/2).subeq(this.q1last).subeq(this.psi1last.sub(this.psi3last).muleq(4*lambdaSq))).muleq(k*dt));
     return chi3;
