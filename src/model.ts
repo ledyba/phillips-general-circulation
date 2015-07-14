@@ -285,12 +285,14 @@ export class Earth{
 
   height = new Array<Array<number>>(H);
   temp = new Array<Array<number>>(H);
-  xspeed = new Array<Array<number>>(H);
-  yspeed = new Array<Array<number>>(H);
+  zeta1 = new Array<Array<number>>(H);
+  zeta3 = new Array<Array<number>>(H);
   heightAvg = new Array<number>(H);
   tempAvg = new Array<number>(H);
-  xspeedAvg = new Array<number>(H);
-  yspeedAvg = new Array<number>(H);
+  xspeed1Avg = new Array<number>(H);
+  yspeed1Avg = new Array<number>(H);
+  xspeed3Avg = new Array<number>(H);
+  yspeed3Avg = new Array<number>(H);
 
   constructor(){
     this.q1.addeq(sunEffect).muleq(1/2);
@@ -301,8 +303,8 @@ export class Earth{
     for(var y=0;y<H;y++){
       this.height[y] = new Array<number>(W);
       this.temp[y] = new Array<number>(W);
-      this.xspeed[y] = new Array<number>(W);
-      this.yspeed[y] = new Array<number>(W);
+      this.zeta1[y] = new Array<number>(W);
+      this.zeta3[y] = new Array<number>(W);
     }
 
   }
@@ -317,36 +319,39 @@ export class Earth{
   }
 
   private calcDisplay(){
-    //var u1 = new Vector(H);
-    //var z1 = new Vector(H);
     var cy = (H-1)/2;
     for(var y=0;y<H;y++){
       var f = f0+(y-cy)*dy*beta;
       var tTot = 0;
       var hTot = 0;
-      var xspTot = 0;
-      var yspTot = 0;
+      var xsp1Tot = 0;
+      var ysp1Tot = 0;
+      var xsp3Tot = 0;
+      var ysp3Tot = 0;
       for(var x=0;x < W;x++){
         var i = idx(x,y);
-        var t = (this.psi1.values[i] - this.psi3.values[i]) * f0 / R
-        var h = (this.psi3.values[i] - ((this.psi1.values[i] - this.psi3.values[i]) / 2)) * f / g;
+        var deltaPsi = this.psi1.values[i] - this.psi3.values[i];
+        var t = (deltaPsi) * f0 / R
+        var h = (1.5*this.psi3.values[i] - 0.5 * this.psi1.values[i]) * f / g;
         hTot += h;
         tTot += t;
         this.temp[y][x] = t;
         this.height[y][x] = h;
-        var u = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
-        var v =  (this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
-        this.xspeed[y][x] = u;
-        this.yspeed[y][x] = v;
-        xspTot += u;
-        yspTot += v;
+        ysp1Tot += (this.psi1.values[idx((x+1+W)%W,y)] - this.psi1.values[idx((x-1+W)%W,y)]) / (2*dx);
+        ysp3Tot += (this.psi3.values[idx((x+1+W)%W,y)] - this.psi3.values[idx((x-1+W)%W,y)]) / (2*dx);
+        if(y > 0 && y < H-1){
+          xsp1Tot += -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
+          xsp3Tot += -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
+        }
+        this.zeta1[y][x] = this.q1.values[i] - lambdaSq * deltaPsi;
+        this.zeta3[y][x] = this.q3.values[i] + lambdaSq * deltaPsi;
       }
-      this.tempAvg[y] = tTot / W;
-      this.heightAvg[y] = hTot / W;
-      this.xspeedAvg[y] = xspTot / W;
-      this.yspeedAvg[y] = yspTot / W;
-      //u1.values[k] = -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
-      //z1.values[k] = this.q1avg.values[k] + lambdaSq * (this.psi1avg.values[k] - this.psi3avg.values[k]);
+      this.tempAvg[y]    = tTot / W;
+      this.heightAvg[y]  = hTot / W;
+      this.xspeed1Avg[y] = xsp1Tot / W;
+      this.yspeed1Avg[y] = ysp1Tot / W;
+      this.xspeed3Avg[y] = xsp3Tot / W;
+      this.yspeed3Avg[y] = ysp3Tot / W;
     }
   }
 
