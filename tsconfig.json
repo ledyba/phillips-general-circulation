@@ -9,7 +9,7 @@
         "noLib": false,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
-        "out": "out.js"
+        "out": "prebuilt.js"
     },
     "filesGlob": [
         "./**/*.ts",
