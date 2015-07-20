@@ -13,6 +13,7 @@ class EarchRunner {
   x = d3.scale.linear().range([0, this.width]).domain([0, Model.W]);
 	y = d3.scale.linear().range([this.height, 0]).domain([0, Model.H]);
   colours = d3.scale.linear().domain([-50, 0, 50]).range(["blue", "white", "red"]);
+  budget = new Model.EnergyBudget();
   constructor(){
     this.ranges = [];
     for (var x = 0; x < Model.W; x++) {
@@ -31,10 +32,14 @@ class EarchRunner {
      .attr("height", this.height);
   }
   step(){
-    if(this.stepCnt == ((24*3600*130/Model.dt)|0)){
+    var step = (24*3600*130/Model.dt)|0;
+    if(this.stepCnt > ((24*3600*130/Model.dt)|0)){
+      this.budget.addeq(this.earth.calcEnergyBudget())
+    }
+    if(this.stepCnt == step){
       this.earth.step(true);
     }else{
-    this.earth.step();
+      this.earth.step();
     }
     this.stepCnt++;
     this.time = this.stepCnt * Model.dt;
@@ -80,12 +85,19 @@ class EarchRunner {
       elem.appendChild(l);
     }
   }
+  inspectBudget(){
+    if((this.time / (24*3600)) > 365 && this.budget != null){
+      console.log(this.budget.average());
+      this.budget = null;
+    }
+  }
   anime(){
     this.earth.calcDisplay();
     this.inspectU1();
     this.inspectU4();
     this.inspectV1();
     this.inspectT2();
+    this.inspectBudget();
     var time = document.getElementById("time");
     time.innerText = (this.time / (24*3600)).toFixed(3)+" Days";
     var svg = d3.select("#graph");

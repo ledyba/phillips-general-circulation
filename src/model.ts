@@ -501,8 +501,9 @@ export class Earth{
     }
   }
 
-  calcEnergyBudget(){
+  calcEnergyBudget(): EnergyBudget{
     var budget = new EnergyBudget();
+    budget.cnt = 1;
     //
     {
       var kdelta = 0;
@@ -511,23 +512,23 @@ export class Earth{
           var i = idx(x,y);
           var t = 0;
           if(y < H-1){
-            t += this.psi1delta.values[i] * this.psi1delta.values[i] + this.psi3delta.values[i] * this.psi3delta.values[i];
-          }else{
             var j = idx(x,y+1);
             var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
             var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
             t += a*a+b*b;
+          }else{
+            t += this.psi1delta.values[i] * this.psi1delta.values[i] + this.psi3delta.values[i] * this.psi3delta.values[i];
           }
           {
             var j = idx((x+1+W)%W,y);
             var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
             var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
-            t += a*a+b*b*dx*dx/(dy*dy);
+            t += (a*a+b*b)*dx*dx/(dy*dy);
           }
           kdelta += t;
         }
       }
-      budget.kdelta = kdelta * (2*H*dx*dx*W);
+      budget.kdelta = kdelta / (2*H*dx*dx*W);
     }
     //
     {
@@ -547,7 +548,7 @@ export class Earth{
         var t = this.psi1avg.values[y] - this.psi3avg.values[y];
         pavg = t*t;
       }
-      budget.pavg = pavg/(H*2);
+      budget.pavg = lambdaSq*pavg/(H*2);
     }
     //
     {
@@ -559,7 +560,7 @@ export class Earth{
           pdelta = t*t;
         }
       }
-      budget.pdelta = pdelta/(2*W*H);
+      budget.pdelta = lambdaSq*pdelta/(2*W*H);
     }
     //
     {
@@ -602,8 +603,8 @@ export class Earth{
           tot1 += (this.psi1delta.values[i1] - this.psi1delta.values[i2]) * deltaLaplace1.values[i];
           tot3 += (this.psi3delta.values[i1] - this.psi3delta.values[i2]) * deltaLaplace3.values[i];
         }
-        kdelta2kavg += (this.psi1delta.values[Math.min(0, y-1)] - this.psi1delta.values[Math.max(H-1, y+1)]) * tot1;
-        kdelta2kavg += (this.psi3delta.values[Math.min(0, y-1)] - this.psi3delta.values[Math.max(H-1, y+1)]) * tot3;
+        kdelta2kavg += (this.psi1delta.values[Math.max(0, y-1)] - this.psi1delta.values[Math.min(H-1, y+1)]) * tot1;
+        kdelta2kavg += (this.psi3delta.values[Math.max(0, y-1)] - this.psi3delta.values[Math.min(H-1, y+1)]) * tot3;
       }
       budget.kdelta2kavg = kdelta2kavg/(4*W*H*dx*dx*dx*dy);
     }
@@ -686,10 +687,12 @@ export class Earth{
     }
     budget.kdelta2k = -k * kdelta2k / (H*W);
   }
+  return budget;
   }
 }
 
 export class EnergyBudget{
+  cnt: number;
   //
   kavg: number;
   kdelta: number;
@@ -709,6 +712,67 @@ export class EnergyBudget{
   kdelta2k: number;
   kavg2k: number;
   constructor(){
+    this.cnt = 0;
+    this.kavg = 0;
+    this.kdelta = 0;
+    this.pavg = 0;
+    this.pdelta = 0;
+    //
+    this.qavg2pavg = 0;
+    this.pavg2pdelta = 0;
+    this.pdelta2kdelta = 0;
+    this.kdelta2kavg = 0;
+    this.kavg2pavg = 0;
+    //
+    this.kavg2a = 0;
+    this.kdelta2a = 0;
+    this.pavg2a = 0;
+    this.pdelta2a = 0;
+    this.kdelta2k = 0;
+    this.kavg2k = 0;
+  }
+  addeq(e: EnergyBudget){
+    this.cnt += e.cnt;
+    this.kavg += e.kavg;
+    this.kdelta += e.kavg;
+    this.pavg += e.pavg;
+    this.pdelta += e.pdelta;
+    //
+    this.qavg2pavg += e.qavg2pavg;
+    this.pavg2pdelta += e.pavg2pdelta;
+    this.pdelta2kdelta += e.pdelta2kdelta;
+    this.kdelta2kavg += e.kdelta2kavg;
+    this.kavg2pavg += e.kavg2pavg;
+    //
+    this.kavg2a += e.kavg2a;
+    this.kdelta2a += e.kdelta2a;
+    this.pavg2a += e.pavg2a;
+    this.pdelta2a += e.pdelta2a;
+    this.kdelta2k += e.kdelta2k;
+    this.kavg2k += e.kavg2k;
+  }
+  average():EnergyBudget{
+    var e = new EnergyBudget;
+    var cnt = this.cnt;
+    e.cnt = 1;
+    e.kavg = this.kavg/cnt;
+    e.kdelta = this.kavg/cnt;
+    e.pavg = this.pavg/cnt;
+    e.pdelta = this.pdelta/cnt;
+    //
+    e.qavg2pavg = this.qavg2pavg/cnt;
+    e.pavg2pdelta = this.pavg2pdelta/cnt;
+    e.pdelta2kdelta = this.pdelta2kdelta/cnt;
+    e.kdelta2kavg = this.kdelta2kavg/cnt;
+    e.kavg2pavg = this.kavg2pavg/cnt;
+    //
+    e.kavg2a = this.kavg2a/cnt;
+    e.kdelta2a = this.kdelta2a/cnt;
+    e.pavg2a = this.pavg2a/cnt;
+    e.pdelta2a = this.pdelta2a/cnt;
+    e.kdelta2k = this.kdelta2k/cnt;
+    e.kavg2k = this.kavg2k/cnt;
+    return e;
   }
 }
 
