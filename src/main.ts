@@ -86,7 +86,7 @@ class EarchRunner {
     }
   }
   inspectBudget(){
-    if((this.time / (24*3600)) > 365 && this.budget != null){
+    if((this.time / (24*3600)) > 170 && this.budget != null){
       console.log(this.budget.average());
       this.budget = null;
     }
