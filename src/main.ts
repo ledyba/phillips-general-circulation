@@ -13,7 +13,7 @@ class EarchRunner {
   x = d3.scale.linear().range([0, this.width]).domain([0, Model.W]);
 	y = d3.scale.linear().range([this.height, 0]).domain([0, Model.H]);
   colours = d3.scale.linear().domain([-50, 0, 50]).range(["blue", "white", "red"]);
-  budget = new Model.EnergyBudget();
+  budget = new Array<Model.EnergyBudget>();
   constructor(){
     this.ranges = [];
     for (var x = 0; x < Model.W; x++) {
@@ -30,13 +30,22 @@ class EarchRunner {
     d3.select("#graph")
      .attr("width", this.width)
      .attr("height", this.height);
+     this.budget.push(new Model.EnergyBudget());
   }
   step(){
     var step = (24*3600*130/Model.dt)|0;
-    if(this.stepCnt > ((24*3600*130/Model.dt)|0)){
-      this.budget.addeq(this.earth.calcEnergyBudget())
+    var stepsByDay = ((24*3600*10/Model.dt)|0);
+    if(this.stepCnt > ((24*3600*200/Model.dt)|0)){
+      var last = this.budget[this.budget.length-1];
+      last.addeq(this.earth.calcEnergyBudget())
+      if(this.stepCnt % stepsByDay == 0){
+        this.budget[this.budget.length-1] = last.average();
+        console.log(this.budget[this.budget.length-1]);
+        this.budget.push(new Model.EnergyBudget());
+      }
     }
     if(this.stepCnt == step){
+      console.log(this.earth.calcEnergyBudget());
       this.earth.step(true);
     }else{
       this.earth.step();
@@ -86,8 +95,13 @@ class EarchRunner {
     }
   }
   inspectBudget(){
-    if((this.time / (24*3600)) > 170 && this.budget != null){
-      console.log(this.budget.average());
+    var days = this.time / (24*3600);
+    if(days > 3200 && this.budget != null){
+      var avg = new Model.EnergyBudget();
+      for(var i=0;i<this.budget.length;i++){
+        avg.addeq(this.budget[i]);
+      }
+      console.log(avg.average());
       this.budget = null;
     }
   }
