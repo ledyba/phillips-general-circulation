@@ -39,7 +39,53 @@ class EarchRunner {
     this.stepCnt++;
     this.time = this.stepCnt * Model.dt;
   }
+  inspectU1(){
+    var elem = document.getElementById("inspect_avg_u1");
+    elem.innerHTML='';
+    for(var i=this.earth.xspeed1Avg.length-1;i>=0;i--){
+      var l = document.createElement("li");
+      l.innerText=this.earth.xspeed1Avg[i].toString();
+      elem.appendChild(l);
+    }
+  }
+  inspectV1(){
+    var elem = document.getElementById("inspect_avg_v1");
+    elem.innerHTML='';
+    for(var i=this.earth.yspeedAvg.length-1;i>=0;i--){
+      var l = document.createElement("li");
+      var v = this.earth.yspeedAvg[i] * 1000;
+      l.innerText=v.toString();
+      elem.appendChild(l);
+    }
+  }
+  inspectU4(){
+    var elem = document.getElementById("inspect_avg_u4");
+    elem.innerHTML='';
+    for(var i=this.earth.xspeed1Avg.length-1;i>=0;i--){
+      var l = document.createElement("li");
+      var u1 = this.earth.xspeed1Avg[i];
+      var u3 = this.earth.xspeed3Avg[i];
+      //var u4 = u3 + (u3-u1) 1/2;
+      var u4 = u3*3/2 - u1 /2;
+      l.innerText=u4.toString();
+      elem.appendChild(l);
+    }
+  }
+  inspectT2(){
+    var elem = document.getElementById("inspect_avg_t2");
+    elem.innerHTML='';
+    for(var i=this.earth.tempAvg.length-1;i>=0;i--){
+      var l = document.createElement("li");
+      l.innerText=this.earth.tempAvg[i].toString();
+      elem.appendChild(l);
+    }
+  }
   anime(){
+    this.earth.calcDisplay();
+    this.inspectU1();
+    this.inspectU4();
+    this.inspectV1();
+    this.inspectT2();
     var time = document.getElementById("time");
     time.innerText = (this.time / (24*3600)).toFixed(3)+" Days";
     var svg = d3.select("#graph");
@@ -103,14 +149,18 @@ function main(){
   var id;
   var r:EarchRunner;
   var step = function(){
-    var day = r.time / (24*3600);
+    var day = (r.time / (24*3600)) | 0;
     var stepPerAnim = 12;
     if(day < 130){
-      stepPerAnim = 48*2;
+      stepPerAnim = 48;
     }else if(day > 200){
     }
     for(var k=0;k<stepPerAnim;k++){
       r.step();
+    }
+    day = (r.time / (24*3600)) | 0;
+    if(day == 130){
+      stop();
     }
     r.anime();
   };

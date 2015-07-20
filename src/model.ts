@@ -85,13 +85,27 @@ function setUpBetaSurface():Vector{
   }
   return m;
 }
-function setUpSunEffect():Vector{
 
+function setUpSunEffect():Vector{
   var m = new Vector(W*H);
-  var alpha = 4 * R * H0 * lambdaSq * dt / (f0 * Cp * ((H+1)/2));
-  var cy = (H-1)/2;
+  var alpha = 4 * R * H0 * lambdaSq * dt / (f0 * Cp * H);
   for(var y = 0;y < H;y++){
-    var v = (y-cy)*alpha;
+    var v = (2*y-H)*alpha;
+    for(var x = 0;x < W;x++){
+      var i = idx(x,y);
+      m.values[i] = v;
+    }
+  }
+
+  return m;
+}
+
+var sunEffectForOmega2 = setUpSunEffectForOmega2();
+function setUpSunEffectForOmega2():Vector{
+  var m = new Vector(W*H);
+  var alpha = 2 * R * H0 / (f0 * Cp * H);
+  for(var y = 0;y < H;y++){
+    var v = (2*y-H)*alpha;
     for(var x = 0;x < W;x++){
       var i = idx(x,y);
       m.values[i] = v;
@@ -290,9 +304,9 @@ export class Earth{
   heightAvg = new Array<number>(H);
   tempAvg = new Array<number>(H);
   xspeed1Avg = new Array<number>(H);
-  yspeed1Avg = new Array<number>(H);
   xspeed3Avg = new Array<number>(H);
-  yspeed3Avg = new Array<number>(H);
+  yspeedAvg = new Array<number>(H);
+  omega2 = new Vector(H*W);
 
   constructor(){
     this.q1.addeq(sunEffect).muleq(1/2);
@@ -315,10 +329,29 @@ export class Earth{
       this.addNoise();
     }
     this.calcQ();
-    this.calcDisplay();
   }
 
-  private calcDisplay(){
+  calcDisplay(){
+    var psiDelta = this.psi1.sub(this.psi3);
+    var psiDeltaAvg = this.psi1avg.sub(this.psi3avg);
+    var psiDeltaLast = this.psi1last.sub(this.psi3last);
+    this.omega2.swap(
+      (psiDelta.sub(psiDeltaLast).diveq(dt)
+      .subeq(jacob(this.psi1,this.psi3, this.psi1avg,this.psi3avg))
+      .addeq(sunEffectForOmega2)
+      .subeq(laplace(psiDelta, psiDeltaAvg).muleq(A))
+      .muleq(500*lambdaSq/f0)
+    ));
+    var om2 = average(this.omega2);
+    this.yspeedAvg[0] = 0;
+    for(var y=0;y<H;y++){
+      if(y > 0){
+        this.yspeedAvg[y] = this.yspeedAvg[y-1]- dy * om2.values[y]/500;
+      }else{
+        this.yspeedAvg[y] = -dy * om2.values[0]/500;
+      }
+    }
+
     var cy = (H-1)/2;
     for(var y=0;y<H;y++){
       var f = f0+(y-cy)*dy*beta;
@@ -337,11 +370,15 @@ export class Earth{
         tTot += t;
         this.temp[y][x] = t;
         this.height[y][x] = h;
-        ysp1Tot += (this.psi1.values[idx((x+1+W)%W,y)] - this.psi1.values[idx((x-1+W)%W,y)]) / (2*dx);
-        ysp3Tot += (this.psi3.values[idx((x+1+W)%W,y)] - this.psi3.values[idx((x-1+W)%W,y)]) / (2*dx);
         if(y > 0 && y < H-1){
-          xsp1Tot += -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
-          xsp3Tot += -(this.psi1avg.values[k+1] - this.psi1avg.values[k-1]) / (2*dy);
+          xsp1Tot += -(this.psi1avg.values[y+1] - this.psi1avg.values[y-1]) / (2*dy);
+          xsp3Tot += -(this.psi3avg.values[y+1] - this.psi3avg.values[y-1]) / (2*dy);
+        }else if(y == 0) {
+          xsp1Tot += -(this.psi1avg.values[y+1] - this.psi1avg.values[y]) / (2*dy);
+          xsp3Tot += -(this.psi3avg.values[y+1] - this.psi3avg.values[y]) / (2*dy);
+        }else{
+          xsp1Tot += -(this.psi1avg.values[y] - this.psi1avg.values[y-1]) / (2*dy);
+          xsp3Tot += -(this.psi3avg.values[y] - this.psi3avg.values[y-1]) / (2*dy);
         }
         this.zeta1[y][x] = this.q1.values[i] - lambdaSq * deltaPsi;
         this.zeta3[y][x] = this.q3.values[i] + lambdaSq * deltaPsi;
@@ -349,9 +386,7 @@ export class Earth{
       this.tempAvg[y]    = tTot / W;
       this.heightAvg[y]  = hTot / W;
       this.xspeed1Avg[y] = xsp1Tot / W;
-      this.yspeed1Avg[y] = ysp1Tot / W;
       this.xspeed3Avg[y] = xsp3Tot / W;
-      this.yspeed3Avg[y] = ysp3Tot / W;
     }
   }
 
@@ -458,6 +493,24 @@ export class Earth{
     }
   }
 
+  calcEnergyBudget(){
+    var b = new EnergyBudget();
+    var cy = (H-1)/2;
+    var psiDeltaAvg = this.psi1avg.sub(this.psi3avg);
+    var qavg2pavg = 0;
+    for (let y = 0; y < H; y++) {
+      var py = (y-cy) * dy;
+      qavg2pavg += psiDeltaAvg[y] * py;
+    }
+    qavg2pavg = qavg2pavg / (H*dy) * (-2*R*H0*lambdaSq) / (f0 * Cp);
+    b.qavg2pavg = qavg2pavg;
+  }
+}
+
+export class EnergyBudget{
+  qavg2pavg: number;
+  constructor(){
+  }
 }
 
 }

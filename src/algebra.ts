@@ -45,8 +45,17 @@ class Vector {
     }
     return this;
   }
+  diveq(f: number): Vector{
+    for(var i=0;i<this.length;i++){
+      this.values[i]/=f;
+    }
+    return this;
+  }
   mul(f: number): Vector{
     return new Vector(this.length, numeric.mul(f, this.values));
+  }
+  div(f: number): Vector{
+    return new Vector(this.length, numeric.mul(1.0/f, this.values));
   }
   swap(other: Vector): Vector{
     if(other.length != this.length){
