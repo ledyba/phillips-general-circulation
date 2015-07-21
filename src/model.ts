@@ -512,25 +512,25 @@ export class Earth{
       for (let y = 0; y < H; y++) {
         for (let x = 0; x < W; x++) {
           var i = idx(x,y);
-          var t = 0;
           if(y < H-1){
             var j = idx(x,y+1);
-            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
-            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
-            t += a*a+b*b;
+            var a = this.psi1delta.values[j] - this.psi1delta.values[i];
+            var b = this.psi3delta.values[j] - this.psi3delta.values[i];
+            kdelta += (a*a+b*b)/(dy*dy);
           }else{
-            t += this.psi1delta.values[i] * this.psi1delta.values[i] + this.psi3delta.values[i] * this.psi3delta.values[i];
+            var a =  - this.psi1delta.values[i];
+            var b =  - this.psi3delta.values[i];
+            kdelta += (a*a+b*b)/(dy*dy);
           }
           {
             var j = idx((x+1+W)%W,y);
             var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
             var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
-            t += (a*a+b*b)*dx*dx/(dy*dy);
+            kdelta += (a*a+b*b)/(dx*dx);
           }
-          kdelta += t;
         }
       }
-      budget.kdelta = kdelta / (2*H*dx*dx*W);
+      budget.kdelta = kdelta / (2*H*W);
     }
     //
     {

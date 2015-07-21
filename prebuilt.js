@@ -260,17 +260,17 @@ var EarchRunner = (function () {
         this.budget.push(new Model.EnergyBudget());
     }
     EarchRunner.prototype.step = function () {
-        var step = (24 * 3600 * 130 / Model.dt) | 0;
-        var stepsByDay = ((24 * 3600 * 10 / Model.dt) | 0);
-        if (this.stepCnt > ((24 * 3600 * 200 / Model.dt) | 0)) {
+        var stepsBy10Day = ((24 * 3600 * 10 / Model.dt) | 0);
+        if (this.stepCnt >= ((24 * 3600 * 200 / Model.dt) | 0)) {
             var last = this.budget[this.budget.length - 1];
             last.addeq(this.earth.calcEnergyBudget());
-            if (this.stepCnt % stepsByDay == 0) {
+            if (this.stepCnt % stepsBy10Day == 0) {
                 this.budget[this.budget.length - 1] = last.average();
                 console.log(this.budget[this.budget.length - 1]);
                 this.budget.push(new Model.EnergyBudget());
             }
         }
+        var step = (24 * 3600 * 130 / Model.dt) | 0;
         if (this.stepCnt == step) {
             console.log(this.earth.calcEnergyBudget());
             this.earth.step(true);
@@ -323,7 +323,7 @@ var EarchRunner = (function () {
     };
     EarchRunner.prototype.inspectBudget = function () {
         var days = this.time / (24 * 3600);
-        if (days > 3200 && this.budget != null) {
+        if (days >= 3200 && this.budget != null) {
             var avg = new Model.EnergyBudget();
             for (var i = 0; i < this.budget.length; i++) {
                 avg.addeq(this.budget[i]);
@@ -931,26 +931,26 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     for (var x = 0; x < Model.W; x++) {
                         var i = idx(x, y);
-                        var t = 0;
                         if (y < Model.H - 1) {
                             var j = idx(x, y + 1);
-                            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
-                            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
-                            t += a * a + b * b;
+                            var a = this.psi1delta.values[j] - this.psi1delta.values[i];
+                            var b = this.psi3delta.values[j] - this.psi3delta.values[i];
+                            kdelta += (a * a + b * b) / (Model.dy * Model.dy);
                         }
                         else {
-                            t += this.psi1delta.values[i] * this.psi1delta.values[i] + this.psi3delta.values[i] * this.psi3delta.values[i];
+                            var a = -this.psi1delta.values[i];
+                            var b = -this.psi3delta.values[i];
+                            kdelta += (a * a + b * b) / (Model.dy * Model.dy);
                         }
                         {
                             var j = idx((x + 1 + Model.W) % Model.W, y);
                             var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
                             var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
-                            t += (a * a + b * b) * Model.dx * Model.dx / (Model.dy * Model.dy);
+                            kdelta += (a * a + b * b) / (Model.dx * Model.dx);
                         }
-                        kdelta += t;
                     }
                 }
-                budget.kdelta = kdelta / (2 * Model.H * Model.dx * Model.dx * Model.W);
+                budget.kdelta = kdelta / (2 * Model.H * Model.W);
             }
             {
                 var kavg = 0;
