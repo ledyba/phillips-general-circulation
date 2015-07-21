@@ -34,21 +34,32 @@ class EarchRunner {
   }
   step(){
     var stepsBy10Day = ((24*3600*10/Model.dt)|0);
-    if(this.stepCnt >= ((24*3600*200/Model.dt)|0)){
-      var last = this.budget[this.budget.length-1];
-      last.addeq(this.earth.calcEnergyBudget())
-      if(this.stepCnt % stepsBy10Day == 0){
-        this.budget[this.budget.length-1] = last.average();
-        console.log(this.budget[this.budget.length-1]);
-        this.budget.push(new Model.EnergyBudget());
-      }
-    }
     var step = (24*3600*130/Model.dt)|0;
     if(this.stepCnt == step){
       console.log(this.earth.calcEnergyBudget());
       this.earth.step(true);
     }else{
       this.earth.step();
+    }
+    // calc budget
+    var from = 200;
+    var to = 3200;
+    if (this.budget != null && this.stepCnt >= ((24 * 3600 * from / Model.dt) | 0)) {
+      var last = this.budget[this.budget.length - 1];
+      last.addeq(this.earth.calcEnergyBudget())
+      if (this.stepCnt % stepsBy10Day == 0) {
+        this.budget[this.budget.length - 1] = last.average();
+        console.log(this.budget[this.budget.length - 1]);
+        this.budget.push(new Model.EnergyBudget());
+      }
+      if(this.stepCnt >= ((24 * 3600 * to / Model.dt) | 0)){
+        var avg = new Model.EnergyBudget();
+        for(var i=0;i<this.budget.length;i++){
+          avg.addeq(this.budget[i]);
+        }
+        console.log(avg.average());
+        this.budget = null;
+      }
     }
     this.stepCnt++;
     this.time = this.stepCnt * Model.dt;
@@ -94,24 +105,12 @@ class EarchRunner {
       elem.appendChild(l);
     }
   }
-  inspectBudget(){
-    var days = this.time / (24*3600);
-    if(days >= 3200 && this.budget != null){
-      var avg = new Model.EnergyBudget();
-      for(var i=0;i<this.budget.length;i++){
-        avg.addeq(this.budget[i]);
-      }
-      console.log(avg.average());
-      this.budget = null;
-    }
-  }
   anime(){
     this.earth.calcDisplay();
     this.inspectU1();
     this.inspectU4();
     this.inspectV1();
     this.inspectT2();
-    this.inspectBudget();
     var time = document.getElementById("time");
     time.innerText = (this.time / (24*3600)).toFixed(3)+" Days";
     var svg = d3.select("#graph");

@@ -261,15 +261,6 @@ var EarchRunner = (function () {
     }
     EarchRunner.prototype.step = function () {
         var stepsBy10Day = ((24 * 3600 * 10 / Model.dt) | 0);
-        if (this.stepCnt >= ((24 * 3600 * 200 / Model.dt) | 0)) {
-            var last = this.budget[this.budget.length - 1];
-            last.addeq(this.earth.calcEnergyBudget());
-            if (this.stepCnt % stepsBy10Day == 0) {
-                this.budget[this.budget.length - 1] = last.average();
-                console.log(this.budget[this.budget.length - 1]);
-                this.budget.push(new Model.EnergyBudget());
-            }
-        }
         var step = (24 * 3600 * 130 / Model.dt) | 0;
         if (this.stepCnt == step) {
             console.log(this.earth.calcEnergyBudget());
@@ -277,6 +268,25 @@ var EarchRunner = (function () {
         }
         else {
             this.earth.step();
+        }
+        var from = 200;
+        var to = 3200;
+        if (this.budget != null && this.stepCnt >= ((24 * 3600 * from / Model.dt) | 0)) {
+            var last = this.budget[this.budget.length - 1];
+            last.addeq(this.earth.calcEnergyBudget());
+            if (this.stepCnt % stepsBy10Day == 0) {
+                this.budget[this.budget.length - 1] = last.average();
+                console.log(this.budget[this.budget.length - 1]);
+                this.budget.push(new Model.EnergyBudget());
+            }
+            if (this.stepCnt >= ((24 * 3600 * to / Model.dt) | 0)) {
+                var avg = new Model.EnergyBudget();
+                for (var i = 0; i < this.budget.length; i++) {
+                    avg.addeq(this.budget[i]);
+                }
+                console.log(avg.average());
+                this.budget = null;
+            }
         }
         this.stepCnt++;
         this.time = this.stepCnt * Model.dt;
@@ -321,24 +331,12 @@ var EarchRunner = (function () {
             elem.appendChild(l);
         }
     };
-    EarchRunner.prototype.inspectBudget = function () {
-        var days = this.time / (24 * 3600);
-        if (days >= 3200 && this.budget != null) {
-            var avg = new Model.EnergyBudget();
-            for (var i = 0; i < this.budget.length; i++) {
-                avg.addeq(this.budget[i]);
-            }
-            console.log(avg.average());
-            this.budget = null;
-        }
-    };
     EarchRunner.prototype.anime = function () {
         this.earth.calcDisplay();
         this.inspectU1();
         this.inspectU4();
         this.inspectV1();
         this.inspectT2();
-        this.inspectBudget();
         var time = document.getElementById("time");
         time.innerText = (this.time / (24 * 3600)).toFixed(3) + " Days";
         var svg = d3.select("#graph");
@@ -741,6 +739,8 @@ var Model;
             this.xspeed3Avg = new Array(Model.H);
             this.yspeedAvg = new Array(Model.H);
             this.omega2 = new Vector(Model.H * Model.W);
+            this.omega2avg = new Vector(Model.H);
+            this.omega2delta = new Vector(Model.H * Model.W);
             this.q1.addeq(sunEffect).muleq(1 / 2);
             this.q3.subeq(sunEffect).muleq(1 / 2);
             this.q1avg.swap(average(this.q1));
@@ -768,14 +768,15 @@ var Model;
                 .addeq(sunEffectForOmega2)
                 .subeq(laplace(psiDelta, psiDeltaAvg).muleq(A))
                 .muleq(500 * lambdaSq / f0)));
-            var om2 = average(this.omega2);
+            this.omega2avg = average(this.omega2);
+            this.omega2delta = delta(this.omega2, this.omega2avg);
             var yspd = new Array(Model.H);
             for (var y = 0; y < Model.H; y++) {
                 if (y > 0) {
-                    yspd[y] = yspd[y - 1] - Model.dy * om2.values[y] / 500;
+                    yspd[y] = yspd[y - 1] - Model.dy * this.omega2avg.values[y] / 500;
                 }
                 else {
-                    yspd[y] = -Model.dy * om2.values[0] / 500;
+                    yspd[y] = -Model.dy * this.omega2avg.values[0] / 500;
                 }
             }
             for (var y = 0; y < Model.H; y++) {
@@ -955,10 +956,9 @@ var Model;
             {
                 var kavg = 0;
                 for (var y = 0; y < Model.H - 1; y++) {
-                    var t = (this.psi1avg.values[y + 1] - this.psi1avg.values[y]);
-                    kavg += t * t;
-                    t = (this.psi3avg.values[y + 1] - this.psi3avg.values[y]);
-                    kavg += t * t;
+                    var a = (this.psi1avg.values[y + 1] - this.psi1avg.values[y]);
+                    var b = (this.psi3avg.values[y + 1] - this.psi3avg.values[y]);
+                    kavg += a * a + b * b;
                 }
                 budget.kavg = kavg / (2 * Model.H * Model.dy * Model.dy);
             }
@@ -981,15 +981,14 @@ var Model;
                 }
                 budget.pdelta = lambdaSq * pdelta / (2 * Model.W * Model.H);
             }
+            var cy = (Model.H - 1) / 2;
             {
                 var qavg2pavg = 0;
                 for (var y = 0; y < Model.H; y++) {
-                    qavg2pavg += (2 * y - Model.H / Model.H) * (this.psi1avg.values[y] - this.psi3avg.values[y]);
+                    qavg2pavg += (y - cy) / ((Model.H + 1) / 2) * (this.psi1avg.values[y] - this.psi3avg.values[y]);
                 }
                 budget.qavg2pavg = qavg2pavg * (-2 * R * H0 * lambdaSq) / (f0 * Cp * Model.H) * l;
             }
-            var omega2avg = average(this.omega2);
-            var omega2delta = delta(this.omega2, omega2avg);
             var deltaJabob = jacob(this.psi1delta, this.psi3delta, this.psi1avg, this.psi3avg);
             var deltaJabobAvg = average(deltaJabob);
             {
@@ -1002,7 +1001,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     for (var x = 0; x < Model.W; x++) {
                         var i = idx(x, y);
-                        pdelta2kdelta += omega2delta.values[i] * (this.psi1delta.values[i] - this.psi3delta.values[i]);
+                        pdelta2kdelta += this.omega2delta.values[i] * (this.psi1delta.values[i] - this.psi3delta.values[i]);
                     }
                 }
                 budget.pdelta2kdelta = pdelta2kdelta * (-f0) / (500 * Model.W * Model.H) * l;
@@ -1030,7 +1029,7 @@ var Model;
             {
                 var pavg2kavg = 0;
                 for (var y = 0; y < Model.H; y++) {
-                    pavg2kavg += omega2avg.values[y] * (this.psi1avg.values[y] - this.psi3avg.values[y]);
+                    pavg2kavg += this.omega2avg.values[y] * (this.psi1avg.values[y] - this.psi3avg.values[y]);
                 }
                 budget.pavg2kavg = -(f0 / 500) * pavg2kavg / Model.H * l;
             }
@@ -1052,7 +1051,9 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     for (var x = 0; x < Model.W; x++) {
                         var i = idx(x, y);
-                        kdelta2a += (zeta1.values[i] * zeta1.values[i]) + (zeta3.values[i] * zeta3.values[i]);
+                        var a = zeta1delta.values[i];
+                        var b = zeta3delta.values[i];
+                        kdelta2a += (a * a) + (b * b);
                     }
                 }
                 budget.kdelta2a = A * kdelta2a / (Model.W * Model.H) * l;
@@ -1077,14 +1078,13 @@ var Model;
                     for (var x = 0; x < Model.W; x++) {
                         var i = idx(x, y);
                         var i1 = idx((x + 1 + Model.W) % Model.W, y);
-                        var t = (this.psi1delta.values[i1] - this.psi3delta.values[i1]) - (this.psi1delta.values[i] - this.psi3delta.values[i]);
-                        pdelta2a += t * t;
                         var i2 = idx(x, Math.min(Model.H - 1, 1 + y));
-                        t = (this.psi1delta.values[i2] - this.psi3delta.values[i2]) - (this.psi1delta.values[i] - this.psi3delta.values[i]);
-                        pdelta2a += t * t * ((Model.dx * Model.dx) / (Model.dy * Model.dy));
+                        var a = (this.psi1delta.values[i1] - this.psi3delta.values[i1]) - (this.psi1delta.values[i] - this.psi3delta.values[i]);
+                        var b = (this.psi1delta.values[i2] - this.psi3delta.values[i2]) - (this.psi1delta.values[i] - this.psi3delta.values[i]);
+                        pdelta2a += (a * a / (Model.dx * Model.dx)) + (b * b / (Model.dy * Model.dy));
                     }
                 }
-                budget.pdelta2a = lambdaSq * A * pdelta2a / (Model.H * Model.dx * Model.dx) * l;
+                budget.pdelta2a = lambdaSq * A * pdelta2a / (Model.H * Model.W) * l;
             }
             {
                 var kavg2k = 0;
@@ -1098,7 +1098,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     for (var x = 0; x < Model.W; x++) {
                         var i = idx(x, y);
-                        kdelta2k += (3 / 2 * zeta3delta.values[i] - zeta1delta.values[i] / 2) * this.psi3delta.values[i];
+                        kdelta2k += ((3 / 2 * zeta3delta.values[i]) - (zeta1delta.values[i] / 2)) * this.psi3delta.values[i];
                     }
                 }
                 budget.kdelta2k = -k * kdelta2k / (Model.H * Model.W) * l;

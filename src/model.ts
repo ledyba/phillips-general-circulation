@@ -118,6 +118,7 @@ function setUpSunEffectForOmega2():Vector{
 }
 
 function jacob(v:Vector, w: Vector, vavg: Vector, wavg: Vector):Vector{
+  //return j1(v, w, vavg, wavg);
   var _j1 = j1(v,w,vavg,wavg);
   var _j2 = j2(v,w,vavg,wavg);
   var _j3 = j3(v,w,vavg,wavg);
@@ -309,6 +310,8 @@ export class Earth{
   xspeed3Avg = new Array<number>(H);
   yspeedAvg = new Array<number>(H);
   omega2 = new Vector(H*W);
+  omega2avg = new Vector(H);
+  omega2delta = new Vector(H*W);
 
   constructor(){
     this.q1.addeq(sunEffect).muleq(1/2);
@@ -344,13 +347,14 @@ export class Earth{
       .subeq(laplace(psiDelta, psiDeltaAvg).muleq(A))
       .muleq(500*lambdaSq/f0)
     ));
-    var om2 = average(this.omega2);
+    this.omega2avg = average(this.omega2);
+    this.omega2delta = delta(this.omega2, this.omega2avg);
     var yspd = new Array<number>(H);
     for(var y=0;y<H;y++){
       if(y > 0){
-        yspd[y] = yspd[y-1] - dy * om2.values[y]/500;
+        yspd[y] = yspd[y-1] - dy * this.omega2avg.values[y]/500;
       }else{
-        yspd[y] = -dy * om2.values[0]/500;
+        yspd[y] = -dy * this.omega2avg.values[0]/500;
       }
     }
     for(var y=0;y<H;y++){
@@ -536,10 +540,9 @@ export class Earth{
     {
       var kavg = 0;
       for (let y = 0; y < H-1; y++) {
-        var t = (this.psi1avg.values[y+1]-this.psi1avg.values[y]);
-        kavg += t*t;
-        t = (this.psi3avg.values[y+1]-this.psi3avg.values[y]);
-        kavg += t*t;
+        var a = (this.psi1avg.values[y+1]-this.psi1avg.values[y]);
+        var b = (this.psi3avg.values[y+1]-this.psi3avg.values[y]);
+        kavg += a*a + b*b;
       }
       budget.kavg = kavg/(2*H*dy*dy);
     }
@@ -565,15 +568,14 @@ export class Earth{
       budget.pdelta = lambdaSq*pdelta/(2*W*H);
     }
     //
+    var cy = (H - 1) / 2;
     {
       var qavg2pavg = 0;
       for (let y = 0; y < H; y++) {
-        qavg2pavg += (2*y-H/H)*(this.psi1avg.values[y] - this.psi3avg.values[y]);
+        qavg2pavg += (y-cy) / ((H+1)/2) * (this.psi1avg.values[y] - this.psi3avg.values[y]);
       }
       budget.qavg2pavg = qavg2pavg * (-2*R*H0*lambdaSq) / (f0 * Cp * H) * l;
     }
-    var omega2avg = average(this.omega2);
-    var omega2delta = delta(this.omega2, omega2avg);
     var deltaJabob = jacob(this.psi1delta, this.psi3delta, this.psi1avg, this.psi3avg);
     var deltaJabobAvg = average(deltaJabob);
     {
@@ -587,7 +589,7 @@ export class Earth{
       for (let y = 0; y < H; y++) {
         for (let x = 0; x < W; x++) {
           var i = idx(x,y);
-          pdelta2kdelta += omega2delta.values[i]*(this.psi1delta.values[i] - this.psi3delta.values[i]);
+          pdelta2kdelta += this.omega2delta.values[i]*(this.psi1delta.values[i] - this.psi3delta.values[i]);
         }
       }
       budget.pdelta2kdelta = pdelta2kdelta * (-f0) / (500 * W * H) * l;
@@ -616,13 +618,13 @@ export class Earth{
     {
       var pavg2kavg = 0;
       for (let y = 0; y < H; y++) {
-        pavg2kavg += omega2avg.values[y]*(this.psi1avg.values[y] - this.psi3avg.values[y]);
+        pavg2kavg += this.omega2avg.values[y]*(this.psi1avg.values[y] - this.psi3avg.values[y]);
       }
       budget.pavg2kavg = -(f0/500) * pavg2kavg / H * l;
     }
     //
-    var zeta1 = laplace(this.psi1, this.psi1avg)
-    var zeta3 = laplace(this.psi3, this.psi3avg)
+    var zeta1 = laplace(this.psi1, this.psi1avg);
+    var zeta3 = laplace(this.psi3, this.psi3avg);
     var zeta1avg = average(zeta1);
     var zeta3avg = average(zeta3);
     var zeta1delta = delta(zeta1,zeta1avg);
@@ -632,17 +634,19 @@ export class Earth{
       for (let y = 0; y < H; y++) {
         kavg2a += (zeta1avg.values[y] * zeta1avg.values[y]) + (zeta3avg.values[y] * zeta3avg.values[y]);
       }
-      budget.kavg2a = A * kavg2a /  H * l;
+      budget.kavg2a = A * kavg2a / H * l;
     }
     {
       var kdelta2a = 0;
       for (let y = 0; y < H; y++) {
         for (let x = 0; x < W; x++) {
           var i = idx(x,y);
-          kdelta2a += (zeta1.values[i] * zeta1.values[i]) + (zeta3.values[i] * zeta3.values[i]);
+          var a = zeta1delta.values[i];
+          var b = zeta3delta.values[i];
+          kdelta2a += (a * a) + (b * b);
         }
       }
-      budget.kdelta2a = A * kdelta2a /  (W*H) * l;
+      budget.kdelta2a = A * kdelta2a / (W*H) * l;
     }
     {
       var pavg2a = 0;
@@ -663,14 +667,13 @@ export class Earth{
         for (let x = 0; x < W; x++) {
           var i = idx(x,y);
           var i1 = idx((x+1+W)%W,y);
-          var t = (this.psi1delta.values[i1] - this.psi3delta.values[i1]) - (this.psi1delta.values[i] - this.psi3delta.values[i]);
-          pdelta2a += t*t;
           var i2 = idx(x,Math.min(H-1, 1+y));
-          t = (this.psi1delta.values[i2] - this.psi3delta.values[i2]) - (this.psi1delta.values[i] - this.psi3delta.values[i])
-          pdelta2a += t*t*((dx*dx)/(dy*dy));
+          var a = (this.psi1delta.values[i1] - this.psi3delta.values[i1]) - (this.psi1delta.values[i] - this.psi3delta.values[i]);
+          var b = (this.psi1delta.values[i2] - this.psi3delta.values[i2]) - (this.psi1delta.values[i] - this.psi3delta.values[i])
+          pdelta2a += (a*a / (dx*dx)) + (b*b / (dy*dy));
         }
       }
-      budget.pdelta2a = lambdaSq * A * pdelta2a /  (H * dx * dx) * l;
+      budget.pdelta2a = lambdaSq * A * pdelta2a /  (H*W) * l;
     }
     {
       var kavg2k = 0;
@@ -684,7 +687,7 @@ export class Earth{
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         var i = idx(x,y);
-        kdelta2k += (3/2*zeta3delta.values[i]-zeta1delta.values[i]/2) * this.psi3delta.values[i];
+        kdelta2k += ((3/2*zeta3delta.values[i])-(zeta1delta.values[i]/2)) * this.psi3delta.values[i];
       }
     }
     budget.kdelta2k = -k * kdelta2k / (H*W) * l;
