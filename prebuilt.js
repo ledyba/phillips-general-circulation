@@ -269,8 +269,8 @@ var EarchRunner = (function () {
         else {
             this.earth.step();
         }
-        var from = 200;
-        var to = 3200;
+        var from = 135;
+        var to = 165;
         if (this.budget != null && this.stepCnt >= ((24 * 3600 * from / Model.dt) | 0)) {
             var last = this.budget[this.budget.length - 1];
             last.addeq(this.earth.calcEnergyBudget());
@@ -546,6 +546,7 @@ var Model;
         return m;
     }
     function jacob(v, w, vavg, wavg) {
+        return j1(v, w, vavg, wavg);
         var _j1 = j1(v, w, vavg, wavg);
         var _j2 = j2(v, w, vavg, wavg);
         var _j3 = j3(v, w, vavg, wavg);
@@ -924,7 +925,8 @@ var Model;
             }
         };
         Earth.prototype.calcEnergyBudget = function () {
-            var l = 24 * 3600;
+            var l = 1000 * 1000;
+            var stockScale = 1000 * 1000 / 100000;
             var budget = new EnergyBudget();
             budget.cnt = 1;
             {
@@ -951,7 +953,7 @@ var Model;
                         }
                     }
                 }
-                budget.kdelta = kdelta / (2 * Model.H * Model.W);
+                budget.kdelta = kdelta / (2 * Model.H * Model.W) * stockScale;
             }
             {
                 var kavg = 0;
@@ -960,7 +962,7 @@ var Model;
                     var b = (this.psi3avg.values[y + 1] - this.psi3avg.values[y]);
                     kavg += a * a + b * b;
                 }
-                budget.kavg = kavg / (2 * Model.H * Model.dy * Model.dy);
+                budget.kavg = kavg / (2 * Model.H * Model.dy * Model.dy) * stockScale;
             }
             {
                 var pavg = 0;
@@ -968,7 +970,7 @@ var Model;
                     var t = this.psi1avg.values[y] - this.psi3avg.values[y];
                     pavg += t * t;
                 }
-                budget.pavg = lambdaSq * pavg / (Model.H * 2);
+                budget.pavg = lambdaSq * pavg / (Model.H * 2) * stockScale;
             }
             {
                 var pdelta = 0;
@@ -979,7 +981,7 @@ var Model;
                         pdelta += t * t;
                     }
                 }
-                budget.pdelta = lambdaSq * pdelta / (2 * Model.W * Model.H);
+                budget.pdelta = lambdaSq * pdelta / (2 * Model.W * Model.H) * stockScale;
             }
             var cy = (Model.H - 1) / 2;
             {

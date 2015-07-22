@@ -118,7 +118,7 @@ function setUpSunEffectForOmega2():Vector{
 }
 
 function jacob(v:Vector, w: Vector, vavg: Vector, wavg: Vector):Vector{
-  //return j1(v, w, vavg, wavg);
+  return j1(v, w, vavg, wavg);
   var _j1 = j1(v,w,vavg,wavg);
   var _j2 = j2(v,w,vavg,wavg);
   var _j3 = j3(v,w,vavg,wavg);
@@ -507,7 +507,8 @@ export class Earth{
   }
 
   calcEnergyBudget(): EnergyBudget{
-    var l = 24*3600;
+    var l = 1000*1000;
+    var stockScale = 1000 * 1000 / 100000;
     var budget = new EnergyBudget();
     budget.cnt = 1;
     //
@@ -534,7 +535,7 @@ export class Earth{
           }
         }
       }
-      budget.kdelta = kdelta / (2*H*W);
+      budget.kdelta = kdelta / (2*H*W) * stockScale;
     }
     //
     {
@@ -544,7 +545,7 @@ export class Earth{
         var b = (this.psi3avg.values[y+1]-this.psi3avg.values[y]);
         kavg += a*a + b*b;
       }
-      budget.kavg = kavg/(2*H*dy*dy);
+      budget.kavg = kavg/(2*H*dy*dy) * stockScale;
     }
     //
     {
@@ -553,7 +554,7 @@ export class Earth{
         var t = this.psi1avg.values[y] - this.psi3avg.values[y];
         pavg += t*t;
       }
-      budget.pavg = lambdaSq*pavg/(H*2);
+      budget.pavg = lambdaSq*pavg/(H*2) * stockScale;
     }
     //
     {
@@ -565,7 +566,7 @@ export class Earth{
           pdelta += t*t;
         }
       }
-      budget.pdelta = lambdaSq*pdelta/(2*W*H);
+      budget.pdelta = lambdaSq*pdelta/(2*W*H) * stockScale;
     }
     //
     var cy = (H - 1) / 2;
