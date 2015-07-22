@@ -118,7 +118,7 @@ function setUpSunEffectForOmega2():Vector{
 }
 
 function jacob(v:Vector, w: Vector, vavg: Vector, wavg: Vector):Vector{
-  return j1(v, w, vavg, wavg);
+  //return j1(v, w, vavg, wavg);
   var _j1 = j1(v,w,vavg,wavg);
   var _j2 = j2(v,w,vavg,wavg);
   var _j3 = j3(v,w,vavg,wavg);
