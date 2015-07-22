@@ -507,8 +507,8 @@ export class Earth{
   }
 
   calcEnergyBudget(): EnergyBudget{
-    var l = 1000*1000;
-    var stockScale = 1000 * 1000 / 100000;
+    var flowScale = 3600*24;
+    var stockScale = 1;
     var budget = new EnergyBudget();
     budget.cnt = 1;
     //
@@ -519,19 +519,19 @@ export class Earth{
           var i = idx(x,y);
           if(y < H-1){
             var j = idx(x,y+1);
-            var a = this.psi1delta.values[j] - this.psi1delta.values[i];
-            var b = this.psi3delta.values[j] - this.psi3delta.values[i];
-            kdelta += (a*a+b*b)/(dy*dy);
+            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]) / dy;
+            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]) / dy;
+            kdelta += a*a + b*b;
           }else{
-            var a =  - this.psi1delta.values[i];
-            var b =  - this.psi3delta.values[i];
-            kdelta += (a*a+b*b)/(dy*dy);
+            var a =  - this.psi1delta.values[i] / dy;
+            var b =  - this.psi3delta.values[i] / dy;
+            kdelta += a*a + b*b;
           }
           {
             var j = idx((x+1+W)%W,y);
-            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
-            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
-            kdelta += (a*a+b*b)/(dx*dx);
+            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]) / dx;
+            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]) / dx;
+            kdelta += a*a + b*b;
           }
         }
       }
@@ -575,7 +575,7 @@ export class Earth{
       for (let y = 0; y < H; y++) {
         qavg2pavg += (y-cy) / ((H+1)/2) * (this.psi1avg.values[y] - this.psi3avg.values[y]);
       }
-      budget.qavg2pavg = qavg2pavg * (-2*R*H0*lambdaSq) / (f0 * Cp * H) * l;
+      budget.qavg2pavg = qavg2pavg * (-2*R*H0*lambdaSq) / (f0 * Cp * H) * flowScale;
     }
     var deltaJabob = jacob(this.psi1delta, this.psi3delta, this.psi1avg, this.psi3avg);
     var deltaJabobAvg = average(deltaJabob);
@@ -584,7 +584,7 @@ export class Earth{
       for (let y = 0; y < H; y++) {
         pavg2pdelta += (this.psi1avg.values[y]-this.psi3avg.values[y]) * deltaJabobAvg.values[y];
       }
-      budget.pavg2pdelta = pavg2pdelta * (-lambdaSq) / (H) * l;
+      budget.pavg2pdelta = pavg2pdelta * (-lambdaSq) / (H) * flowScale;
       //
       var pdelta2kdelta = 0;
       for (let y = 0; y < H; y++) {
@@ -593,7 +593,7 @@ export class Earth{
           pdelta2kdelta += this.omega2delta.values[i]*(this.psi1delta.values[i] - this.psi3delta.values[i]);
         }
       }
-      budget.pdelta2kdelta = pdelta2kdelta * (-f0) / (500 * W * H) * l;
+      budget.pdelta2kdelta = pdelta2kdelta * (-f0) / (500 * W * H) * flowScale;
     }
     var zero = new Vector(H*W);
     var deltaLaplace1= laplace(this.psi1delta, zero);
@@ -613,7 +613,7 @@ export class Earth{
         kdelta2kavg += (this.psi1avg.values[Math.max(0, y-1)] - this.psi1avg.values[Math.min(H-1, y+1)]) * tot1;
         kdelta2kavg += (this.psi3avg.values[Math.max(0, y-1)] - this.psi3avg.values[Math.min(H-1, y+1)]) * tot3;
       }
-      budget.kdelta2kavg = kdelta2kavg/(4*W*H*dx*dy) * l;
+      budget.kdelta2kavg = kdelta2kavg/(4*W*H*dx*dy) * flowScale;
     }
     //
     {
@@ -621,7 +621,7 @@ export class Earth{
       for (let y = 0; y < H; y++) {
         pavg2kavg += this.omega2avg.values[y]*(this.psi1avg.values[y] - this.psi3avg.values[y]);
       }
-      budget.pavg2kavg = -(f0/500) * pavg2kavg / H * l;
+      budget.pavg2kavg = -(f0/500) * pavg2kavg / H * flowScale;
     }
     //
     var zeta1 = laplace(this.psi1, this.psi1avg);
@@ -635,7 +635,7 @@ export class Earth{
       for (let y = 0; y < H; y++) {
         kavg2a += (zeta1avg.values[y] * zeta1avg.values[y]) + (zeta3avg.values[y] * zeta3avg.values[y]);
       }
-      budget.kavg2a = A * kavg2a / H * l;
+      budget.kavg2a = A * kavg2a / H * flowScale;
     }
     {
       var kdelta2a = 0;
@@ -647,7 +647,7 @@ export class Earth{
           kdelta2a += (a * a) + (b * b);
         }
       }
-      budget.kdelta2a = A * kdelta2a / (W*H) * l;
+      budget.kdelta2a = A * kdelta2a / (W*H) * flowScale;
     }
     {
       var pavg2a = 0;
@@ -660,7 +660,7 @@ export class Earth{
           pavg2a += t*t;
         }
       }
-      budget.pavg2a = lambdaSq * A * pavg2a /  (H*dy*dy) * l;
+      budget.pavg2a = lambdaSq * A * pavg2a /  (H*dy*dy) * flowScale;
     }
     {
       var pdelta2a = 0;
@@ -674,14 +674,14 @@ export class Earth{
           pdelta2a += (a*a / (dx*dx)) + (b*b / (dy*dy));
         }
       }
-      budget.pdelta2a = lambdaSq * A * pdelta2a /  (H*W) * l;
+      budget.pdelta2a = lambdaSq * A * pdelta2a /  (H*W) * flowScale;
     }
     {
       var kavg2k = 0;
       for (let y = 0; y < H; y++) {
         kavg2k += (3/2*zeta3avg.values[y]-zeta1avg.values[y]/2) * this.psi3avg.values[y];
       }
-      budget.kavg2k = -k * kavg2k / (H) * l;
+      budget.kavg2k = -k * kavg2k / (H) * flowScale;
     }
   {
     var kdelta2k = 0;
@@ -691,7 +691,7 @@ export class Earth{
         kdelta2k += ((3/2*zeta3delta.values[i])-(zeta1delta.values[i]/2)) * this.psi3delta.values[i];
       }
     }
-    budget.kdelta2k = -k * kdelta2k / (H*W) * l;
+    budget.kdelta2k = -k * kdelta2k / (H*W) * flowScale;
   }
   return budget;
   }

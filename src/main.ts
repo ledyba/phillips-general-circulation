@@ -42,8 +42,8 @@ class EarchRunner {
       this.earth.step();
     }
     // calc budget
-    var from = 135;
-    var to = 165;
+    var from = 200;
+    var to = 1000;
     if (this.budget != null && this.stepCnt >= ((24 * 3600 * from / Model.dt) | 0)) {
       var last = this.budget[this.budget.length - 1];
       last.addeq(this.earth.calcEnergyBudget())

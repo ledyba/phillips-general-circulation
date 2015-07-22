@@ -269,8 +269,8 @@ var EarchRunner = (function () {
         else {
             this.earth.step();
         }
-        var from = 135;
-        var to = 165;
+        var from = 200;
+        var to = 1000;
         if (this.budget != null && this.stepCnt >= ((24 * 3600 * from / Model.dt) | 0)) {
             var last = this.budget[this.budget.length - 1];
             last.addeq(this.earth.calcEnergyBudget());
@@ -925,8 +925,8 @@ var Model;
             }
         };
         Earth.prototype.calcEnergyBudget = function () {
-            var l = 1000 * 1000;
-            var stockScale = 1000 * 1000 / 100000;
+            var flowScale = 3600 * 24;
+            var stockScale = 1;
             var budget = new EnergyBudget();
             budget.cnt = 1;
             {
@@ -936,20 +936,20 @@ var Model;
                         var i = idx(x, y);
                         if (y < Model.H - 1) {
                             var j = idx(x, y + 1);
-                            var a = this.psi1delta.values[j] - this.psi1delta.values[i];
-                            var b = this.psi3delta.values[j] - this.psi3delta.values[i];
-                            kdelta += (a * a + b * b) / (Model.dy * Model.dy);
+                            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]) / Model.dy;
+                            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]) / Model.dy;
+                            kdelta += a * a + b * b;
                         }
                         else {
-                            var a = -this.psi1delta.values[i];
-                            var b = -this.psi3delta.values[i];
-                            kdelta += (a * a + b * b) / (Model.dy * Model.dy);
+                            var a = -this.psi1delta.values[i] / Model.dy;
+                            var b = -this.psi3delta.values[i] / Model.dy;
+                            kdelta += a * a + b * b;
                         }
                         {
                             var j = idx((x + 1 + Model.W) % Model.W, y);
-                            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]);
-                            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]);
-                            kdelta += (a * a + b * b) / (Model.dx * Model.dx);
+                            var a = (this.psi1delta.values[j] - this.psi1delta.values[i]) / Model.dx;
+                            var b = (this.psi3delta.values[j] - this.psi3delta.values[i]) / Model.dx;
+                            kdelta += a * a + b * b;
                         }
                     }
                 }
@@ -989,7 +989,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     qavg2pavg += (y - cy) / ((Model.H + 1) / 2) * (this.psi1avg.values[y] - this.psi3avg.values[y]);
                 }
-                budget.qavg2pavg = qavg2pavg * (-2 * R * H0 * lambdaSq) / (f0 * Cp * Model.H) * l;
+                budget.qavg2pavg = qavg2pavg * (-2 * R * H0 * lambdaSq) / (f0 * Cp * Model.H) * flowScale;
             }
             var deltaJabob = jacob(this.psi1delta, this.psi3delta, this.psi1avg, this.psi3avg);
             var deltaJabobAvg = average(deltaJabob);
@@ -998,7 +998,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     pavg2pdelta += (this.psi1avg.values[y] - this.psi3avg.values[y]) * deltaJabobAvg.values[y];
                 }
-                budget.pavg2pdelta = pavg2pdelta * (-lambdaSq) / (Model.H) * l;
+                budget.pavg2pdelta = pavg2pdelta * (-lambdaSq) / (Model.H) * flowScale;
                 var pdelta2kdelta = 0;
                 for (var y = 0; y < Model.H; y++) {
                     for (var x = 0; x < Model.W; x++) {
@@ -1006,7 +1006,7 @@ var Model;
                         pdelta2kdelta += this.omega2delta.values[i] * (this.psi1delta.values[i] - this.psi3delta.values[i]);
                     }
                 }
-                budget.pdelta2kdelta = pdelta2kdelta * (-f0) / (500 * Model.W * Model.H) * l;
+                budget.pdelta2kdelta = pdelta2kdelta * (-f0) / (500 * Model.W * Model.H) * flowScale;
             }
             var zero = new Vector(Model.H * Model.W);
             var deltaLaplace1 = laplace(this.psi1delta, zero);
@@ -1026,14 +1026,14 @@ var Model;
                     kdelta2kavg += (this.psi1avg.values[Math.max(0, y - 1)] - this.psi1avg.values[Math.min(Model.H - 1, y + 1)]) * tot1;
                     kdelta2kavg += (this.psi3avg.values[Math.max(0, y - 1)] - this.psi3avg.values[Math.min(Model.H - 1, y + 1)]) * tot3;
                 }
-                budget.kdelta2kavg = kdelta2kavg / (4 * Model.W * Model.H * Model.dx * Model.dy) * l;
+                budget.kdelta2kavg = kdelta2kavg / (4 * Model.W * Model.H * Model.dx * Model.dy) * flowScale;
             }
             {
                 var pavg2kavg = 0;
                 for (var y = 0; y < Model.H; y++) {
                     pavg2kavg += this.omega2avg.values[y] * (this.psi1avg.values[y] - this.psi3avg.values[y]);
                 }
-                budget.pavg2kavg = -(f0 / 500) * pavg2kavg / Model.H * l;
+                budget.pavg2kavg = -(f0 / 500) * pavg2kavg / Model.H * flowScale;
             }
             var zeta1 = laplace(this.psi1, this.psi1avg);
             var zeta3 = laplace(this.psi3, this.psi3avg);
@@ -1046,7 +1046,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     kavg2a += (zeta1avg.values[y] * zeta1avg.values[y]) + (zeta3avg.values[y] * zeta3avg.values[y]);
                 }
-                budget.kavg2a = A * kavg2a / Model.H * l;
+                budget.kavg2a = A * kavg2a / Model.H * flowScale;
             }
             {
                 var kdelta2a = 0;
@@ -1058,7 +1058,7 @@ var Model;
                         kdelta2a += (a * a) + (b * b);
                     }
                 }
-                budget.kdelta2a = A * kdelta2a / (Model.W * Model.H) * l;
+                budget.kdelta2a = A * kdelta2a / (Model.W * Model.H) * flowScale;
             }
             {
                 var pavg2a = 0;
@@ -1072,7 +1072,7 @@ var Model;
                         pavg2a += t * t;
                     }
                 }
-                budget.pavg2a = lambdaSq * A * pavg2a / (Model.H * Model.dy * Model.dy) * l;
+                budget.pavg2a = lambdaSq * A * pavg2a / (Model.H * Model.dy * Model.dy) * flowScale;
             }
             {
                 var pdelta2a = 0;
@@ -1086,14 +1086,14 @@ var Model;
                         pdelta2a += (a * a / (Model.dx * Model.dx)) + (b * b / (Model.dy * Model.dy));
                     }
                 }
-                budget.pdelta2a = lambdaSq * A * pdelta2a / (Model.H * Model.W) * l;
+                budget.pdelta2a = lambdaSq * A * pdelta2a / (Model.H * Model.W) * flowScale;
             }
             {
                 var kavg2k = 0;
                 for (var y = 0; y < Model.H; y++) {
                     kavg2k += (3 / 2 * zeta3avg.values[y] - zeta1avg.values[y] / 2) * this.psi3avg.values[y];
                 }
-                budget.kavg2k = -k * kavg2k / (Model.H) * l;
+                budget.kavg2k = -k * kavg2k / (Model.H) * flowScale;
             }
             {
                 var kdelta2k = 0;
@@ -1103,7 +1103,7 @@ var Model;
                         kdelta2k += ((3 / 2 * zeta3delta.values[i]) - (zeta1delta.values[i] / 2)) * this.psi3delta.values[i];
                     }
                 }
-                budget.kdelta2k = -k * kdelta2k / (Model.H * Model.W) * l;
+                budget.kdelta2k = -k * kdelta2k / (Model.H * Model.W) * flowScale;
             }
             return budget;
         };
