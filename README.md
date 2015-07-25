@@ -16,7 +16,7 @@ Please install [TypeScript](http://www.typescriptlang.org/) first.
 npm i -g typescript
 ```
 
-Then, compile souces with tsc.
+Then, compile sources with tsc.
 
 ```bash
 tsc
