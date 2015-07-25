@@ -13,6 +13,8 @@ https://cdn.rawgit.com/ledyba/philips-general-circulation/master/index.html
 Please install [TypeScript](http://www.typescriptlang.org/) first.
 
 ```bash
+sudo apt-get install npm # if you are ubuntu / debian user
+sudo brew install npm # if you are osx user
 npm i -g typescript
 ```
 
