@@ -26,4 +26,4 @@ tsc
 
 # License
 
-GPL v3 or later. Please see [LICENSE]()
+GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-circulation/blob/master/LICENSE)
