@@ -1,6 +1,7 @@
 declare var Conrec: any;
 declare var d3: any;
-class EarchRunner {
+declare var $: any;
+class EarthRunner {
   earth = new Model.Earth();
   time = 0;
   stepCnt = 0;
@@ -11,7 +12,7 @@ class EarchRunner {
   width =  Model.W*20;
   height =  Model.H*30;
   x = d3.scale.linear().range([0, this.width]).domain([0, Model.W]);
-	y = d3.scale.linear().range([this.height, 0]).domain([0, Model.H]);
+  y = d3.scale.linear().range([this.height, 0]).domain([0, Model.H]);
   colours = d3.scale.linear().domain([-50, 0, 50]).range(["blue", "white", "red"]);
   budget = new Array<Model.EnergyBudget>();
   constructor(){
@@ -32,7 +33,7 @@ class EarchRunner {
      .attr("height", this.height);
      this.budget.push(new Model.EnergyBudget());
   }
-  step(){
+  stepCalc(){
     var stepsBy10Day = ((24*3600*10/Model.dt)|0);
     var step = (24*3600*130/Model.dt)|0;
     if(this.stepCnt == step){
@@ -69,7 +70,7 @@ class EarchRunner {
     elem.innerHTML='';
     for(var i=this.earth.xspeed1Avg.length-1;i>=0;i--){
       var l = document.createElement("li");
-      l.innerText=this.earth.xspeed1Avg[i].toString();
+      l.innerText=this.earth.xspeed1Avg[i].toPrecision(3);
       elem.appendChild(l);
     }
   }
@@ -79,7 +80,7 @@ class EarchRunner {
     for(var i=this.earth.yspeedAvg.length-1;i>=0;i--){
       var l = document.createElement("li");
       var v = this.earth.yspeedAvg[i] * 1000;
-      l.innerText=v.toString();
+      l.innerText=v.toPrecision(3);
       elem.appendChild(l);
     }
   }
@@ -92,7 +93,7 @@ class EarchRunner {
       var u3 = this.earth.xspeed3Avg[i];
       //var u4 = u3 + (u3-u1) 1/2;
       var u4 = u3*3/2 - u1 /2;
-      l.innerText=u4.toString();
+      l.innerText=u4.toPrecision(3);
       elem.appendChild(l);
     }
   }
@@ -101,7 +102,7 @@ class EarchRunner {
     elem.innerHTML='';
     for(var i=this.earth.tempAvg.length-1;i>=0;i--){
       var l = document.createElement("li");
-      l.innerText=this.earth.tempAvg[i].toString();
+      l.innerText=this.earth.tempAvg[i].toPrecision(3);
       elem.appendChild(l);
     }
   }
@@ -169,43 +170,47 @@ class EarchRunner {
       console.log(e);
     }
   }
-}
-function main(){
-  var id;
-  var r:EarchRunner;
-  var step = function(){
-    var day = (r.time / (24*3600)) | 0;
+  id: any;
+  step(){
+    var day = (earthRunner.time / (24*3600)) | 0;
     var stepPerAnim = 12;
     if(day < 130){
       stepPerAnim = 48;
     }else if(day > 200){
     }
     for(var k=0;k<stepPerAnim;k++){
-      r.step();
+      this.stepCalc();
     }
-    day = (r.time / (24*3600)) | 0;
+    day = (earthRunner.time / (24*3600)) | 0;
     if(day == 130){
-      stop();
+      this.stop();
     }
-    r.anime();
-  };
-  var stop = function(){
-    clearInterval(id);
-    id = null;
-  };
-  var start = function(){
-    id = window.setInterval(step, 100);
-  };
+    this.anime();
+  }
+  stop(){
+    clearInterval(this.id);
+    this.id = null;
+    var btn = $( "#run_button" );
+    btn.button("option", "label", "再開");
+    btn.prop('checked', false);
+    btn.button("refresh");
+  }
+  start(){
+    var self = this;
+    this.id = window.setInterval(function(){self.step();}, 100);
+    var btn = $( "#run_button" );
+    btn.button("option", "label", "停止");
+    btn.prop('checked', true);
+    btn.button("refresh");
+  }
+  isRunning():boolean{
+    return this.id != null;
+  }
+}
+declare var earthRunner: EarthRunner;
+function main(){
+  var id;
   window.onload=function(ev:Event){
-    r = new EarchRunner();
-    var gr = document.getElementById("graph");
-    gr.onclick = function(){
-      if(id){
-        stop();
-      }else{
-        start();
-      }
-    };
-
+    earthRunner = new EarthRunner();
   };
 };

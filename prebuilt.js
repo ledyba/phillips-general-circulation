@@ -228,8 +228,8 @@ var Mat = (function () {
     };
     return Mat;
 })();
-var EarchRunner = (function () {
-    function EarchRunner() {
+var EarthRunner = (function () {
+    function EarthRunner() {
         this.earth = new Model.Earth();
         this.time = 0;
         this.stepCnt = 0;
@@ -259,7 +259,7 @@ var EarchRunner = (function () {
             .attr("height", this.height);
         this.budget.push(new Model.EnergyBudget());
     }
-    EarchRunner.prototype.step = function () {
+    EarthRunner.prototype.stepCalc = function () {
         var stepsBy10Day = ((24 * 3600 * 10 / Model.dt) | 0);
         var step = (24 * 3600 * 130 / Model.dt) | 0;
         if (this.stepCnt == step) {
@@ -291,26 +291,26 @@ var EarchRunner = (function () {
         this.stepCnt++;
         this.time = this.stepCnt * Model.dt;
     };
-    EarchRunner.prototype.inspectU1 = function () {
+    EarthRunner.prototype.inspectU1 = function () {
         var elem = document.getElementById("inspect_avg_u1");
         elem.innerHTML = '';
         for (var i = this.earth.xspeed1Avg.length - 1; i >= 0; i--) {
             var l = document.createElement("li");
-            l.innerText = this.earth.xspeed1Avg[i].toString();
+            l.innerText = this.earth.xspeed1Avg[i].toPrecision(3);
             elem.appendChild(l);
         }
     };
-    EarchRunner.prototype.inspectV1 = function () {
+    EarthRunner.prototype.inspectV1 = function () {
         var elem = document.getElementById("inspect_avg_v1");
         elem.innerHTML = '';
         for (var i = this.earth.yspeedAvg.length - 1; i >= 0; i--) {
             var l = document.createElement("li");
             var v = this.earth.yspeedAvg[i] * 1000;
-            l.innerText = v.toString();
+            l.innerText = v.toPrecision(3);
             elem.appendChild(l);
         }
     };
-    EarchRunner.prototype.inspectU4 = function () {
+    EarthRunner.prototype.inspectU4 = function () {
         var elem = document.getElementById("inspect_avg_u4");
         elem.innerHTML = '';
         for (var i = this.earth.xspeed1Avg.length - 1; i >= 0; i--) {
@@ -318,20 +318,20 @@ var EarchRunner = (function () {
             var u1 = this.earth.xspeed1Avg[i];
             var u3 = this.earth.xspeed3Avg[i];
             var u4 = u3 * 3 / 2 - u1 / 2;
-            l.innerText = u4.toString();
+            l.innerText = u4.toPrecision(3);
             elem.appendChild(l);
         }
     };
-    EarchRunner.prototype.inspectT2 = function () {
+    EarthRunner.prototype.inspectT2 = function () {
         var elem = document.getElementById("inspect_avg_t2");
         elem.innerHTML = '';
         for (var i = this.earth.tempAvg.length - 1; i >= 0; i--) {
             var l = document.createElement("li");
-            l.innerText = this.earth.tempAvg[i].toString();
+            l.innerText = this.earth.tempAvg[i].toPrecision(3);
             elem.appendChild(l);
         }
     };
-    EarchRunner.prototype.anime = function () {
+    EarthRunner.prototype.anime = function () {
         this.earth.calcDisplay();
         this.inspectU1();
         this.inspectU4();
@@ -396,13 +396,8 @@ var EarchRunner = (function () {
             console.log(e);
         }
     };
-    return EarchRunner;
-})();
-function main() {
-    var id;
-    var r;
-    var step = function () {
-        var day = (r.time / (24 * 3600)) | 0;
+    EarthRunner.prototype.step = function () {
+        var day = (earthRunner.time / (24 * 3600)) | 0;
         var stepPerAnim = 12;
         if (day < 130) {
             stepPerAnim = 48;
@@ -410,32 +405,39 @@ function main() {
         else if (day > 200) {
         }
         for (var k = 0; k < stepPerAnim; k++) {
-            r.step();
+            this.stepCalc();
         }
-        day = (r.time / (24 * 3600)) | 0;
+        day = (earthRunner.time / (24 * 3600)) | 0;
         if (day == 130) {
-            stop();
+            this.stop();
         }
-        r.anime();
+        this.anime();
     };
-    var stop = function () {
-        clearInterval(id);
-        id = null;
+    EarthRunner.prototype.stop = function () {
+        clearInterval(this.id);
+        this.id = null;
+        var btn = $("#run_button");
+        btn.button("option", "label", "再開");
+        btn.prop('checked', false);
+        btn.button("refresh");
     };
-    var start = function () {
-        id = window.setInterval(step, 100);
+    EarthRunner.prototype.start = function () {
+        var self = this;
+        this.id = window.setInterval(function () { self.step(); }, 100);
+        var btn = $("#run_button");
+        btn.button("option", "label", "停止");
+        btn.prop('checked', true);
+        btn.button("refresh");
     };
+    EarthRunner.prototype.isRunning = function () {
+        return this.id != null;
+    };
+    return EarthRunner;
+})();
+function main() {
+    var id;
     window.onload = function (ev) {
-        r = new EarchRunner();
-        var gr = document.getElementById("graph");
-        gr.onclick = function () {
-            if (id) {
-                stop();
-            }
-            else {
-                start();
-            }
-        };
+        earthRunner = new EarthRunner();
     };
 }
 ;
@@ -445,12 +447,8 @@ var Model;
     Model.dy = 625 * 1000;
     Model.W = 16;
     Model.H = 15;
-    var lambdaSq = 1.5 * (1e-12);
     Model.dt = 24 * 3600 / 24;
     var A = 1e5;
-    var k = 4e-6;
-    var H0 = 2 * (1e-3);
-    var f0 = 1e-4;
     var R = 287;
     var Cp = 1004;
     var beta = 1.6 * (1e-11);
@@ -495,55 +493,6 @@ var Model;
             }
         }
         return m.muleq(alpha).addeq(Mat.ident(w * h, beta));
-    }
-    var matForPsiPlusAvg = setUpLaplaceMat1d(Model.H, 1 / (Model.dy * Model.dy));
-    var matForPsiMinusAvg = setUpLaplaceMat1d(Model.H, 1 / (Model.dy * Model.dy), -2 * lambdaSq);
-    var matForPsiPlusDeltaLU = setUpLaplaceMat2d(Model.W, Model.H, 1, 0).LU();
-    var matForPsiMinusDeltaLU = setUpLaplaceMat2d(Model.W, Model.H, 1, -2 * lambdaSq).LU();
-    var betaSurface = setUpBetaSurface();
-    var sunEffect = setUpSunEffect();
-    var matForChi1Avg = setUpLaplaceMat1d(Model.H, -(A * Model.dt) / (Model.dy * Model.dy), +1);
-    var matForChi3Avg = setUpLaplaceMat1d(Model.H, -(A * Model.dt) / (Model.dy * Model.dy), +1 + (3 * k * Model.dt / 2));
-    var matForChi1DeltaLU = setUpLaplaceMat2d(Model.W, Model.H, -(A * Model.dt), +1).LU();
-    var matForChi3DeltaLU = setUpLaplaceMat2d(Model.W, Model.H, -(A * Model.dt), +1 + (3 * k * Model.dt / 2)).LU();
-    function setUpBetaSurface() {
-        var m = new Vector(Model.W * Model.H);
-        var cy = (Model.H - 1) / 2;
-        for (var y = 0; y < Model.H; y++) {
-            var v = (y - cy) * Model.dy * beta;
-            for (var x = 0; x < Model.W; x++) {
-                var i = idx(x, y);
-                m.values[i] = v;
-            }
-        }
-        return m;
-    }
-    function setUpSunEffect() {
-        var m = new Vector(Model.W * Model.H);
-        var cy = (Model.H - 1) / 2;
-        var alpha = 4 * R * H0 * lambdaSq * Model.dt / (f0 * Cp * (Model.H + 1) / 2);
-        for (var y = 0; y < Model.H; y++) {
-            var v = (y - cy) * alpha;
-            for (var x = 0; x < Model.W; x++) {
-                var i = idx(x, y);
-                m.values[i] = v;
-            }
-        }
-        return m;
-    }
-    var sunEffectForOmega2 = setUpSunEffectForOmega2();
-    function setUpSunEffectForOmega2() {
-        var m = new Vector(Model.W * Model.H);
-        var cy = (Model.H - 1) / 2;
-        var alpha = 2 * R * H0 / (f0 * Cp * (Model.H + 1) / 2);
-        for (var y = 0; y < Model.H; y++) {
-            var v = (y - cy) * alpha;
-            for (var x = 0; x < Model.W; x++) {
-                var i = idx(x, y);
-                m.values[i] = v;
-            }
-        }
-        return m;
     }
     function jacob(v, w, vavg, wavg) {
         var _j1 = j1(v, w, vavg, wavg);
@@ -711,6 +660,10 @@ var Model;
         }
         return delta;
     }
+    Model.OrigLambdaSq = 1.5 * (1e-12);
+    Model.OrigH = 2 * (1e-3);
+    Model.OrigF = 1e-4;
+    Model.OrigK = 4e-6;
     var Earth = (function () {
         function Earth() {
             this.q1last = new Vector(Model.H * Model.W);
@@ -741,8 +694,22 @@ var Model;
             this.omega2 = new Vector(Model.H * Model.W);
             this.omega2avg = new Vector(Model.H);
             this.omega2delta = new Vector(Model.H * Model.W);
-            this.q1.addeq(sunEffect).muleq(1 / 2);
-            this.q3.subeq(sunEffect).muleq(1 / 2);
+            this.lambdaSq = Model.OrigLambdaSq;
+            this.H = Model.OrigH;
+            this.f = Model.OrigF;
+            this.k = Model.OrigK;
+            this.betaSurface = this.setUpBetaSurface();
+            this.matForPsiPlusDeltaLU = setUpLaplaceMat2d(Model.W, Model.H, 1, 0).LU();
+            this.matForPsiPlusAvg = setUpLaplaceMat1d(Model.H, 1 / (Model.dy * Model.dy));
+            this.matForChi1Avg = setUpLaplaceMat1d(Model.H, -(A * Model.dt) / (Model.dy * Model.dy), +1);
+            this.matForChi1DeltaLU = setUpLaplaceMat2d(Model.W, Model.H, -(A * Model.dt), +1).LU();
+            this.calcMatForPsiDelta();
+            this.calcMatForPsiAvg();
+            this.calcMatForChiAvg();
+            this.calcMatForChiDelta();
+            this.calcBetaSurface();
+            this.q1.addeq(this.sunEffect).muleq(1 / 2);
+            this.q3.subeq(this.sunEffect).muleq(1 / 2);
             this.q1avg.swap(average(this.q1));
             this.q3avg.swap(average(this.q3));
             for (var y = 0; y < Model.H; y++) {
@@ -752,6 +719,79 @@ var Model;
                 this.zeta3[y] = new Array(Model.W);
             }
         }
+        Earth.prototype.calcMatForPsiDelta = function () {
+            this.matForPsiMinusDeltaLU = setUpLaplaceMat2d(Model.W, Model.H, 1, -2 * this.lambdaSq).LU();
+        };
+        Earth.prototype.calcMatForPsiAvg = function () {
+            this.matForPsiMinusAvg = setUpLaplaceMat1d(Model.H, 1 / (Model.dy * Model.dy), -2 * this.lambdaSq);
+        };
+        Earth.prototype.calcMatForChiAvg = function () {
+            this.matForChi3Avg = setUpLaplaceMat1d(Model.H, -(A * Model.dt) / (Model.dy * Model.dy), +1 + (3 * this.k * Model.dt / 2));
+        };
+        Earth.prototype.calcMatForChiDelta = function () {
+            this.matForChi3DeltaLU = setUpLaplaceMat2d(Model.W, Model.H, -(A * Model.dt), +1 + (3 * this.k * Model.dt / 2)).LU();
+        };
+        Earth.prototype.calcBetaSurface = function () {
+            this.sunEffect = this.setUpSunEffect();
+            this.sunEffectForOmega2 = this.setUpSunEffectForOmega2();
+        };
+        Earth.prototype.setUpBetaSurface = function () {
+            var m = new Vector(Model.W * Model.H);
+            var cy = (Model.H - 1) / 2;
+            for (var y = 0; y < Model.H; y++) {
+                var v = (y - cy) * Model.dy * beta;
+                for (var x = 0; x < Model.W; x++) {
+                    var i = idx(x, y);
+                    m.values[i] = v;
+                }
+            }
+            return m;
+        };
+        Earth.prototype.setUpSunEffect = function () {
+            var m = new Vector(Model.W * Model.H);
+            var cy = (Model.H - 1) / 2;
+            var alpha = 4 * R * this.H * this.lambdaSq * Model.dt / (this.f * Cp * (Model.H + 1) / 2);
+            for (var y = 0; y < Model.H; y++) {
+                var v = (y - cy) * alpha;
+                for (var x = 0; x < Model.W; x++) {
+                    var i = idx(x, y);
+                    m.values[i] = v;
+                }
+            }
+            return m;
+        };
+        Earth.prototype.setUpSunEffectForOmega2 = function () {
+            var m = new Vector(Model.W * Model.H);
+            var cy = (Model.H - 1) / 2;
+            var alpha = 2 * R * this.H / (this.f * Cp * (Model.H + 1) / 2);
+            for (var y = 0; y < Model.H; y++) {
+                var v = (y - cy) * alpha;
+                for (var x = 0; x < Model.W; x++) {
+                    var i = idx(x, y);
+                    m.values[i] = v;
+                }
+            }
+            return m;
+        };
+        Earth.prototype.changeLambdaSq = function (lambdaSq) {
+            this.lambdaSq = lambdaSq;
+            this.calcMatForPsiDelta();
+            this.calcMatForPsiAvg();
+            this.calcBetaSurface();
+        };
+        Earth.prototype.changeH = function (h) {
+            this.H = h;
+            this.calcBetaSurface();
+        };
+        Earth.prototype.changeF = function (f) {
+            this.f = f;
+            this.calcBetaSurface();
+        };
+        Earth.prototype.changeK = function (k) {
+            this.k = k;
+            this.calcMatForChiAvg();
+            this.calcMatForChiDelta();
+        };
         Earth.prototype.step = function (noize) {
             this.calcPsi();
             if (noize) {
@@ -765,9 +805,9 @@ var Model;
             var psiDeltaLast = this.psi1last.sub(this.psi3last);
             this.omega2.swap((psiDelta.sub(psiDeltaLast).diveq(Model.dt)
                 .subeq(jacob(this.psi1, this.psi3, this.psi1avg, this.psi3avg))
-                .addeq(sunEffectForOmega2)
+                .addeq(this.sunEffectForOmega2)
                 .subeq(laplace(psiDelta, psiDeltaAvg).muleq(A))
-                .muleq(500 * lambdaSq / f0)));
+                .muleq(500 * this.lambdaSq / this.f)));
             this.omega2avg = average(this.omega2);
             this.omega2delta = delta(this.omega2, this.omega2avg);
             var yspd = new Array(Model.H);
@@ -789,7 +829,7 @@ var Model;
             }
             var cy = (Model.H - 1) / 2;
             for (var y = 0; y < Model.H; y++) {
-                var f = f0 + (y - cy) * Model.dy * beta;
+                var f = this.f + (y - cy) * Model.dy * beta;
                 var tTot = 0;
                 var hTot = 0;
                 var xsp1Tot = 0;
@@ -799,7 +839,7 @@ var Model;
                 for (var x = 0; x < Model.W; x++) {
                     var i = idx(x, y);
                     var deltaPsi = this.psi1.values[i] - this.psi3.values[i];
-                    var t = (deltaPsi) * f0 / R;
+                    var t = (deltaPsi) * this.f / R;
                     var h = (1.5 * this.psi3.values[i] - 0.5 * this.psi1.values[i]) * f / g;
                     hTot += h;
                     tTot += t;
@@ -817,8 +857,8 @@ var Model;
                         xsp1Tot += -(this.psi1avg.values[y] - this.psi1avg.values[y - 1]) / (2 * Model.dy);
                         xsp3Tot += -(this.psi3avg.values[y] - this.psi3avg.values[y - 1]) / (2 * Model.dy);
                     }
-                    this.zeta1[y][x] = this.q1.values[i] - lambdaSq * deltaPsi;
-                    this.zeta3[y][x] = this.q3.values[i] + lambdaSq * deltaPsi;
+                    this.zeta1[y][x] = this.q1.values[i] - this.lambdaSq * deltaPsi;
+                    this.zeta3[y][x] = this.q3.values[i] + this.lambdaSq * deltaPsi;
                 }
                 this.tempAvg[y] = tTot / Model.W;
                 this.heightAvg[y] = hTot / Model.W;
@@ -833,24 +873,24 @@ var Model;
                 this.psi1.values[i] += n1;
                 this.psi3.values[i] += n3;
             }
-            this.q1.swap(setUpLaplaceMat2d(Model.W, Model.H, 1, -lambdaSq).dotV(this.psi1).addeq(this.psi3.mul(lambdaSq)));
-            this.q3.swap(setUpLaplaceMat2d(Model.W, Model.H, 1, -lambdaSq).dotV(this.psi3).addeq(this.psi1.mul(lambdaSq)));
+            this.q1.swap(setUpLaplaceMat2d(Model.W, Model.H, 1, -this.lambdaSq).dotV(this.psi1).addeq(this.psi3.mul(this.lambdaSq)));
+            this.q3.swap(setUpLaplaceMat2d(Model.W, Model.H, 1, -this.lambdaSq).dotV(this.psi3).addeq(this.psi1.mul(this.lambdaSq)));
         };
         Earth.prototype.calcChi1 = function () {
             var chi1 = new Vector(Model.W * Model.H);
             chi1.addeq(this.q1last);
-            chi1.addeq(jacob(this.q1.add(betaSurface), this.psi1, this.q1avg, this.psi1avg).muleq(2 * Model.dt));
+            chi1.addeq(jacob(this.q1.add(this.betaSurface), this.psi1, this.q1avg, this.psi1avg).muleq(2 * Model.dt));
             chi1.addeq(laplace(this.q1last, average(this.q1last)).muleq(A * Model.dt));
-            chi1.addeq(sunEffect);
+            chi1.addeq(this.sunEffect);
             return chi1;
         };
         Earth.prototype.calcChi3 = function () {
             var chi3 = new Vector(Model.W * Model.H);
             chi3.addeq(this.q3last);
-            chi3.addeq(jacob(this.q3.add(betaSurface), this.psi3, this.q3avg, this.psi3avg).muleq(2 * Model.dt));
+            chi3.addeq(jacob(this.q3.add(this.betaSurface), this.psi3, this.q3avg, this.psi3avg).muleq(2 * Model.dt));
             chi3.addeq(laplace(this.q3last, average(this.q3last)).muleq(A * Model.dt));
-            chi3.subeq(sunEffect);
-            chi3.subeq((this.q3last.mul(3 / 2).subeq(this.q1last).subeq(this.psi1last.sub(this.psi3last).muleq(4 * lambdaSq))).muleq(k * Model.dt));
+            chi3.subeq(this.sunEffect);
+            chi3.subeq((this.q3last.mul(3 / 2).subeq(this.q1last).subeq(this.psi1last.sub(this.psi3last).muleq(4 * this.lambdaSq))).muleq(this.k * Model.dt));
             return chi3;
         };
         Earth.prototype.calcQ = function () {
@@ -860,10 +900,10 @@ var Model;
             var chi3avg = average(chi3);
             var chi1delta = delta(chi1, chi1avg);
             var chi3delta = delta(chi3, chi3avg);
-            this.q1avg.swap(matForChi1Avg.solve(chi1avg));
-            this.q3avg.swap(matForChi3Avg.solve(chi3avg));
-            this.q1delta.swap(matForChi1DeltaLU.solve(chi1delta));
-            this.q3delta.swap(matForChi3DeltaLU.solve(chi3delta));
+            this.q1avg.swap(this.matForChi1Avg.solve(chi1avg));
+            this.q3avg.swap(this.matForChi3Avg.solve(chi3avg));
+            this.q1delta.swap(this.matForChi1DeltaLU.solve(chi1delta));
+            this.q3delta.swap(this.matForChi3DeltaLU.solve(chi3delta));
             var q1muchOlder = new Vector(Model.W * Model.H);
             var q3muchOlder = new Vector(Model.W * Model.H);
             q1muchOlder.swap(this.q1last);
@@ -906,8 +946,8 @@ var Model;
         Earth.prototype.calcPsiAvg = function () {
             var qTot = this.q1avg.add(this.q3avg);
             var qSub = this.q1avg.sub(this.q3avg);
-            var psiPlus = matForPsiPlusAvg.solve(qTot);
-            var psiMinus = matForPsiMinusAvg.solve(qSub);
+            var psiPlus = this.matForPsiPlusAvg.solve(qTot);
+            var psiMinus = this.matForPsiMinusAvg.solve(qSub);
             for (var y = 0; y < Model.H; y++) {
                 this.psi1avg.values[y] = (psiPlus.values[y] + psiMinus.values[y]) / 2;
                 this.psi3avg.values[y] = (psiPlus.values[y] - psiMinus.values[y]) / 2;
@@ -916,8 +956,8 @@ var Model;
         Earth.prototype.calcPsiDelta = function () {
             var qTot = this.q1delta.add(this.q3delta);
             var qSub = this.q1delta.sub(this.q3delta);
-            var psiPlus = matForPsiPlusDeltaLU.solve(qTot);
-            var psiMinus = matForPsiMinusDeltaLU.solve(qSub);
+            var psiPlus = this.matForPsiPlusDeltaLU.solve(qTot);
+            var psiMinus = this.matForPsiMinusDeltaLU.solve(qSub);
             for (var k = 0; k < Model.H * Model.W; k++) {
                 this.psi1delta.values[k] = (psiPlus.values[k] + psiMinus.values[k]) / 2;
                 this.psi3delta.values[k] = (psiPlus.values[k] - psiMinus.values[k]) / 2;
@@ -969,7 +1009,7 @@ var Model;
                     var t = this.psi1avg.values[y] - this.psi3avg.values[y];
                     pavg += t * t;
                 }
-                budget.pavg = lambdaSq * pavg / (Model.H * 2) * stockScale;
+                budget.pavg = this.lambdaSq * pavg / (Model.H * 2) * stockScale;
             }
             {
                 var pdelta = 0;
@@ -980,7 +1020,7 @@ var Model;
                         pdelta += t * t;
                     }
                 }
-                budget.pdelta = lambdaSq * pdelta / (2 * Model.W * Model.H) * stockScale;
+                budget.pdelta = this.lambdaSq * pdelta / (2 * Model.W * Model.H) * stockScale;
             }
             var cy = (Model.H - 1) / 2;
             {
@@ -988,7 +1028,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     qavg2pavg += (y - cy) / ((Model.H + 1) / 2) * (this.psi1avg.values[y] - this.psi3avg.values[y]);
                 }
-                budget.qavg2pavg = qavg2pavg * (-2 * R * H0 * lambdaSq) / (f0 * Cp * Model.H) * flowScale;
+                budget.qavg2pavg = qavg2pavg * (-2 * R * this.H * this.lambdaSq) / (this.f * Cp * Model.H) * flowScale;
             }
             var deltaJabob = jacob(this.psi1delta, this.psi3delta, this.psi1avg, this.psi3avg);
             var deltaJabobAvg = average(deltaJabob);
@@ -997,7 +1037,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     pavg2pdelta += (this.psi1avg.values[y] - this.psi3avg.values[y]) * deltaJabobAvg.values[y];
                 }
-                budget.pavg2pdelta = pavg2pdelta * (-lambdaSq) / (Model.H) * flowScale;
+                budget.pavg2pdelta = pavg2pdelta * (-this.lambdaSq) / (Model.H) * flowScale;
                 var pdelta2kdelta = 0;
                 for (var y = 0; y < Model.H; y++) {
                     for (var x = 0; x < Model.W; x++) {
@@ -1005,7 +1045,7 @@ var Model;
                         pdelta2kdelta += this.omega2delta.values[i] * (this.psi1delta.values[i] - this.psi3delta.values[i]);
                     }
                 }
-                budget.pdelta2kdelta = pdelta2kdelta * (-f0) / (500 * Model.W * Model.H) * flowScale;
+                budget.pdelta2kdelta = pdelta2kdelta * (-this.f) / (500 * Model.W * Model.H) * flowScale;
             }
             var zero = new Vector(Model.H * Model.W);
             var deltaLaplace1 = laplace(this.psi1delta, zero);
@@ -1032,7 +1072,7 @@ var Model;
                 for (var y = 0; y < Model.H; y++) {
                     pavg2kavg += this.omega2avg.values[y] * (this.psi1avg.values[y] - this.psi3avg.values[y]);
                 }
-                budget.pavg2kavg = -(f0 / 500) * pavg2kavg / Model.H * flowScale;
+                budget.pavg2kavg = -(this.f / 500) * pavg2kavg / Model.H * flowScale;
             }
             var zeta1 = laplace(this.psi1, this.psi1avg);
             var zeta3 = laplace(this.psi3, this.psi3avg);
@@ -1071,7 +1111,7 @@ var Model;
                         pavg2a += t * t;
                     }
                 }
-                budget.pavg2a = lambdaSq * A * pavg2a / (Model.H * Model.dy * Model.dy) * flowScale;
+                budget.pavg2a = this.lambdaSq * A * pavg2a / (Model.H * Model.dy * Model.dy) * flowScale;
             }
             {
                 var pdelta2a = 0;
@@ -1085,14 +1125,14 @@ var Model;
                         pdelta2a += (a * a / (Model.dx * Model.dx)) + (b * b / (Model.dy * Model.dy));
                     }
                 }
-                budget.pdelta2a = lambdaSq * A * pdelta2a / (Model.H * Model.W) * flowScale;
+                budget.pdelta2a = this.lambdaSq * A * pdelta2a / (Model.H * Model.W) * flowScale;
             }
             {
                 var kavg2k = 0;
                 for (var y = 0; y < Model.H; y++) {
                     kavg2k += (3 / 2 * zeta3avg.values[y] - zeta1avg.values[y] / 2) * this.psi3avg.values[y];
                 }
-                budget.kavg2k = -k * kavg2k / (Model.H) * flowScale;
+                budget.kavg2k = -this.k * kavg2k / (Model.H) * flowScale;
             }
             {
                 var kdelta2k = 0;
@@ -1102,7 +1142,7 @@ var Model;
                         kdelta2k += ((3 / 2 * zeta3delta.values[i]) - (zeta1delta.values[i] / 2)) * this.psi3delta.values[i];
                     }
                 }
-                budget.kdelta2k = -k * kdelta2k / (Model.H * Model.W) * flowScale;
+                budget.kdelta2k = -this.k * kdelta2k / (Model.H * Model.W) * flowScale;
             }
             return budget;
         };

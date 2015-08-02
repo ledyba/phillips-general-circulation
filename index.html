@@ -5,13 +5,33 @@
 		<title>Week 7</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="src/jquery-ui/jquery-ui.min.css">
 	</head>
 	<body>
 		<div>T=<span id="time">0.0</span></div>
-		<svg id="graph" style="border: black solid 1px;"></svg>
-		<div style="float: left;">
+		<svg id="graph" style="border: black solid 1px; float: left;" style="float: left;"></svg>
+		<div style="float: left; margin-left: 1em;">
+			<input type="checkbox" id="run_button"><label for="run_button">スタート</label>
+			<div>
+				<div style="float: left; padding: 1em;">
+					λ<br>(鉛直安定度)<div id="slider-lamda" style="height:300px; margin-left: auto; margin-right: auto;"></div>
+					<div id="lamdaSq"></div>
+				</div>
+				<div style="float: left; padding: 1em;">
+					H<br>(加熱率)<div id="slider-h" style="height:300px; margin-left: auto; margin-right: auto;"></div>
+					<div id="H"></div>
+				</div>
+				<div style="float: left; padding: 1em;">
+					k<br>(地表摩擦)<div id="slider-k" style="height:300px; margin-left: auto; margin-right: auto;"></div>
+					<div id="k"></div>
+				</div>
+				<div style="float: left; padding: 1em;">
+					f<br>(コリオリ力)<div id="slider-f" style="height:300px; margin-left: auto; margin-right: auto;"></div>
+					<div id="f"></div>
+				</div>
+			</div>
 		</div>
-		<div style="float: clear;">
+		<div style="clear: both;">
 			<div style="float: left;">
 				<h3>u<sub>1</sub></h3>
 				<ul id="inspect_avg_u1" />
@@ -32,7 +52,85 @@
 		<script type="text/javascript" src="src/numeric-1.2.6.min.js" charset="utf-8"></script>
 		<script type="text/javascript" src="src/d3.v3.min.js" charset="utf-8"></script>
 		<script type="text/javascript" src="src/conrec.js" charset="utf-8"></script>
+		<script type="text/javascript" src="src/jquery-2.1.4.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="src/jquery-ui/jquery-ui.min.js" charset="utf-8"></script>
 		<script type="text/javascript" src="prebuilt.js" charset="utf-8"></script>
-		<script type="text/javascript" charset="utf-8"> main(); </script>
+		<script>
+		var earthRunner;
+		$(function() {
+			$( "#run_button" ).button().click(function( event ) {
+				event.preventDefault();
+				var self = $( "#run_button" );
+				if(earthRunner.isRunning()){
+					earthRunner.stop();
+				}else{
+					earthRunner.start();
+				}
+			});
+			function createShowFn(label){
+				return function(v){
+					var s = v.toPrecision(3);
+					$(label).text(s);
+				};
+			}
+			var showLamdaSq = createShowFn("#lamdaSq");
+			var showH = createShowFn("#H");
+			var showF = createShowFn("#f");
+			var showK = createShowFn("#k");
+			showLamdaSq(Model.OrigLambdaSq);
+			showH(Model.OrigH);
+			showF(Model.OrigF);
+			showK(Model.OrigK);
+			$( "#slider-lamda" ).slider({
+				orientation: "vertical",
+				min: 0,
+				max: 100,
+				value: 50,
+				slide: function( event, ui ) {
+					var scale = (ui.value-50) / 50;
+					var next = Model.OrigLambdaSq * (1+scale/2);
+					earthRunner.earth.changeLambdaSq(next);
+					showLamdaSq(next);
+				}
+			});
+			$( "#slider-h" ).slider({
+				orientation: "vertical",
+				min: 0,
+				max: 100,
+				value: 50,
+				slide: function( event, ui ) {
+					var scale = (ui.value-50) / 50;
+					var next = Model.OrigH * (1+scale/2);
+					earthRunner.earth.changeH(next);
+					showH(next);
+				}
+			});
+			$( "#slider-k" ).slider({
+				orientation: "vertical",
+				min: 0,
+				max: 100,
+				value: 50,
+				slide: function( event, ui ) {
+					var scale = (ui.value-50) / 50;
+					var next = Model.OrigK * Math.pow(10,scale);
+					earthRunner.earth.changeK(next);
+					showK(next);
+				}
+			});
+			$( "#slider-f" ).slider({
+				orientation: "vertical",
+				min: 0,
+				max: 100,
+				value: 50,
+				slide: function( event, ui ) {
+					var scale = (ui.value-50) / 50;
+					var next = Model.OrigF * Math.pow(10,scale);
+					earthRunner.earth.changeF(next);
+					showF(next);
+				}
+			});
+		});
+	</script>
+	<script type="text/javascript" charset="utf-8"> main(); </script>
 	</body>
 </html>
