@@ -57,12 +57,22 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 ![ハドレー循環](http://fnorio.com/0041circulation_of_atmosphere1/fig1-1.gif)  
 ハドレーの1735年のモデル([fnorio.com](http://fnorio.com/0041circulation_of_atmosphere1/circulation_of_atmosphere1.htm)から引用)。
 
-しかし観測と理論の進歩から、次第にこのモデルは不適切であることが明らかになり、別のモデルが考えられるようになります。いくつかあったようですが、その中でも支持を受けたのがロスビーによる３細胞説です。
+　しかし観測と理論の進歩から、次第にこのモデルは不適切であることが明らかになり、別のモデルが考えられるようになります。いくつかあったようですが、その中でも支持を受けたのがロスビーによる３細胞説です。この説では、地球を高緯度・中緯度・低緯度の３つに分けて考えます。
 
 ![ロスビーの３細胞](http://www.jma-net.go.jp/ishigaki/school/200406/pic/Globe.jpg)  
 ([jma-net](http://www.jma-net.go.jp/ishigaki/school/200406/WeatherSchool_200406.html)から引用)
 
-## 数値実験前夜：「洗い桶」実験
+　この３つの緯度帯では、図のように高緯度では極偏東風、中緯度では偏西風、低緯度では貿易風（東風）が吹いています。偏西風の上空ではとくに強い風が吹く部分があり、これはジェット気流と呼ばれています。このジェット気流は、第二次世界大戦前後の観測網の発達による重要な発見の一つです。
+
+　さらに、この偏西風は東西にまっすぐに吹いているわけではなく、南北に蛇行しています。この蛇行は強くなった弱くなったり数週間のサイクルで変動しているのですが、蛇行の程度を東西指標（Zonal Index）によって測っていることから「インデックスサイクル」と呼びます。
+
+　東風と西風が
+
+### 数値実験前夜：「洗い桶」実験
+
+### 数値実験前夜： コンピュータの誕生
+
+### 数値実験前夜：「リチャードソンの夢」
 
 ## 参考文献
 [[Philips 1956][]] PHILLIPS, Norman A. The general circulation of the atmosphere: A numerical experiment. Quarterly Journal of the Royal Meteorological Society, 1956, 82.352: 123-164.
