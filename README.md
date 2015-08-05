@@ -74,6 +74,18 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 ### 数値実験前夜：「リチャードソンの夢」
 
+## 方程式系：準地衡流方程式系
+
+## 実験設定
+
+## 実装の比較
+
+## 結果
+
+## 荒川ヤコビアンとタイムフィルタ
+
+## エネルギー循環
+
 ## 参考文献
 [[Philips 1956][]] PHILLIPS, Norman A. The general circulation of the atmosphere: A numerical experiment. Quarterly Journal of the Royal Meteorological Society, 1956, 82.352: 123-164.
 
