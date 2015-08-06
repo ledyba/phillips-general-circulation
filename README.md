@@ -115,7 +115,7 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 ---
 
-<img src="http://www.gstatic.com/hostedimg/79363f4b6b7c1fa4_large" alt="パイロットバルーン" width="300px" />  
+<img src="http://www.gstatic.com/hostedimg/79363f4b6b7c1fa4_large" alt="Dishpan Weather" width="300px" />  
 ["Dishpan Weather" Experiments At University Of Chicago](http://images.google.com/hosted/life/79363f4b6b7c1fa4.html)より引用。
 
 ---
