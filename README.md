@@ -131,9 +131,9 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 ---
 
-　何度かロスビー数というパラメータを変えて実験すると、上の３つの図のように違った流れのパターンを示すことをハイド発見しました。ロスビー数は、そのモデルの典型的な流れの速度Uと水平方向の距離L、そしてコリオリパラメータf（＝2Ω; Ωは系の回転角速度）によってR=L/fLで定義され、流体の振る舞いを特徴付けるパラメータです。このパラメータを調節することで、水という流体によって地球の空気という、本来異なるはずの流体の再現する実験を行うことができます。
+　何度かロスビー数というパラメータを変えて実験すると、上の３つの図のように違った流れのパターンを示すことをハイド発見しました。ロスビー数は、そのモデルの典型的な流れの速度Uと水平方向の距離L、そしてコリオリパラメータf（＝2Ω; Ωは系の回転角速度）によってR=L/fLで定義され、流体の振る舞いを特徴付けるパラメータです。このパラメータを調節することで、水という流体によって地球の空気という異なる流体のふるまいを再現させることができます。
 
-　ロスビー数が大きい場合、上の図の一番左のように回転軸に対して対称的な流れができ、さらに断面を見ると外側で上昇して内側で下降する、「ハドレー的な直接循環」になっていました。一方、ロスビー数を小さくしていくと真ん中の図のように蛇行しながら「東向きに（回転方向を地球になぞらえています）」規則的な流れができ、しかも「数週間（この水槽では、一回転が「一日」に対応します）」でこの流れのパターンは変動した、と報告しています。
+　ロスビー数が大きい場合、上の図の一番左のように回転軸に対して対称的な流れができ、さらに断面を見ると外側で上昇して内側で下降する、「ハドレー的な直接循環」になっていました。一方、ロスビー数を小さくしていくと真ん中の図のように蛇行しながら「東向きに（回転方向を地球の北半球になぞらえています）」規則的な流れができ、しかも「数週間（この水槽では、一回転が「一日」に対応します）」でこの流れのパターンは変動した、と報告しています。
 
 　これはまさに、蛇行するジェット気流と数週間で変動するインデックス・サイクルを彷彿とさせます。
 
@@ -149,7 +149,7 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 　Philipsがこの実験を行った裏には、この回転水槽実験に基づいた「簡単なモデルでも、特徴を捉えていれば大気の大循環は再現できるはずだ」という確信があったのです。
 
-### 数値実験前夜： 「リチャードソンの夢」とコンピュータ
+### 数値実験前夜： 「リチャードソンの夢」とコンピュータの誕生
 
 　複雑な数式を繰り返し何度も計算する数値計算による実験を行うにはコンピュータが不可欠です。…と言いたい所ですが、無くてもできます。手計算ですればよいのです。実際にそれを行った人がいます。[リチャードソン](https://ja.wikipedia.org/wiki/%E3%83%AB%E3%82%A4%E3%82%B9%E3%83%BB%E3%83%95%E3%83%A9%E3%82%A4%E3%83%BB%E3%83%AA%E3%83%81%E3%83%A3%E3%83%BC%E3%83%89%E3%82%BD%E3%83%B3)です。しかもコンピュータが実用になる遥か前の1922年。
 
@@ -164,7 +164,7 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 　しかし、使った数値計算の手法に難があり（たとえ正しい微分方程式を使っていても、どう数値計算するかで計算できるかどうか変わってしまいます）、非現実的な値が出て失敗してしまいました。
 
-　しかし彼は諦めず、
+　それでも彼は諦めず、
 「6万4千人が大きなホールに集まり一人の指揮者の元で整然と計算を行えば、実際の時間の進行と同程度の速さで予測計算を実行できる」と見積もりました。これを「リチャードソンの夢」と呼びます。
 
 ---
@@ -174,9 +174,27 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 ---
 
-　
+　もちろん現代の天気予報は6万4千人が必死に計算しているわけではなく、コンピュータで計算されています。世界で最初の汎用コンピュータは[ENIAC](https://ja.wikipedia.org/wiki/ENIAC)で、第二次世界大戦での軍事的なニーズから開発されました。
+
+---
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Eniac.jpg/628px-Eniac.jpg)  
+ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブリックドメイン。)
+
+---
+
+　ENIACはもともとは弾道計算のために開発されましたが、ロスアラモス国立研究所の[ジョン・フォン・ノイマン](https://ja.wikipedia.org/wiki/%E3%82%B8%E3%83%A7%E3%83%B3%E3%83%BB%E3%83%95%E3%82%A9%E3%83%B3%E3%83%BB%E3%83%8E%E3%82%A4%E3%83%9E%E3%83%B3)が目をつけ、水爆実験や放射性物質に関する計算に使われました。そして1946年にはCharneyたちが世界初の数値計算による天気予報プロジェクト（NWP; Numerical Weather Prediction)をプリンストンのPrinceton's Institute for Advanced Study(IAS)で始め、３年後には数日間の短期予報に成功させます（[Charney 1950][]）。
+
+　このCharneyたちのモデルではロスビーの研究した順圧（バロトロピック）渦度方程式に地衡風近似を加えた上でリチャードソンの失敗を避けるようなモデルを作り、1952年にはプリンストンのコンピュータを用いて米国東部を襲った大嵐の予報にも成功しています([新田 2009][])。
+
+　ただし、このモデルでは数日間の短い予報を目的としていて、低気圧は観測データによる初期値から与えたエネルギーで発生するのみで、洗い桶実験のように加熱を加えて自発的に循環が起こるようなものにはなっていません。
+
+　現在の初期値から数日後の天気を予測しようとするこれらの初期のモデルとは違い、Philipsのモデルはゼロの状態から大気の大循環を計算機の上で起こすこと、それによって「大気大循環の原理を理解すること」を目的としている、というのが大きな違いです。
+
+　ただし、双方が物理的に精緻になっていった結果、予報モデルと大循環に大きな違いはなくなっています。
 
 ## 方程式系：準地衡流方程式系
+
 
 ## 実験設定
 
@@ -207,6 +225,10 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 [[Hide 1953][]] HIDE, R. Some experiments on thermal convection in a rotating liquid. Quarterly Journal of the Royal Meteorological Society, 1953, 79.339: 161-161.
 
+[[Charney 1950][]] CHARNEY, Jules G.; FJÖRTOFT, Ragnar; VON NEUMANN, John. Numerical integration of the barotropic vorticity equation. Tellus A, 1950, 2.4.
+
+[[新田 2009][]] 新田, 尚. 数値予報の歴史. 2009年度春季大会 公開気象講演会「数値予報の過去・現在・未来―数値予報現業運用開始50周年記念―」の報告
+
 [Philips 1956]:  http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract
 [Lewis 1998]: http://journals.ametsoc.org/doi/abs/10.1175/1520-0477(1998)079%3C0039:CTDOTG%3E2.0.CO;2
 [Kawai 2011]: http://www.gfd-dennou.org/arch/prepri/2011/kobe-u/110212_ykawai-Bthesis/paper/pub/main.pdf
@@ -215,3 +237,5 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 [Arakawa 1966]: http://www.sciencedirect.com/science/article/pii/0021999166900155
 [Asselin 1972]: http://journals.ametsoc.org/doi/abs/10.1175/1520-0493(1972)100%3C0487:FFFTI%3E2.3.CO;2
 [Hide 1953]: http://onlinelibrary.wiley.com/doi/10.1002/qj.49707933916/abstract
+[Charney 1950]: http://www.tellusa.net/index.php/tellusa/article/download/8607/10052
+[新田 2009]: http://www.metsoc.jp/tenki/pdf/2009/2009_11_0004.pdf
