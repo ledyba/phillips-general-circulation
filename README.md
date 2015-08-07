@@ -195,7 +195,14 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ## 方程式系：準地衡流方程式系
 
-　では、これらの背景を踏まえた上でPhilipsのモデルを見てみましょう。流体の振る舞いは、
+　では、これらの背景を踏まえた上でPhilipsのモデルを見てみましょう。流体の振る舞いは、物理的な運動方程式であるナヴィエ＝ストークス方程式と
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/nseq.png)  
+ナヴィエ＝ストークス方程式
+
+---
 
 ## 実験設定
 
