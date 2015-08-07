@@ -232,6 +232,28 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 　そこで、Philipsのモデルでは地衡流が時間変化（時間発展）する効果を考える、「準地衡流近似」が使われています。これはプリミティブ方程式系を前述のロスビー数で「無次元化」したときに、地平流近似では0次近似していたのに対して、「準地衡流」では1次近似して近似が細かくなったことで時間変化する項が出てくることと対応しています。
 
+　あとで述べる実験設定を考慮して（そこにも近似が色々入っています）プリミティブ方程式系を準地衡流近似を加えつつ変形していくと、結果として以下の２つの時間微分を含む偏微分方程式にまで変形できます。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/philips1.jpg)  
+（[Philips 1956][]より引用）
+
+---
+
+　左辺のqは[ポテンシャル渦度（渦位）](https://ja.wikipedia.org/wiki/%E6%B8%A6%E4%BD%8D)と呼ばれる量で、角運動量のようなものです。これを空間のそれぞれの位置ごと・時間ごとに計算していきます。
+
+　ただし、この計算を行うためには右辺に出てくるΨが必要があり、それは以下の式でqから計算することができます。この式は時間変化を計算するわけではなく、qから同じ時間のΨを計算するため、「診断式」と呼ばれます。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/philips2.jpg)  
+（[Philips 1956][]より引用）
+
+---
+
+　Ψは[流線関数](http://hooktail.sub.jp/vectoranalysis/StreamFunction/)と呼ばれるもので、それぞれの場所でどの方向に向かって空気が流れているかを計算するのに使うことができます。
+
 ## 実験設定
 
 ## 実装の比較
