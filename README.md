@@ -256,6 +256,11 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ## 実験設定
 
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/setup.jpg) 
+---
+
 ## 実装の比較
 
 ## 結果
