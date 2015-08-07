@@ -195,14 +195,24 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ## 方程式系：準地衡流方程式系
 
-　では、これらの背景を踏まえた上でPhilipsのモデルを見てみましょう。流体の振る舞いは、物理的な運動方程式であるナヴィエ＝ストークス方程式と
+　では、これらの背景を踏まえた上で、まずは流体の運動について軽く紹介します。一般の気体の振る舞いは、運動方程式であるナヴィエ＝ストークス方程式と気体の状態方程式、そして質量保存則である連続の式の３つを連立させることで、流体の速度と圧力と密度のそれぞれを時間の関数として表すことができま…
 
 ---
 
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/nseq.png)  
-ナヴィエ＝ストークス方程式
+ナヴィエ＝ストークス方程式（運動方程式）
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/stateeq.png)  
+理想気体の状態方程式
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/conteq.png)  
+連続の式（空気は増えも減りもしない；質量保存速）
 
 ---
+
+　嘘です。（現在の人類には）できません。というのも、速度と圧力と密度のそれぞれを時間の関数として表すためには、この３つの連立偏微分方程式を解かなくてはなりませんが、一般にそれは極めて難しく、流体の方程式も例外ではありません。ナヴィエ＝ストークス方程式に関しては滑らかな解が一般に存在するかどうかすら分かっていません([Navier–Stokes existence and smoothness](https://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_existence_and_smoothness))。この問題は100万ドルの懸賞が掛けられている[ミレニアム懸賞問題](https://ja.wikipedia.org/wiki/%E3%83%9F%E3%83%AC%E3%83%8B%E3%82%A2%E3%83%A0%E6%87%B8%E8%B3%9E%E5%95%8F%E9%A1%8C)の一つで、他にはポアンカレ予想やP≠NP問題のような有名な難問が並んでいます。
+
+　
 
 ## 実験設定
 
