@@ -1,6 +1,8 @@
 # The general circulation of the atmosphere: A numerical experiment
 
-Re-implementation of ["The general circulation of the atmosphere: A numerical experiment(Phillips, 1956)"](http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract) by TypeScript.
+Re-implementation of [the world's first General Circulation Model (Phillips, 1956)](http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract), by TypeScript.
+
+　世界で最初の大気大循環モデル、[[Phillips, 1956]](http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract)のTypeScriptによる再実装です。ブラウザで動きます。
 
 # Online demo
 
