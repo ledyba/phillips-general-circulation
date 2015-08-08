@@ -1,12 +1,12 @@
 # The general circulation of the atmosphere: A numerical experiment
 
-Re-implementation of ["The general circulation of the atmosphere: A numerical experiment(Philips, 1956)"](http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract) by TypeScript.
+Re-implementation of ["The general circulation of the atmosphere: A numerical experiment(Phillips, 1956)"](http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract) by TypeScript.
 
 # Online demo
 
-https://cdn.rawgit.com/ledyba/philips-general-circulation/master/index.html
+https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html
 
-[![demo](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/demo.png)](https://cdn.rawgit.com/ledyba/philips-general-circulation/master/index.html)
+[![demo](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/demo.png)](https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html)
 
 # How to build?
 
@@ -26,13 +26,13 @@ tsc
 
 # License
 
-GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-circulation/blob/master/LICENSE)
+GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/Phillips-general-circulation/blob/master/LICENSE)
 
 # Document (in Japanese)
 
-　今回は世界で初めて大気の大循環モデルを構築して当時のコンピュータで計算した[Philips 1956][]の再現を行い、ほぼ彼と同じ結果が出ることを確認しました。
+　今回は世界で初めて大気の大循環モデルを構築して当時のコンピュータで計算した[Phillips 1956][]の再現を行い、ほぼ彼と同じ結果が出ることを確認しました。
 
-　さらに[Philips 1959][]で（本人によって）指摘されている非線形数値不安定への対策として、[Arakawa 1966][]による荒川ヤコビアンと[Asselin 1972][]で紹介されているタイム・フィルタを導入し、10年以上の長期積分が可能になることを確かめました。
+　さらに[Phillips 1959][]で（本人によって）指摘されている非線形数値不安定への対策として、[Arakawa 1966][]による荒川ヤコビアンと[Asselin 1972][]で紹介されているタイム・フィルタを導入し、10年以上の長期積分が可能になることを確かめました。
 
 ## (1956年当時の)背景
 
@@ -97,7 +97,7 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 ---
 
-![台風](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/typhoon.jpg)  
+![台風](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/typhoon.jpg)  
 台風は非常に強力な低気圧だ。  
 （NASAのウェブサイト:[Super Typhoon Vongfong in the Philippine Sea](http://www.nasa.gov/content/super-typhoon-vongfong-in-the-philippine-sea)より引用）
 
@@ -107,13 +107,13 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 　この見方は、子午面（鉛直面）での循環が大事というハドレー的な見方と相対するため、大循環においてどちらが本質的なのかというのが当時の大きな論点だったようです。
 
-　Philipsの1956年の実験は、こうした当時の状況のもとで、「渦による輸送が大きいのだ」ということをコンピュータを用いた実験で示した、という意味があるといえます。
+　Phillipsの1956年の実験は、こうした当時の状況のもとで、「渦による輸送が大きいのだ」ということをコンピュータを用いた実験で示した、という意味があるといえます。
 
 ### 実験前夜：「洗い桶」実験
 
 （この項も、ほぼ[Ariga 2008][]をまとめ直したものです）
 
-　Philipsの実験の裏には、「洗い桶」実験の存在があります。この実験は大気大循環の実験のうち最も簡単なもので、金属製の洗い桶（Dishpan）のふちを暖めて内側と外側で温度差を作り出した上で回転させ、その時水がどう振る舞うかを観察することで、大気の性質を類推するというものです。（本当に「洗い桶」を使ってる実験もありますが、必ずしも「洗い桶」だけに限るわけではありません）
+　Phillipsの実験の裏には、「洗い桶」実験の存在があります。この実験は大気大循環の実験のうち最も簡単なもので、金属製の洗い桶（Dishpan）のふちを暖めて内側と外側で温度差を作り出した上で回転させ、その時水がどう振る舞うかを観察することで、大気の性質を類推するというものです。（本当に「洗い桶」を使ってる実験もありますが、必ずしも「洗い桶」だけに限るわけではありません）
 
 ---
 
@@ -122,11 +122,11 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 ---
 
-　Philipsの実験に先立つ1953年に、気象雑誌に載ったHideによる実験報告([Hide 1953][])で、彼は同心円筒を組み合わせた実験装置の間に水を入れ、外側の円筒を加熱して回転させる実験を行っています（この報告には図も写真も無いのですが、文章を読む限りは上の写真のようなものでしょうか）。これは地球の一部の緯度帯を極からの同心円状に切り取ったものを模していて、温度の高い外側が低緯度、温度の低い方が高緯度側に対応しています。
+　Phillipsの実験に先立つ1953年に、気象雑誌に載ったHideによる実験報告([Hide 1953][])で、彼は同心円筒を組み合わせた実験装置の間に水を入れ、外側の円筒を加熱して回転させる実験を行っています（この報告には図も写真も無いのですが、文章を読む限りは上の写真のようなものでしょうか）。これは地球の一部の緯度帯を極からの同心円状に切り取ったものを模していて、温度の高い外側が低緯度、温度の低い方が高緯度側に対応しています。
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/hide.jpg)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/hide.jpg)  
 [Ariga 2008][]から孫引き。（元の論文を発見できなかった）
 
 ---
@@ -139,7 +139,7 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 
 　でも、ちょっと考えると。この実験で使われた水槽は、現実の地球大気とは殆ど似ていません。この水槽には地球上にあるような大陸や山のような地形は何も反映されていませんし、容器の温め方もとくに現実に対応するように決めているわけではないようです。そもそもこの実験は、「回転する流体中での熱流体の理解」を、「地磁気の起源」を研究するために行われたもので、地球の大気を再現するために始めたものではありません。
 
-　それでも、この水槽実験は現実の大気大循環をうまく捉えた結果を示しています。Philipsもこの結果には注目しており、[Philips 1956][]でもこのように書かれています。
+　それでも、この水槽実験は現実の大気大循環をうまく捉えた結果を示しています。Phillipsもこの結果には注目しており、[Phillips 1956][]でもこのように書かれています。
 
 > In spite of the obvious dissimilarities between the laboratory set-up and the atmostphere(one has but to consider, for example, the spherical shape of the earth and the presence of heating and cooling), certain of the experimental flow patterns are remarkably like those encountered on weather maps.  
 > Thus one is almost forced to the conclusion that at least the gross features of the general circulation of the atmosphere can be predicted without having specify the heating and cooling in great deal.
@@ -147,13 +147,13 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/philips-general-
 > 実験の状況と大気の明らかな相違（加熱と冷却の存在や、地球の球の形は考慮されているが）にも関わらず、実験によって得られた流れのパターンは現実の天気図と著しく似ている。
 > となれば、大循環と大気の総体的な特徴は、冷却と加熱の細部を特定しなくても再現できると、ほぼ結論付さるをえない。
 
-　Philipsがこの実験を行った裏には、この回転水槽実験に基づいた「簡単なモデルでも、特徴を捉えていれば大気の大循環は再現できるはずだ」という確信があったのです。
+　Phillipsがこの実験を行った裏には、この回転水槽実験に基づいた「簡単なモデルでも、特徴を捉えていれば大気の大循環は再現できるはずだ」という確信があったのです。
 
 ### 実験前夜： 「リチャードソンの夢」とコンピュータの誕生
 
 　複雑な数式を繰り返し何度も計算する数値計算による実験を行うにはコンピュータが不可欠です。…と言いたい所ですが、無くてもできます。手計算ですればよいのです。実際にそれを行った人がいます。[リチャードソン](https://ja.wikipedia.org/wiki/%E3%83%AB%E3%82%A4%E3%82%B9%E3%83%BB%E3%83%95%E3%83%A9%E3%82%A4%E3%83%BB%E3%83%AA%E3%83%81%E3%83%A3%E3%83%BC%E3%83%89%E3%82%BD%E3%83%B3)です。しかもコンピュータが実用になる遥か前の1922年。
 
-　この計算では鉛直方向に大気を５層に分け（今回のPhilipsのモデルは二層です）、200km間隔の格子点による計算モデルで、６時間先まで計算するのに一ヶ月以上かかったそうです([気象庁ウェブサイトでの解説](http://www.jma.go.jp/jma/kishou/know/whitep/1-3-2.html))。
+　この計算では鉛直方向に大気を５層に分け（今回のPhillipsのモデルは二層です）、200km間隔の格子点による計算モデルで、６時間先まで計算するのに一ヶ月以上かかったそうです([気象庁ウェブサイトでの解説](http://www.jma.go.jp/jma/kishou/know/whitep/1-3-2.html))。
 
 ---
 
@@ -189,7 +189,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 　ただし、このモデルでは数日間の短い予報を目的としていて、低気圧は観測データによる初期値から与えたエネルギーで発生するのみで、洗い桶実験のように加熱を加えて自発的に循環が起こるようなものにはなっていません。
 
-　現在の初期値から数日後の天気を予測しようとするこれらの初期のモデルとは違い、Philipsのような大循環モデルはゼロの状態から大気の大循環を計算機の上で起こすこと、それによって「大気大循環の原理を理解すること」を目的としている、というのが大きな違いです。
+　現在の初期値から数日後の天気を予測しようとするこれらの初期のモデルとは違い、Phillipsのような大循環モデルはゼロの状態から大気の大循環を計算機の上で起こすこと、それによって「大気大循環の原理を理解すること」を目的としている、というのが大きな違いです。
 
 　ただし、双方が物理的に精緻になっていった結果、現在では予報モデルと大循環モデルに大きな違いはなくなっています。
 
@@ -199,13 +199,13 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/nseq.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/nseq.png)  
 ナヴィエ＝ストークス方程式（運動方程式）
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/stateeq.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/stateeq.png)  
 理想気体の状態方程式
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/conteq.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/conteq.png)  
 連続の式（空気は増えも減りもしない；質量保存速）
 
 ---
@@ -216,12 +216,12 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/primitiv.jpg)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/primitiv.jpg)  
 プリミティブ方程式系（[Kawai 2011][]より引用）
 
 ---
 
-　リチャードソンはこの方程式系を用いて数値計算を行いましたが、この方程式系は扱いが難しく、彼は失敗してしまいました。そのためChaneyたちのモデルもPhilpsのモデルにも近似が入っており、Charneyたちのモデルは「地衡流近似」を入れています。地衡流近似は「定常的で時間変化しない流れ」を仮定していて、数日間の短期の予測をする分にはこれで十分なようですが、今回のPhilipsのようにもっと長く計算して系の中でジェット気流の蛇行やその変化を起こしたい場合、それでは不十分です。
+　リチャードソンはこの方程式系を用いて数値計算を行いましたが、この方程式系は扱いが難しく、彼は失敗してしまいました。そのためChaneyたちのモデルもPhilpsのモデルにも近似が入っており、Charneyたちのモデルは「地衡流近似」を入れています。地衡流近似は「定常的で時間変化しない流れ」を仮定していて、数日間の短期の予測をする分にはこれで十分なようですが、今回のPhillipsのようにもっと長く計算して系の中でジェット気流の蛇行やその変化を起こしたい場合、それでは不十分です。
 
 ---
 
@@ -230,14 +230,14 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-　そこで、Philipsのモデルでは地衡流が時間変化（時間発展）する効果を考える、「準地衡流近似」が使われています。これはプリミティブ方程式系を前述のロスビー数で「無次元化」したときに、地平流近似では0次近似していたのに対して、「準地衡流」では1次近似して近似が細かくなったことで時間変化する項が出てくることと対応しています。
+　そこで、Phillipsのモデルでは地衡流が時間変化（時間発展）する効果を考える、「準地衡流近似」が使われています。これはプリミティブ方程式系を前述のロスビー数で「無次元化」したときに、地平流近似では0次近似していたのに対して、「準地衡流」では1次近似して近似が細かくなったことで時間変化する項が出てくることと対応しています。
 
 　あとで述べる実験設定を考慮して（そこにも近似が色々入っています）プリミティブ方程式系を準地衡流近似を加えつつ変形していくと、結果として以下の２つの時間微分を含む偏微分方程式にまで変形できます。
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/philips1.jpg)  
-（[Philips 1956][]より引用）
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/Phillips1.jpg)  
+（[Phillips 1956][]より引用）
 
 ---
 
@@ -247,8 +247,8 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/philips2.jpg)  
-（[Philips 1956][]より引用）
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/Phillips2.jpg)  
+（[Phillips 1956][]より引用）
 
 ---
 
@@ -256,11 +256,11 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ## 実験設定
 
-　実験設定は次のようになっています。左右はRPGのマップのようにくるくるとつながった周期境界条件で、上下には「壁」があります。地球は球形になっているので左右に繋がっていることにはある程度根拠がありますが、上下の「壁」は空気塊の動きを制限するためにシミュレーションの都合上存在する、「地球上に何の対応物も持たない([Philips 1956][])」存在です。
+　実験設定は次のようになっています。左右はRPGのマップのようにくるくるとつながった周期境界条件で、上下には「壁」があります。地球は球形になっているので左右に繋がっていることにはある程度根拠がありますが、上下の「壁」は空気塊の動きを制限するためにシミュレーションの都合上存在する、「地球上に何の対応物も持たない([Phillips 1956][])」存在です。
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/setting.jpg)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/setting.jpg)  
 今回の実験設定
 
 ---
@@ -269,11 +269,11 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 　また、コンピュータ上で計算する場合にはこの実験領域をマスの目に区切る（離散化する）必要がありますが、今回の実験では縦17個x横16個に区切っています。この大きさ自体は当時のコンピュータのメモリ領域の大きさによって決まったようです。
 
-　さらに、今回の実験では中間地点からの距離に応じた単純な線形比例関係によって加熱と冷却を加えています。これは現実の地球とも洗い桶とも状況は一致しません。しかし、Philipsは「理にかなった一次近似」だとしています。
+　さらに、今回の実験では中間地点からの距離に応じた単純な線形比例関係によって加熱と冷却を加えています。これは現実の地球とも洗い桶とも状況は一致しません。しかし、Phillipsは「理にかなった一次近似」だとしています。
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/setting2.jpg)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/setting2.jpg)  
 今回の実験設定
 
 ---
@@ -286,17 +286,17 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 #### 浮動小数点への変更
 
-　Philipsが行った実験では40bitの固定小数点を使っていますが、今回はTypeScript備え付けのnumber型である、[IEEE754](https://ja.wikipedia.org/wiki/IEEE_754)の倍精度浮動小数を使っています。固定小数点ではなく浮動小数点を使うとスケールが自動で調整されるため、ゼロ近辺の値について固定小数点を使うより精度がよくなる事が期待されます。
+　Phillipsが行った実験では40bitの固定小数点を使っていますが、今回はTypeScript備え付けのnumber型である、[IEEE754](https://ja.wikipedia.org/wiki/IEEE_754)の倍精度浮動小数を使っています。固定小数点ではなく浮動小数点を使うとスケールが自動で調整されるため、ゼロ近辺の値について固定小数点を使うより精度がよくなる事が期待されます。
 
-　後に出てくる130日後の「鉛直循環」の値が数mm/秒とゼロに近い値になるのですが、Philipsがガタガタした不自然な値になっているのに対して今回の結果は滑らかな結果になり、この変更が影響している可能性があります。
+　後に出てくる130日後の「鉛直循環」の値が数mm/秒とゼロに近い値になるのですが、Phillipsがガタガタした不自然な値になっているのに対して今回の結果は滑らかな結果になり、この変更が影響している可能性があります。
 
 #### LU分解を使ったラプラシアンの直接計算
 
 　q<sub>1</sub>とq<sub>3</sub>を用いて流線関数Ψを計算する際に、二次元のラプラス方程式を解かなければなりません。一次元のラプラシアン行列は綺麗な三重対角行列になるので簡単にそのまま[ガウスの消去法](https://ja.wikipedia.org/wiki/%E3%82%AC%E3%82%A6%E3%82%B9%E3%81%AE%E6%B6%88%E5%8E%BB%E6%B3%95)で直接解けるのですが、二次元のラプラシアンはそうではありません。
 
-　Philipsはこの二次元のラプラス方程式を[ガウス＝ザイデル法](https://ja.wikipedia.org/wiki/%E3%82%AC%E3%82%A6%E3%82%B9%EF%BC%9D%E3%82%B6%E3%82%A4%E3%83%87%E3%83%AB%E6%B3%95)のような反復法で解いていたようですが、今回はラプラシアン行列をLU分解を掛けて前準備をした上で、直接解いています。
+　Phillipsはこの二次元のラプラス方程式を[ガウス＝ザイデル法](https://ja.wikipedia.org/wiki/%E3%82%AC%E3%82%A6%E3%82%B9%EF%BC%9D%E3%82%B6%E3%82%A4%E3%83%87%E3%83%AB%E6%B3%95)のような反復法で解いていたようですが、今回はラプラシアン行列をLU分解を掛けて前準備をした上で、直接解いています。
 
-　LU分解を使うと、毎回ラプラス方程式を解くのに変数の数Nに対してO(N<sup>2</sup>)時間掛かります。ガウス＝ザイデル法ではO(N)でよいので計算量のオーダーがひとつ上がってしまうのですが、今回程度の問題なら現代のパソコンなら何の問題もなくリアルタイムで計算できるようです。Philipsの方は1ステップに50秒掛かってたそうなので、大分速くなりましたね。
+　LU分解を使うと、毎回ラプラス方程式を解くのに変数の数Nに対してO(N<sup>2</sup>)時間掛かります。ガウス＝ザイデル法ではO(N)でよいので計算量のオーダーがひとつ上がってしまうのですが、今回程度の問題なら現代のパソコンなら何の問題もなくリアルタイムで計算できるようです。Phillipsの方は1ステップに50秒掛かってたそうなので、大分速くなりましたね。
 
 　この変更によってすべての物理計算を行列計算として表す事ができ、バグがあっても発見しづらい物理計算部分を100行程度に抑えることができています。
 
@@ -317,7 +317,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 　130日が経ったら風の流れにランダムなノイズを与えます。そのまま計算を続行すると、ノイズが種となって徐々に擾乱（渦）が成長していき、低気圧と高気圧が生まれ、ジェット気流や偏西風の蛇行など「洗い桶」実験や実際の大気に見られる現象が次々と現れていきます。
 
-　それでは、実際に見て行きましょう。[実際に実行してみてもよいとおもいます！](https://cdn.rawgit.com/ledyba/philips-general-circulation/master/index.html)
+　それでは、実際に見て行きましょう。[実際に実行してみてもよいとおもいます！](https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html)
 
 ### 130日目まで
 
@@ -327,31 +327,31 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130.png)  
 130日目まで計算した状態。
 
 ---
 
-　この130日目までの計算にはあとで加えるようなランダムなノイズは入れていないため、何度実行しても必ず同じ結果になります。ですから、この時点までの値をPhilipsの結果と比較することで、今回の実装はうまく動いているかどうかを調べることが出来ます。
+　この130日目までの計算にはあとで加えるようなランダムなノイズは入れていないため、何度実行しても必ず同じ結果になります。ですから、この時点までの値をPhillipsの結果と比較することで、今回の実装はうまく動いているかどうかを調べることが出来ます。
 
 ---
 
-![温度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g1.png)
-![大気上層での西風平均速度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g2.png)
+![温度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g1.png)
+![大気上層での西風平均速度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g2.png)
 
 ---
 
 　y座標は緯度で、0が赤道、14が北極です。今回はy=7を中心に対称的に冷やしたり温めたりしているので、温度もそのように対称的に分布しています。
 
-　上層で吹いている西風もうまくPhilipsの結果を再現できているようです。
+　上層で吹いている西風もうまくPhillipsの結果を再現できているようです。
 
 ---
-![地表での西風の平均速度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g3.png)
-![大気上層の南風平均速度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g4.png)
+![地表での西風の平均速度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g3.png)
+![大気上層の南風平均速度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g4.png)
 
 ---
 
-　こちらのふたつのグラフはPhilipsの結果とあまり合致していません…が、Philipsの結果の方はグラフがガタガタしていて若干不自然です。これはPhilipsの使った小数点表現が40bitの固定小数点で、ゼロに近い値の精度があまり出ないからではないかと思うのですが（下のグラフは単位がmm/secなのでかなり値が小さいことに注意）、今となっては検証のしようがありません。ラプラス方程式の解き方を反復法から直接法に変えたことも関係あるかもしれません。
+　こちらのふたつのグラフはPhillipsの結果とあまり合致していません…が、Phillipsの結果の方はグラフがガタガタしていて若干不自然です。これはPhillipsの使った小数点表現が40bitの固定小数点で、ゼロに近い値の精度があまり出ないからではないかと思うのですが（下のグラフは単位がmm/secなのでかなり値が小さいことに注意）、今となっては検証のしようがありません。ラプラス方程式の解き方を反復法から直接法に変えたことも関係あるかもしれません。
 
 　下のグラフは大気の上層（250hPa面、大まかにいえば上空10kmぐらい）での南風（南から北へ向かう風）の速度です。単位がmm/secなのですごく弱いのですが、上層で南から北へ、下層で北から南へ向かう、ハドレーの考えたような直接循環が（すごく弱いが）起こっていることが読み取れます。
 
@@ -361,26 +361,26 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130_2.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130_2.png)  
 130日目に渦位にノイズを加える。
 
 ---
 
-　加えるノイズは、ほんのすこしです。でもここからシミュレーションを再開すると、ノイズが成長していき、低気圧と高気圧が生まれてきます。以下、Philipsの図（右）とわたしの再現結果（左）を並べて置いておきます。ノイズの加え方はランダムなのでPhilipsとは全然違ったものになりますが、雰囲気としては似ているという感じです。
+　加えるノイズは、ほんのすこしです。でもここからシミュレーションを再開すると、ノイズが成長していき、低気圧と高気圧が生まれてきます。以下、Phillipsの図（右）とわたしの再現結果（左）を並べて置いておきます。ノイズの加え方はランダムなのでPhillipsとは全然違ったものになりますが、雰囲気としては似ているという感じです。
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/141.png)  
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/144.png)  
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/147.png)
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/141.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/144.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/147.png)
 ---
 
 147日目になるとかなり蛇行が見られるようになります。
 
 ---
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/150.png)  
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/153.png)  
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/156.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/150.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/153.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/156.png)  
 
 ---
 
@@ -388,7 +388,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jet.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jet.png)  
 ジェット気流の存在
 
 ---
@@ -397,7 +397,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/3cell.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/3cell.png)  
 ハドレー循環・フェレル循環・極循環の３セル構造
 
 ---
@@ -406,16 +406,16 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ## 荒川ヤコビアンとタイムフィルタ
 
-　Philipsの実験では156日目に彼つかったマシンで表現できる最大値と最小値が出現してしまい、これをもって彼は「計算が発散した」と判断して実験を終了しています。わたしの実装でも、ほぼ同じ時間ぐらい経過するとIEEE754のNaNが出現し、計算が続行できなくなります。
+　Phillipsの実験では156日目に彼つかったマシンで表現できる最大値と最小値が出現してしまい、これをもって彼は「計算が発散した」と判断して実験を終了しています。わたしの実装でも、ほぼ同じ時間ぐらい経過するとIEEE754のNaNが出現し、計算が続行できなくなります。
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/160.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/160.png)  
 160日目。毎回どの日数でNaNが出るかは変わる。グロ画像ですいません。
 
 ---
 
-　Philipsは[Philips 1956][]では「計算の丸め誤差による」と書いていますが、実はそんなことはなく、（非線形の）波の高周波成分がどんどん成長するエイリアシングと呼ばれる現象によるもので、[Philips 1959][]では彼もそれに気づいています。
+　Phillipsは[Phillips 1956][]では「計算の丸め誤差による」と書いていますが、実はそんなことはなく、（非線形の）波の高周波成分がどんどん成長するエイリアシングと呼ばれる現象によるもので、[Phillips 1959][]では彼もそれに気づいています。
 
 　このエイリアシングの問題は、[Arakawa 1966][]の荒川ヤコビアンと[Asselin 1972][]のタイムフィルタを併用すると改善することができることが知られています。
 
@@ -423,19 +423,19 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jacob1.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jacob1.png)  
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jacob2.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jacob2.png)  
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jacob3.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jacob3.png)  
 
 ---
 
-　さて、これを使うと
+　さて、これを使うと計算がNaNになったりせず長時間シミュレーションを行う事ができるようになります。
 
 ## エネルギー循環
 
@@ -445,19 +445,68 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/diagram.png)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram.png)  
 エネルギーダイアグラム（[Kawai 2011][]から引用）
 
 ---
 
+　Pは（有効）ポテンシャルエネルギー、Kは運動エネルギーです。おおざっぱにいうと、温かい部分と冷たい部分が分かれているとポテンシャルエネルギーが大きくなり、それを打ち消すように流体が流れる対流が起き、運動エネルギーに変化します。
+
+　&lt;P&gt;（上線つきのほうを本文ではこのように表現します）と&lt;K&gt;は東西の平均的な場のポテンシャルエネルギーと運動エネルギーです。大循環は地球が暖められて南北に温度差ができると&lt;P&gt;が大きくなり、これを打ち消すように流体が流れて&lt;K&gt;に変化するプロセスだと考えることができます。
+
+　ハドレー的な直接循環の考え方では東西は関係なく南北で熱が移動すると考えるので、&lt;P&gt;から&lt;K&gt;へ直接エネルギーが流れます。
+
+　一方、渦がエネルギーを輸送しているという（Phillipsの支持する）説ではそうではありません。P'とK'は東西平均からのズレによるポテンシャルエネルギーと運動エネルギーで、これは渦がもつエネルギーに対応します。こちらの説では、&lt;P&gt;からP'、K'、そして&lt;K&gt;と移動する渦を経由した迂回路の方が本質的、つまり多いだろうと考えます。
+
+　今回の数値実験でこのエネルギーをそれぞれ計算して、どちらのほうが正しそうなのかを計算することができます。ただし、そこにはシミュレーションが地球をうまく再現しているという仮定が入っています。
+
+　以下の単位はPhillipsの論文で使われている単位を1/10にしたものです。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram1.png)  
+Phillipsの結果
+
+---
+
+　まずはPhillipsの結果を見てみましょう。ノイズを加えてから5日後から、計算が止まるまでの値の21日間の平均を取っています。外から出て行ったり入って行ったりするのは、加熱・冷却によって生じるものと摩擦によるエネルギーロスです（詳しい解説は[Kawai 2011][]を参照してください）。
+
+　たしかに、「迂回路」の方１桁大きい事がわかります。しかも、&lt;P&gt;から&lt;K&gt;はマイナス、つまり逆向きになっています。実際の観測でも「僅かにゼロより小さい」ことが分かっていたそうで、これはその事実を再現出来ています。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram2.png)  
+今回の実装による結果
+
+---
+
+　今回の実装でも定性的には同じような結果が出ていますが、30日の平均はかなり大きくブレがあり、なんとなくしか再現できませんでした。何回もやって平均を取ればいいのかもしれません。
+
+　長期積分できるようになった結果を使って、今度は思い切って3000日分の平均を取ってみました。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram3.png)  
+今回の実装による結果
+
+---
+
+　すると、&lt;P&gt;から&lt;K&gt;よりもその迂回路の方が大きそうだ、というのは再現できているのですが、そこまで差はなくなっています。&lt;P&gt;から&lt;K&gt;もマイナスにはなっていません。
+
+　3000日動かして動かしてみると、この「地球」は低気圧や高気圧が入り乱れる「季節」と渦のない穏やかな「季節」が交互にやってきます。渦のないときは渦による「迂回路」は使われないので、長時間平均を取るとそこまで卓越しないのではないかと考えられます。&lt;P&gt;から&lt;K&gt;がマイナスにならないのもその為ではないかと思われます。
+
+　Phillipsの計算した期間は渦がずっと発達していたので、渦の効果が見えやすくなっていた可能性はあります。
+
 ## まとめ
 
-　
+　世界で初めて大気の大循環モデルである[Phillips 1956][]を再実装し、ほぼ彼と同じ結果が出ることを確認しました。ジェット気流、偏西風の蛇行、極循環・フェレル循環・ハドレー循環の３セルを計算機上で再現することができました。また、エネルギー循環のダイアグラムを計算することで、直接循環よりも渦を介した循環の方が卓越していることもわかりました。
+
+　さらに、荒川ヤコビアンとタイムフィルタによって長期積分が出来るようになり、156日目で計算が終わった彼よりも長期間の積分を行うことができました。長期間積分すると、低気圧と高気圧の発達する季節とそうでない季節が交互にやってくるため、すべての期間を長期積分するとそこまで渦による循環が卓越しているようには見えない事が示唆されました。
 
 ## 参考文献
-[[Philips 1956][]] PHILLIPS, Norman A. The general circulation of the atmosphere: A numerical experiment. Quarterly Journal of the Royal Meteorological Society, 1956, 82.352: 123-164.
+[[Phillips 1956][]] PHILLIPS, Norman A. The general circulation of the atmosphere: A numerical experiment. Quarterly Journal of the Royal Meteorological Society, 1956, 82.352: 123-164.
 
-[[Philips 1959][]] PHILLIPS, Norman A. An example of non-linear computational instability. The atmosphere and the sea in motion, 1959, 501.
+[[Phillips 1959][]] PHILLIPS, Norman A. An example of non-linear computational instability. The atmosphere and the sea in motion, 1959, 501.
 
 [正野 1953] 正野, 重片「新しい大気循環論」『科学』第23巻(1953), 332-338, 416-422.
 
@@ -477,11 +526,11 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 [[新田 2009][]] 新田, 尚. 数値予報の歴史. 2009年度春季大会 公開気象講演会「数値予報の過去・現在・未来―数値予報現業運用開始50周年記念―」の報告
 
-[Philips 1956]:  http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract
+[Phillips 1956]:  http://onlinelibrary.wiley.com/doi/10.1002/qj.49708235202/abstract
 [Lewis 1998]: http://journals.ametsoc.org/doi/abs/10.1175/1520-0477(1998)079%3C0039:CTDOTG%3E2.0.CO;2
 [Kawai 2011]: http://www.gfd-dennou.org/arch/prepri/2011/kobe-u/110212_ykawai-Bthesis/paper/pub/main.pdf
 [Ariga 2008]: http://repository.kulib.kyoto-u.ac.jp/dspace/handle/2433/56988
-[Philips 1959]: https://www.ualberta.ca/~eec/Phillips_NLInstablity.pdf
+[Phillips 1959]: https://www.ualberta.ca/~eec/Phillips_NLInstablity.pdf
 [Arakawa 1966]: http://www.sciencedirect.com/science/article/pii/0021999166900155
 [Asselin 1972]: http://journals.ametsoc.org/doi/abs/10.1175/1520-0493(1972)100%3C0487:FFFTI%3E2.3.CO;2
 [Hide 1953]: http://onlinelibrary.wiley.com/doi/10.1002/qj.49707933916/abstract
