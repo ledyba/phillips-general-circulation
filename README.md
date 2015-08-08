@@ -210,7 +210,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-　少なくとも、現在の人類にはできません。というのも、速度と圧力と密度のそれぞれを時間の関数として表すためには、この３つの非線形連立偏微分方程式を解かなくてはなりませんが、一般にそれは極めて難しく、流体の方程式も例外ではありません。ナヴィエ＝ストークス方程式に関しては滑らかな解が一般に存在するかどうかすら分かっていません([Navier–Stokes existence and smoothness](https://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_existence_and_smoothness))。この問題は100万ドルの懸賞が掛けられている[ミレニアム懸賞問題](https://ja.wikipedia.org/wiki/%E3%83%9F%E3%83%AC%E3%83%8B%E3%82%A2%E3%83%A0%E6%87%B8%E8%B3%9E%E5%95%8F%E9%A1%8C)の一つで、他にはポアンカレ予想やP≠NP問題のような有名な難問が並んでいます。
+　少なくとも、現在の人類にはできません。というのも、速度と圧力と密度のそれぞれを時間の関数として表すためには、この３つの非線形連立偏微分方程式を解かなくてはなりませんが、一般にそれは極めて難しく、流体の方程式も例外ではありません。なので、[数値積分](https://ja.wikipedia.org/wiki/%E6%95%B0%E5%80%A4%E7%A9%8D%E5%88%86)を使って計算機で近似的に求めます。なお、ナヴィエ＝ストークス方程式に関しては滑らかな解が一般に存在するかどうかすら分かっていません([Navier–Stokes existence and smoothness](https://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_existence_and_smoothness))。この問題は100万ドルの懸賞が掛けられている[ミレニアム懸賞問題](https://ja.wikipedia.org/wiki/%E3%83%9F%E3%83%AC%E3%83%8B%E3%82%A2%E3%83%A0%E6%87%B8%E8%B3%9E%E5%95%8F%E9%A1%8C)の一つで、他にはポアンカレ予想やP≠NP問題のような有名な難問が並んでいます。
 
 　さて、地球物理学の場合、上の一般の流体からさらに地球特有の効果が付きます。それは[コリオリ力](https://ja.wikipedia.org/wiki/%E3%82%B3%E3%83%AA%E3%82%AA%E3%83%AA%E3%81%AE%E5%8A%9B)と重力です。これらの効果を加えて変形していったものが、プリミティブ方程式系です。
 
@@ -343,7 +343,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 　y座標は緯度で、0が赤道、14が北極です。今回はy=7を中心に対称的に冷やしたり温めたりしているので、温度もそのように対称的に分布しています。
 
-　上層で吹いているジェット気流（西風）もうまくPhilipsの結果を再現できているようです。現実のジェット気流は秒速30m/s前後だそうなので、現実とも近いと言えるのではないでしょうか。
+　上層で吹いている西風もうまくPhilipsの結果を再現できているようです。
 
 ---
 ![地表での西風の平均速度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g3.png)
@@ -355,7 +355,37 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 　下のグラフは大気の上層（250hPa面、大まかにいえば上空10kmぐらい）での南風（南から北へ向かう風）の速度です。単位がmm/secなのですごく弱いのですが、上層で南から北へ、下層で北から南へ向かう、ハドレーの考えたような直接循環が（すごく弱いが）起こっていることが読み取れます。
 
-　
+### 130日目以降
+
+　130日に達した所で、風の流れをランダムに乱します。具体的には、渦位q<sub>1</sub>、q<sub>3</sub>にランダムに値を加えた上で、再度流線関数Ψ<sub>1</sub>、Ψ<sub>3</sub>を計算しなおしてから、シミュレーションを再開します。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130_2.png)  
+130日目に渦位にノイズを加える。
+
+---
+
+　加えるノイズは、ほんのすこしです。でもここからシミュレーションを再開すると、ノイズが成長していき、低気圧と高気圧が生まれてきます。以下、Philipsの図と並べて置いておきます。ノイズの加え方はランダムなのでPhilipsとは全然違ったものになりますが、雰囲気としては似ているという感じです。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/141.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/144.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/147.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/150.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/153.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/156.png)  
+
+---
+
+　これらの空気の流れの平均速度を取ることで、ジェット気流やロスビーの唱えた３細胞構造ができているかを確かめることができます。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jet.png)  
+
+---
 
 ## 荒川ヤコビアンとタイムフィルタ
 
