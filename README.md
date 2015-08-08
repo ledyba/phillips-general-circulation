@@ -406,7 +406,24 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ## 荒川ヤコビアンとタイムフィルタ
 
+　
+
 ## エネルギー循環
+
+　実験の結果から、低気圧や高気圧の渦が起こると３セル構造ができはじめた事から、３セル構造の維持にはこれらの渦が大事そうだというのがなんとなく示唆されますが、それを実際に定量的に確かめる必要があります。
+
+　そのために、以下の量を定義します。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/diagram.png)  
+エネルギーダイアグラム（[Kawai 2011][]から引用）
+
+---
+
+## まとめ
+
+　
 
 ## 参考文献
 [[Philips 1956][]] PHILLIPS, Norman A. The general circulation of the atmosphere: A numerical experiment. Quarterly Journal of the Royal Meteorological Society, 1956, 82.352: 123-164.
