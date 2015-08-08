@@ -445,7 +445,14 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-　さて、これを使うと計算がNaNになったりせず長時間シミュレーションを行う事ができるようになります。
+　さて、これを使うと計算がNaNになったりせず長時間シミュレーションを行う事ができるようになります。ためしに、6700日ぐらい積分したのが以下の図になります。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/6785.png)  
+6785日積分してみた
+
+---
 
 ## エネルギー循環
 
