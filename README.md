@@ -423,11 +423,13 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jabob1.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jacob1.png)  
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jacob2.png)  
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jabob3.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jacob3.png)  
 
 ---
+
+　さて、これを使うと
 
 ## エネルギー循環
 
