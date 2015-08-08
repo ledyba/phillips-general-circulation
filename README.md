@@ -406,7 +406,14 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ## 荒川ヤコビアンとタイムフィルタ
 
-　
+　Philipsの実験では156日目に彼つかったマシンで表現できる最大値と最小値が出現してしまい、これをもって彼は「計算が発散した」と判断して実験を終了しています。わたしの実装でも、ほぼ同じ時間ぐらい経過するとIEEE754のNaNが出現し、計算が続行できなくなります。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/160.png)  
+160日目。毎回どの日数でNaNが出るかは変わる。グロ画像ですいません。
+
+---
 
 ## エネルギー循環
 
