@@ -366,26 +366,43 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-　加えるノイズは、ほんのすこしです。でもここからシミュレーションを再開すると、ノイズが成長していき、低気圧と高気圧が生まれてきます。以下、Philipsの図と並べて置いておきます。ノイズの加え方はランダムなのでPhilipsとは全然違ったものになりますが、雰囲気としては似ているという感じです。
+　加えるノイズは、ほんのすこしです。でもここからシミュレーションを再開すると、ノイズが成長していき、低気圧と高気圧が生まれてきます。以下、Philipsの図（右）とわたしの再現結果（左）を並べて置いておきます。ノイズの加え方はランダムなのでPhilipsとは全然違ったものになりますが、雰囲気としては似ているという感じです。
 
 ---
 
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/141.png)  
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/144.png)  
-![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/147.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/147.png)
+---
+
+147日目になるとかなり蛇行が見られるようになります。
+
+---
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/150.png)  
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/153.png)  
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/156.png)  
 
 ---
 
-　これらの空気の流れの平均速度を取ることで、ジェット気流やロスビーの唱えた３細胞構造ができているかを確かめることができます。
+　これらの空気の流れの平均速度を取ることで、ジェット気流やロスビーの唱えた３細胞構造ができているかを確かめることができます（ここの図は一緒に再現したもう一人の人の図ですが、わたしの実装でも同じはずです）。
 
 ---
 
 ![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jet.png)  
+ジェット気流の存在
 
 ---
+
+　この図は、西から東への風速を正（赤色）として、縦軸が緯度、横軸がシミュレーション開始からの日数になっているグラフです。ノイズを加えてから日が立つにつれて、緯度y=7あたりでかなり強い西風（真っ赤）ができていて、ジェット気流が再現できていることがわかります。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/3cell.png)  
+ハドレー循環・フェレル循環・極循環の３セル構造
+
+---
+
+　さらに、大気の上層の南から北へ向かう速度の東西の平均を見ることで、ロスビーの唱えた３セル構造ができているかもチェックできます。縦軸が緯度、横軸がシミュレーション開始からの日数になっていて、色は北へ向かう風が赤くなるように着色されています。見てみると、北極近くと中緯度、赤道近くの３つに分かれていて、中緯度では南へ向かう間接循環の「フェレル循環」が起きていることがわかります。ただしフェレル循環はあくまで平均すると分かるもので、個々の地点や時間では大気が渦巻いていてめまぐるしく速度は変わっていて、局所的な情報だけからフェレル循環を知ることはできません。
 
 ## 荒川ヤコビアンとタイムフィルタ
 
