@@ -415,6 +415,20 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
+　Philipsは[Philips 1956][]では「計算の丸め誤差による」と書いていますが、実はそんなことはなく、（非線形の）波の高周波成分がどんどん成長するエイリアシングと呼ばれる現象によるもので、[Philips 1959][]では彼もそれに気づいています。
+
+　このエイリアシングの問題は、[Arakawa 1966][]の荒川ヤコビアンと[Asselin 1972][]のタイムフィルタを併用すると改善することができることが知られています。
+
+　荒川ヤコビアンの説明はスライドがあるので以下に貼ります。Asselinのタイムフィルタについては、[小高(2011)](http://www.ep.sci.hokudai.ac.jp/~gfdlab/comptech/y2011/resume/1124/pub/Asselin_1972.pdf)などが参考になります。
+
+---
+
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jabob1.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jacob2.png)  
+![](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/jabob3.png)  
+
+---
+
 ## エネルギー循環
 
 　実験の結果から、低気圧や高気圧の渦が起こると３セル構造ができはじめた事から、３セル構造の維持にはこれらの渦が大事そうだというのがなんとなく示唆されますが、それを実際に定量的に確かめる必要があります。
