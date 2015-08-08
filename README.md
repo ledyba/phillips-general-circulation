@@ -332,23 +332,30 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-　この130日目までの計算にはあとで加えるようなランダムなノイズは入れていないため、何度実行しても必ず同じ結果になります。ですから、この時点までの値をPhilipsの結果と比較することで、今回の実装にバグがないかどうかを調べることが出来ます。
+　この130日目までの計算にはあとで加えるようなランダムなノイズは入れていないため、何度実行しても必ず同じ結果になります。ですから、この時点までの値をPhilipsの結果と比較することで、今回の実装はうまく動いているかどうかを調べることが出来ます。
 
 ---
 
 ![温度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g1.png)
-![大気下層での東向き風速の平均場](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g2.png)
+![大気上層での西風平均速度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g2.png)
 
 ---
 
-y座標は緯度で、0が赤道、14が北極です。今回はy=7を中心に対称的に冷やしたり温めたりしているので、温度もそのように分布しています。
+　y座標は緯度で、0が赤道、14が北極です。今回はy=7を中心に対称的に冷やしたり温めたりしているので、温度もそのように対称的に分布しています。
+
+　上層で吹いているジェット気流（西風）もうまくPhilipsの結果を再現できているようです。現実のジェット気流は秒速30m/s前後だそうなので、現実とも近いと言えるのではないでしょうか。
 
 ---
-![地表での東向き風速の平均場](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g3.png)
-![子午面循環の大気下層における北向き風速](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g4.png)
+![地表での西風の平均速度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g3.png)
+![大気上層の南風平均速度](https://raw.githubusercontent.com/ledyba/philips-general-circulation/master/img/130g4.png)
 
 ---
 
+　こちらのふたつのグラフはPhilipsの結果とあまり合致していません…が、Philipsの結果の方はグラフがガタガタしていて若干不自然です。これはPhilipsの使った小数点表現が40bitの固定小数点で、ゼロに近い値の精度があまり出ないからではないかと思うのですが（下のグラフは単位がmm/secなのでかなり値が小さいことに注意）、今となっては検証のしようがありません。ラプラス方程式の解き方を反復法から直接法に変えたことも関係あるかもしれません。
+
+　下のグラフは大気の上層（250hPa面、大まかにいえば上空10kmぐらい）での南風（南から北へ向かう風）の速度です。単位がmm/secなのですごく弱いのですが、上層で南から北へ、下層で北から南へ向かう、ハドレーの考えたような直接循環が（すごく弱いが）起こっていることが読み取れます。
+
+　
 
 ## 荒川ヤコビアンとタイムフィルタ
 
