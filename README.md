@@ -8,7 +8,7 @@ Re-implementation of [the world's first General Circulation Model (Phillips, 195
 
 https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html
 
-[![demo](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/demo.png)](https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html)
+[![demo](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/demo.gif)](https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html)
 
 # How to build?
 
