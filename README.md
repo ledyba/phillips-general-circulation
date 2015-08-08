@@ -236,7 +236,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/Phillips1.jpg)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/phillips1.jpg)  
 （[Phillips 1956][]より引用）
 
 ---
@@ -247,7 +247,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/Phillips2.jpg)  
+![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/phillips2.jpg)  
 （[Phillips 1956][]より引用）
 
 ---
