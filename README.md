@@ -6,9 +6,9 @@ Re-implementation of [the world's first General Circulation Model (Phillips, 195
 
 # Online demo
 
-https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html
+https://ledyba.github.io/phillips-general-circulation/
 
-[![demo](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/demo.gif)](https://cdn.rawgit.com/ledyba/Phillips-general-circulation/master/index.html)
+[![demo](https://ledyba.github.io/phillips-general-circulation/demo.gif)](https://ledyba.github.io/phillips-general-circulation/)
 
 # How to build?
 
@@ -99,7 +99,7 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/Phillips-general
 
 ---
 
-![台風](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/typhoon.jpg)  
+![台風](https://ledyba.github.io/phillips-general-circulation/img/typhoon.jpg)  
 台風は非常に強力な低気圧だ。  
 （NASAのウェブサイト:[Super Typhoon Vongfong in the Philippine Sea](http://www.nasa.gov/content/super-typhoon-vongfong-in-the-philippine-sea)より引用）
 
@@ -128,7 +128,7 @@ GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/Phillips-general
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/hide.jpg)  
+![](https://ledyba.github.io/phillips-general-circulation/img/hide.jpg)  
 [Ariga 2008][]から孫引き。（元の論文を発見できなかった）
 
 ---
@@ -209,13 +209,13 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/nseq.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/nseq.png)  
 ナヴィエ＝ストークス方程式（運動方程式）
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/stateeq.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/stateeq.png)  
 理想気体の状態方程式
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/conteq.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/conteq.png)  
 連続の式（空気は増えも減りもしない；質量保存速）
 
 ---
@@ -226,7 +226,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/primitiv.jpg)  
+![](https://ledyba.github.io/phillips-general-circulation/img/primitiv.jpg)  
 プリミティブ方程式系（[Kawai 2011][]より引用）
 
 ---
@@ -246,7 +246,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/phillips1.jpg)  
+![](https://ledyba.github.io/phillips-general-circulation/img/phillips1.jpg)  
 （[Phillips 1956][]より引用）
 
 ---
@@ -257,7 +257,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/phillips2.jpg)  
+![](https://ledyba.github.io/phillips-general-circulation/img/phillips2.jpg)  
 （[Phillips 1956][]より引用）
 
 ---
@@ -270,7 +270,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/setting.jpg)  
+![](https://ledyba.github.io/phillips-general-circulation/img/setting.jpg)  
 今回の実験設定
 
 ---
@@ -283,7 +283,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/setting2.jpg)  
+![](https://ledyba.github.io/phillips-general-circulation/img/setting2.jpg)  
 今回の実験設定
 
 ---
@@ -337,7 +337,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/130.png)  
 130日目まで計算した状態。
 
 ---
@@ -346,8 +346,8 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![温度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g1.png)
-![大気上層での西風平均速度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g2.png)
+![温度](https://ledyba.github.io/phillips-general-circulation/img/130g1.png)
+![大気上層での西風平均速度](https://ledyba.github.io/phillips-general-circulation/img/130g2.png)
 
 ---
 
@@ -356,8 +356,8 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 　上層で吹いている西風もうまくPhillipsの結果を再現できているようです。
 
 ---
-![地表での西風の平均速度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g3.png)
-![大気上層の南風平均速度](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130g4.png)
+![地表での西風の平均速度](https://ledyba.github.io/phillips-general-circulation/img/130g3.png)
+![大気上層の南風平均速度](https://ledyba.github.io/phillips-general-circulation/img/130g4.png)
 
 ---
 
@@ -371,7 +371,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/130_2.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/130_2.png)  
 130日目に渦位にノイズを加える。
 
 ---
@@ -380,17 +380,17 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/141.png)  
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/144.png)  
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/147.png)
+![](https://ledyba.github.io/phillips-general-circulation/img/141.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/144.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/147.png)
 ---
 
 147日目になるとかなり蛇行が見られるようになります。
 
 ---
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/150.png)  
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/153.png)  
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/156.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/150.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/153.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/156.png)  
 
 ---
 
@@ -398,7 +398,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jet.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/jet.png)  
 ジェット気流の存在
 
 ---
@@ -407,7 +407,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/3cell.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/3cell.png)  
 ハドレー循環・フェレル循環・極循環の３セル構造
 
 ---
@@ -420,7 +420,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/160.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/160.png)  
 160日目。毎回どの日数でNaNが出るかは変わる。グロ画像ですいません。
 
 ---
@@ -433,15 +433,15 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jacob1.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/jacob1.png)  
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jacob2.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/jacob2.png)  
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/jacob3.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/jacob3.png)  
 
 ---
 
@@ -449,7 +449,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/6785.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/6785.png)  
 6785日積分してみた
 
 ---
@@ -462,7 +462,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/diagram.png)  
 エネルギーダイアグラム（[Kawai 2011][]から引用）
 
 ---
@@ -481,7 +481,7 @@ ENIAC。([Wikipedia](https://ja.wikipedia.org/wiki/ENIAC)から引用、パブ�
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram1.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/diagram1.png)  
 Phillipsの結果
 
 ---
@@ -492,7 +492,7 @@ Phillipsの結果
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram2.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/diagram2.png)  
 今回の実装による結果
 
 ---
@@ -503,7 +503,7 @@ Phillipsの結果
 
 ---
 
-![](https://raw.githubusercontent.com/ledyba/Phillips-general-circulation/master/img/diagram3.png)  
+![](https://ledyba.github.io/phillips-general-circulation/img/diagram3.png)  
 今回の実装による結果
 
 ---
