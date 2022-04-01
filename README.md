@@ -28,7 +28,7 @@ tsc
 
 # License
 
-GPL v3 or later. Please see [LICENSE](https://github.com/ledyba/Phillips-general-circulation/blob/master/LICENSE)
+AGPL v3 or later. Please see [LICENSE](https://github.com/ledyba/Phillips-general-circulation/blob/master/LICENSE)
 
 # Document (in Japanese)
 
